@@ -2034,7 +2034,7 @@ function fish_structured(arg){
     f1_curve = resample(f1_curve,4);
     ;[c1,f1] = fin_b(f1_curve,f1_a0,f1_a1,f1_func,0.3);
   }
-  bd = clip_multi(bd,c1).false;
+  if (arg.clip_pectoral_hole) bd = clip_multi(bd,c1).false;
 
 
   let f2_curve;
@@ -2056,7 +2056,7 @@ function fish_structured(arg){
     f2_curve = resample(curve1.slice(arg.pelvic_start,arg.pelvic_end).reverse(),arg.pelvic_type?2:15);
     ;[c2,f2] = fin_b(f2_curve,f2_a0,f2_a1,f2_func);
   }
-  f2 = clip_multi(f2,c1).false;
+  if (arg.clip_pectoral_hole) f2 = clip_multi(f2,c1).false;
 
   let f3_curve;
   let f3_func, f3_a0, f3_a1;
@@ -2077,7 +2077,7 @@ function fish_structured(arg){
     f3_curve = resample(curve1.slice(arg.anal_start,arg.anal_end).reverse(),15);
     ;[c3,f3] = fin_b(f3_curve,f3_a0,f3_a1,f3_func);
   }
-  f3 = clip_multi(f3,c1).false;
+  if (arg.clip_pectoral_hole) f3 = clip_multi(f3,c1).false;
 
   let f4_curve, c4, f4;
   let f4_r = dist(...curve0[curve0.length-2],...curve1[curve1.length-2]);
@@ -2114,7 +2114,7 @@ function fish_structured(arg){
   // f4 = clip_multi(f4,trsl_poly(outline,-1,0)).false;
   bd = clip_multi(bd,trsl_poly(c4,1,0)).false;
 
-  f4 = clip_multi(f4,c1).false;
+  if (arg.clip_pectoral_hole) f4 = clip_multi(f4,c1).false;
 
   let f5_curve,c5,f5=[];
   if (arg.finlet_type == 0){
@@ -2146,11 +2146,11 @@ function fish_structured(arg){
   bd = clip_multi(bd,cf).false;
   
   sh = clip_multi(sh,cf).false;
-  sh = clip_multi(sh,c1).false;
+  if (arg.clip_pectoral_hole) sh = clip_multi(sh,c1).false;
 
   f1 = clip_multi(f1,cf).false;
 
-  f0 = clip_multi(f0,c1).false;
+  if (arg.clip_pectoral_hole) f0 = clip_multi(f0,c1).false;
 
   let sh2 = [];
   if (pattern_func){
@@ -2160,13 +2160,13 @@ function fish_structured(arg){
       sh2 = patternshade_shape( c0,4.5,pattern_func);
     }
     sh2 = clip_multi(sh2,cf).false;
-    sh2 = clip_multi(sh2,c1).false;
+    if (arg.clip_pectoral_hole) sh2 = clip_multi(sh2,c1).false;
   }
 
   let sh3 = [];
   if (arg.pattern_type == 4){
     sh3 = smalldot_shape( poly_union(outline,trsl_poly(c0,0,5)  ), arg.pattern_scale);
-    sh3 = clip_multi(sh3,c1).false;
+    if (arg.clip_pectoral_hole) sh3 = clip_multi(sh3,c1).false;
     sh3 = clip_multi(sh3,cf).false;
   }
 
@@ -2189,6 +2189,7 @@ function fish_structured(arg){
       eye_center: fh_parts.eye_center,
       eye_size: fh_parts.eye_size,
       pectoral_root: f1_pt,
+      pectoral_contour: c1,
       tail_root: curve0[curve0.length-1],
       head_tip: [50-arg.head_length, 150+arg.nose_height],
       curve0: curve0,
@@ -2202,6 +2203,7 @@ function fish_structured(arg){
 }
 
 function fish(arg){
+  arg.clip_pectoral_hole = true;
   let s = fish_structured(arg);
   return s.parts.body.
   concat(s.parts.dorsal).

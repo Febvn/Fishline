@@ -537,14 +537,15 @@
       ctx.lineWidth = lineWidth;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
+      const paperBg = options.paperColor || '#fbf9f4';
 
-      // Draw all parts with skeletal deformation
       const parts = this.model.parts;
+
+      // 1. Draw all underlying body parts (scales, motifs, other fins, head, jaw)
+      // Skip 'pectoral' here so the side fin can be layered on top with its dynamic mask
       for (const partName in parts) {
-        // If dead, handle eyes specially
-        if (this.isDead && partName === 'eye') {
-          continue;
-        }
+        if (partName === 'pectoral') continue;
+        if (this.isDead && partName === 'eye') continue;
 
         const polyList = parts[partName];
         ctx.beginPath();
@@ -565,12 +566,50 @@
         ctx.stroke();
       }
 
-      // If dead, draw crossed "X" eyes
+      // 2. Draw Pectoral Fin (sirip samping/dada) on top
+      // First: fill its deformed contour with paper wash to cleanly mask only where the fin is right now
+      const contour = this.model.anchors.pectoral_contour;
+      if (contour && contour.length > 2) {
+        ctx.save();
+        ctx.fillStyle = paperBg;
+        ctx.beginPath();
+        for (let j = 0; j < contour.length; j++) {
+          const [lx, ly] = this.deformPoint(contour[j][0], contour[j][1], 'pectoral');
+          const w = this.localToWorld(lx, ly);
+          if (j === 0) ctx.moveTo(w.x, w.y);
+          else ctx.lineTo(w.x, w.y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Second: stroke the pectoral fin rays and outline
+      if (parts.pectoral) {
+        ctx.beginPath();
+        for (let i = 0; i < parts.pectoral.length; i++) {
+          const poly = parts.pectoral[i];
+          if (poly.length < 2) continue;
+
+          for (let j = 0; j < poly.length; j++) {
+            const [lx, ly] = this.deformPoint(poly[j][0], poly[j][1], 'pectoral');
+            const w = this.localToWorld(lx, ly);
+            if (j === 0) {
+              ctx.moveTo(w.x, w.y);
+            } else {
+              ctx.lineTo(w.x, w.y);
+            }
+          }
+        }
+        ctx.stroke();
+      }
+
+      // 3. If dead, draw crossed "X" eyes
       if (this.isDead) {
         this.renderDeadEye(ctx);
       }
 
-      // Render chew & respiration bubbles
+      // 4. Render chew & respiration bubbles
       this.renderBubbles(ctx);
 
       ctx.restore();
