@@ -21,10 +21,8 @@
       this.targetY = this.y;
       this.vx = -40; // initial drift to the left
       this.vy = 0;
-      this.facing = -1; // -1 = left, +1 = right
-      this.targetFacing = -1;
-      this.turnProgress = 1.0; // for smooth horizontal flip
-      this.pitch = 0; // vertical tilt in radians
+      this.facing = -1; // -1 = facing left, +1 = facing right
+      this.pitch = 0; // vertical pitch (positive = diving down, negative = climbing up)
       this.roll = 0; // for belly-up death (0 to PI)
       this.scale = options.scale || 0.85;
 
@@ -106,6 +104,7 @@
       this.isDead = false;
       this.deathProgress = 0;
       this.roll = 0;
+      this.pitch = 0;
       this.targetFood = null;
       this.bubbles = [];
     }
@@ -118,6 +117,7 @@
         this.isDead = false;
         this.deathProgress = 0;
         this.roll = 0;
+        this.pitch = 0;
         this.state = 'idle';
         this.stateTimer = 0;
         this.spawnBubbles(this.x, this.y, 8);
@@ -136,20 +136,19 @@
       }
     }
 
-    feed(foodX, foodY) {
+    feed(foodOrX, maybeY) {
       if (this.isDead) return;
-      this.targetFood = { x: foodX, y: foodY, radius: 4, eaten: false };
+      if (typeof foodOrX === 'object' && foodOrX !== null) {
+        this.targetFood = foodOrX;
+      } else {
+        this.targetFood = { x: foodOrX, y: maybeY, radius: 4, eaten: false };
+      }
       this.setState('eat');
     }
 
     update(dt, bounds = { width: 900, height: 600 }) {
       this.time += dt;
       this.stateTimer += dt;
-
-      // Smooth turning flip
-      if (this.turnProgress < 1.0) {
-        this.turnProgress = Math.min(1.0, this.turnProgress + dt * 4.5);
-      }
 
       // State machine logic
       switch (this.state) {
@@ -167,12 +166,8 @@
           break;
       }
 
-      // Smooth jaw motion
-      this.jawAngle += (this.targetJawAngle - this.jawAngle) * Math.min(1, dt * 14);
-
-      // Smooth pitch alignment
-      const targetPitch = (Math.abs(this.vx) > 5) ? Math.atan2(this.vy, Math.abs(this.vx)) * 0.7 : 0;
-      this.pitch += (targetPitch - this.pitch) * Math.min(1, dt * 5.0);
+      // Smooth jaw opening & closing
+      this.jawAngle += (this.targetJawAngle - this.jawAngle) * Math.min(1, dt * 16);
 
       // Update bubbles
       this.updateBubbles(dt);
@@ -181,7 +176,6 @@
     setFacing(dir) {
       if (dir !== this.facing) {
         this.facing = dir;
-        this.turnProgress = 0.0;
       }
     }
 
@@ -202,11 +196,14 @@
       // Gentle respiration (mouth opening small amount)
       this.targetJawAngle = Math.max(0, Math.sin(this.time * 2.0)) * 0.08;
 
-      // Slow drift
+      // Slow drift & dampening
       this.vx *= 0.96;
       this.vy *= 0.96;
       this.x += this.vx * dt;
       this.y += this.vy * dt;
+
+      // Relax pitch to level
+      this.pitch *= Math.pow(0.2, dt);
 
       // Random slow turn when idling too long
       if (!this.idleTurnTimer || this.stateTimer > this.idleTurnTimer) {
@@ -249,17 +246,22 @@
       const dist = Math.hypot(dx, dy);
 
       if (dist > 40) {
-        if (dx > 20) this.setFacing(1);
-        else if (dx < -20) this.setFacing(-1);
+        if (dx > 25) this.setFacing(1);
+        else if (dx < -25) this.setFacing(-1);
 
         const speed = 120;
         const targetVx = (dx / dist) * speed;
         const targetVy = (dy / dist) * speed;
         this.vx += (targetVx - this.vx) * Math.min(1, dt * 3.5);
         this.vy += (targetVy - this.vy) * Math.min(1, dt * 3.5);
+
+        // Smooth pitch alignment with swim direction
+        const targetPitch = Math.atan2(this.vy, Math.max(15, Math.abs(this.vx))) * 0.7;
+        this.pitch += (targetPitch - this.pitch) * Math.min(1, dt * 4.5);
       } else {
         this.vx *= 0.92;
         this.vy *= 0.92;
+        this.pitch *= Math.pow(0.2, dt);
       }
 
       this.x += this.vx * dt;
@@ -269,57 +271,58 @@
 
     updateEat(dt, bounds) {
       if (!this.targetFood || this.targetFood.eaten) {
-        // If no food, create a virtual food point ahead
+        // Return smoothly to idle once food is eaten or gone
         if (!this.targetFood) {
-          const aheadDist = 180;
-          this.targetFood = {
-            x: this.x + this.facing * aheadDist,
-            y: this.y + (Math.random() - 0.5) * 60,
-            radius: 4,
-            eaten: false
-          };
+          this.setState('idle');
+          return;
         }
       }
 
       const food = this.targetFood;
-      const mouthWorld = this.getMouthWorldPosition();
-      const dx = food.x - mouthWorld.x;
-      const dy = food.y - mouthWorld.y;
+      const mouth = this.getMouthWorldPosition();
+      const dx = food.x - mouth.x;
+      const dy = food.y - mouth.y;
       const dist = Math.hypot(dx, dy);
 
       if (!food.eaten) {
-        if (food.x > this.x + 10) this.setFacing(1);
-        else if (food.x < this.x - 10) this.setFacing(-1);
+        // 1. Set horizontal facing towards the food
+        if (dx > 25) this.setFacing(1);
+        else if (dx < -25) this.setFacing(-1);
 
-        // Fast swim wave towards food
-        this.spinePhase += dt * 3.8 * Math.PI * 2;
-        this.currentWaveAmp = 28;
-        this.currentWaveK = 6.2;
-        this.pecAngle = Math.sin(this.time * 6.5) * 0.4;
+        // 2. Pitch angle straight towards the food pellet
+        const targetPitch = Math.atan2(dy, Math.max(15, Math.abs(dx)));
+        const maxPitch = 1.35; // ~77 degrees
+        const clampedPitch = Math.max(-maxPitch, Math.min(maxPitch, targetPitch));
+        this.pitch += (clampedPitch - this.pitch) * Math.min(1, dt * 10.0);
 
-        const speed = 190;
-        const dirX = food.x - this.x;
-        const dirY = food.y - this.y;
-        const totalDist = Math.hypot(dirX, dirY) || 1;
-        this.vx += ((dirX / totalDist) * speed - this.vx) * Math.min(1, dt * 5.0);
-        this.vy += ((dirY / totalDist) * speed - this.vy) * Math.min(1, dt * 5.0);
+        // 3. Fast swimming wave towards target
+        this.spinePhase += dt * 4.2 * Math.PI * 2;
+        this.currentWaveAmp = 26;
+        this.currentWaveK = 6.0;
+        this.pecAngle = Math.sin(this.time * 7.0) * 0.4;
 
-        this.x += this.vx * dt;
-        this.y += this.vy * dt;
-
-        // Open jaw wide as mouth approaches
-        if (dist < 90) {
-          this.targetJawAngle = 0.46; // ~26 degrees wide open
+        // 4. Progressively open jaw wide as mouth closes in on the food pellet
+        if (dist < 130) {
+          const openProgress = Math.max(0, 1 - dist / 130);
+          this.targetJawAngle = 0.15 + openProgress * 0.38; // wide open
         } else {
           this.targetJawAngle = 0.15;
         }
 
-        // Chomp!
-        if (dist < 26) {
+        // 5. Steer the MOUTH directly to the food pellet with sub-pixel precision
+        const speed = 230;
+        const step = Math.min(dist, speed * dt);
+        if (dist > 0.001) {
+          this.x += (dx / dist) * step;
+          this.y += (dy / dist) * step;
+        }
+
+        // 6. Chomp condition: mouth arrives at food
+        if (dist <= 22) {
           food.eaten = true;
-          this.targetJawAngle = 0.0; // Snap mouth shut
+          this.targetJawAngle = 0.0; // Snap jaw shut instantaneously
           this.chewTimer = 0;
-          this.spawnBubbles(mouthWorld.x, mouthWorld.y, 6);
+          this.spawnBubbles(mouth.x, mouth.y, 6);
         }
       } else {
         // Chewing phase
@@ -329,6 +332,9 @@
         this.x += this.vx * dt;
         this.y += this.vy * dt;
 
+        // Level off pitch
+        this.pitch *= Math.pow(0.15, dt);
+
         // Spine settles down
         this.spinePhase += dt * 1.2 * Math.PI * 2;
         this.currentWaveAmp = 8;
@@ -337,7 +343,7 @@
         // 3 rapid chewing pulses
         this.targetJawAngle = Math.abs(Math.sin(this.chewTimer * 14)) * 0.18 * Math.exp(-this.chewTimer * 1.8);
 
-        if (this.chewTimer > 1.8) {
+        if (this.chewTimer > 1.6) {
           this.targetFood = null;
           this.setState('idle');
         }
@@ -364,6 +370,7 @@
         this.currentWaveAmp = 0; // Stiff/limp body
         this.pecAngle = 0.1; // Limp fin
         this.targetJawAngle = 0.18; // Remains open slightly
+        this.pitch *= 0.9;
         this.vx *= 0.9;
 
         // Roll over smoothly to 180 degrees
@@ -393,9 +400,14 @@
       if (this.y > bounds.height - pad) { this.y = bounds.height - pad; this.vy = -Math.abs(this.vy); }
     }
 
+    /**
+     * Get world position of the tip of the mouth
+     */
     getMouthWorldPosition() {
       const tip = this.model.anchors.head_tip;
-      return this.localToWorld(tip[0], tip[1]);
+      // Slight vertical mouth aperture adjustment when jaw is open
+      const mouthY = tip[1] + (this.jawAngle || 0) * 10;
+      return this.localToWorld(tip[0], mouthY);
     }
 
     spawnBubbles(x, y, count = 5) {
@@ -482,29 +494,30 @@
      * Map deformed local coordinate to world canvas coordinate
      */
     localToWorld(lx, ly) {
-      // Center fish on its local center
       const cx = this.localBBox.centerX;
       const cy = this.localBBox.centerY;
 
-      // Horizontal flip factor based on facing direction
-      // Default fishdraw faces LEFT (facing = -1 -> flipX = 1).
-      // When facing RIGHT (facing = 1 -> flipX = -1).
-      const flipScale = (this.facing === 1 ? -1 : 1);
-      const relX = (lx - cx) * this.scale * flipScale;
-      let relY = (ly - cy) * this.scale;
+      // In fishdraw native coordinates:
+      // lx < cx is towards the mouth/snout (forward)
+      // lx > cx is towards the tail (backward)
+      // ly < cy is towards dorsal fin (up)
+      // ly > cy is towards belly (down)
+      const Xfwd = (cx - lx) * this.scale;
+      let Ydown = (ly - cy) * this.scale;
 
-      // Apply belly-up roll (inversion on Y when dead)
+      // Apply belly-up roll when dead (flips Ydown upside down)
       if (this.roll !== 0) {
-        const cosR = Math.cos(this.roll);
-        relY = relY * cosR;
+        Ydown *= Math.cos(this.roll);
       }
 
-      // Apply pitch rotation
+      // Pitch rotation:
+      // pitch > 0 means diving down, pitch < 0 means climbing up
       const cosP = Math.cos(this.pitch);
       const sinP = Math.sin(this.pitch);
 
-      const rotX = relX * cosP - relY * sinP;
-      const rotY = relX * sinP + relY * cosP;
+      // Facing: -1 = facing Left, +1 = facing Right
+      const rotX = this.facing * (Xfwd * cosP - Ydown * sinP);
+      const rotY = Xfwd * sinP + Ydown * cosP;
 
       const wx = this.x + rotX;
       const wy = this.y + this.bobOffset + rotY;

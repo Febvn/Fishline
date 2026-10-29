@@ -359,7 +359,7 @@
       </div>
 
       <div class="stage-hint">
-        Klik di dalam air untuk menjatuhkan umpan pelet • Ikan akan mencium & mengejar makanan
+        Klik di dalam air untuk menjatuhkan umpan pelet • Mulut ikan akan langsung mengarah & menelan pelet
       </div>
     </div>
 
@@ -467,7 +467,7 @@
         scale: 0.85
       });
 
-      // Food pellets in the water
+      // Active food pellets in the water
       const pellets = [];
 
       // Sliders & settings
@@ -519,8 +519,16 @@
       document.querySelectorAll('.btn-state').forEach(btn => {
         btn.addEventListener('click', () => {
           const st = btn.dataset.state;
-          animator.setState(st);
-          updateStatusBadge(animator.state);
+          if (st === 'eat') {
+            // Drop a pellet in front of the fish
+            const rect = canvas.getBoundingClientRect();
+            const fx = Math.max(80, Math.min(rect.width - 80, animator.x + animator.facing * 160));
+            const fy = Math.max(70, Math.min(rect.height - 70, animator.y + 40));
+            dropPellet(fx, fy);
+          } else {
+            animator.setState(st);
+            updateStatusBadge(animator.state);
+          }
         });
       });
 
@@ -537,22 +545,23 @@
       });
 
       function dropPellet(x, y) {
-        pellets.push({
+        const pellet = {
           x: x,
           y: y,
-          vy: 25 + Math.random() * 20,
+          vy: 28 + Math.random() * 16,
           radius: 3.5,
           eaten: false,
           alpha: 1.0
-        });
-        animator.feed(x, y);
+        };
+        pellets.push(pellet);
+        animator.feed(pellet);
         updateStatusBadge('eat');
       }
 
       document.getElementById('btn-feed-now').addEventListener('click', () => {
         const rect = canvas.getBoundingClientRect();
-        const fx = animator.x + Math.cos(animator.heading) * 160;
-        const fy = Math.max(60, animator.y - 80 + Math.random() * 60);
+        const fx = Math.max(80, Math.min(rect.width - 80, animator.x + animator.facing * 160));
+        const fy = Math.max(60, animator.y - 60 + Math.random() * 40);
         dropPellet(fx, fy);
       });
 
@@ -589,16 +598,38 @@
         const rect = canvas.getBoundingClientRect();
         const bounds = { width: rect.width, height: rect.height };
 
-        // Update food pellets
+        // Update food pellets & sinking physics
         for (let i = pellets.length - 1; i >= 0; i--) {
           const p = pellets[i];
           p.y += p.vy * dt;
           if (p.y > bounds.height - 20) {
             p.y = bounds.height - 20;
-            p.alpha -= dt * 0.5;
+            p.alpha -= dt * 0.4;
           }
           if (p.alpha <= 0 || p.eaten) {
             pellets.splice(i, 1);
+          }
+        }
+
+        // Multi-pellet tracking: if fish is alive, find nearest active pellet
+        if (!animator.isDead && pellets.length > 0) {
+          if (!animator.targetFood || animator.targetFood.eaten) {
+            let closest = null;
+            let minDist = Infinity;
+            const mouth = animator.getMouthWorldPosition();
+            for (let i = 0; i < pellets.length; i++) {
+              const p = pellets[i];
+              if (!p.eaten && p.alpha > 0.3) {
+                const d = Math.hypot(p.x - mouth.x, p.y - mouth.y);
+                if (d < minDist) {
+                  minDist = d;
+                  closest = p;
+                }
+              }
+            }
+            if (closest) {
+              animator.feed(closest);
+            }
           }
         }
 
