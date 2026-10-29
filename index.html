@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>fishdraw animator — LingDong- Procedural Fish in Motion</title>
+  <style>
+    :root {
+      --bg-wash: #f5f2e9;
+      --paper-card: #fdfbf7;
+      --paper-border: #ded8cb;
+      --ink: #181818;
+      --ink-muted: #5f5a52;
+      --ink-faint: #9c9588;
+      --seal-red: #ba3222;
+      --seal-red-bg: #faeae7;
+      --water-tint: #eaf1f4;
+      --water-bubble: #6d8999;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-wash);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Serif", Georgia, serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 40px;
+      user-select: none;
+    }
+
+    /* Header styling */
+    header {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 18px;
+      padding: 0 4px;
+    }
+
+    .title-group h1 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .seal-stamp {
+      display: inline-block;
+      border: 1.5px solid var(--seal-red);
+      color: var(--seal-red);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--ink-muted);
+      margin-top: 4px;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .species-tag {
+      text-align: right;
+    }
+
+    .species-name {
+      font-style: italic;
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .species-meta {
+      font-size: 12px;
+      color: var(--ink-faint);
+      font-family: monospace;
+    }
+
+    /* Main workspace */
+    .workspace {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Aquarium canvas stage */
+    .stage-container {
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
+      border-radius: 6px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 520px;
+      background-color: #fbf9f4;
+      cursor: crosshair;
+    }
+
+    .stage-overlay {
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      pointer-events: none;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .state-badge {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--paper-border);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    }
+
+    .state-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--ink);
+    }
+
+    .state-badge.state-idle .state-dot { background: #2f855a; }
+    .state-badge.state-swim .state-dot { background: #2b6cb0; }
+    .state-badge.state-eat .state-dot { background: #d69e2e; }
+    .state-badge.state-die .state-dot { background: var(--seal-red); }
+
+    .stage-hint {
+      position: absolute;
+      bottom: 12px;
+      left: 16px;
+      pointer-events: none;
+      font-size: 11px;
+      color: var(--ink-faint);
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* Controls Panel */
+    .controls-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
+      border-radius: 6px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+
+    .card-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-faint);
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* State Switcher Buttons */
+    .button-group-vertical {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .btn-state {
+      background: transparent;
+      border: 1px solid var(--paper-border);
+      border-radius: 4px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+
+    .btn-state:hover {
+      background: #f4ede0;
+      border-color: #cfc4b2;
+    }
+
+    .btn-state.active {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
+    .btn-state .state-desc {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    /* Action buttons */
+    .btn-action {
+      background: var(--paper-card);
+      border: 1.5px solid var(--ink);
+      color: var(--ink);
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-action:hover {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      border: 1px solid var(--paper-border);
+      font-weight: 500;
+      font-size: 12px;
+      padding: 8px 12px;
+      background: #faf6ef;
+    }
+
+    .btn-secondary:hover {
+      background: #f0e9dc;
+      color: var(--ink);
+    }
+
+    /* Slider rows */
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--ink-muted);
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: var(--paper-border);
+      height: 4px;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--ink);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Anatomy Specimen List */
+    .specimen-info {
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--ink-muted);
+    }
+
+    .specimen-info div {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+      border-bottom: 1px dashed #ece6d8;
+    }
+
+    .specimen-info span:last-child {
+      color: var(--ink);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="title-group">
+      <h1>fishdraw <span class="seal-stamp">Animasi</span></h1>
+      <div class="subtitle">Simulasi gerak prosedural 2D berdasarkan kalkulasi LingDong-/fishdraw</div>
+    </div>
+    <div class="species-tag">
+      <div class="species-name" id="species-display">Ikan Memuat...</div>
+      <div class="species-meta" id="species-seed">seed: 0x0000</div>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <!-- Aquarium Stage -->
+    <div class="stage-container">
+      <canvas id="aquarium" width="800" height="520"></canvas>
+      
+      <div class="stage-overlay">
+        <div class="state-badge state-idle" id="status-badge">
+          <div class="state-dot"></div>
+          <span id="status-text">Idle (Santai)</span>
+        </div>
+      </div>
+
+      <div class="stage-hint">
+        Klik di dalam air untuk menjatuhkan umpan pelet • Ikan akan mencium & mengejar makanan
+      </div>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls-panel">
+      <!-- State controls -->
+      <div class="card">
+        <div class="card-title">Status Animasi</div>
+        <div class="button-group-vertical">
+          <button class="btn-state active" data-state="idle" id="btn-idle">
+            <span>Idle</span>
+            <span class="state-desc">Napas & apung</span>
+          </button>
+          <button class="btn-state" data-state="swim" id="btn-swim">
+            <span>Berenang</span>
+            <span class="state-desc">Liukan gelombang</span>
+          </button>
+          <button class="btn-state" data-state="eat" id="btn-eat">
+            <span>Makan</span>
+            <span class="state-desc">Buka rahang & kunyah</span>
+          </button>
+          <button class="btn-state" data-state="die" id="btn-die">
+            <span>Mati</span>
+            <span class="state-desc">Belly-up & silang X</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="card" style="display:flex; flex-direction:column; gap:8px;">
+        <button class="btn-action" id="btn-new-fish">
+          Acak Ikan Baru
+        </button>
+        <button class="btn-action btn-secondary" id="btn-feed-now">
+          Jatuhkan Umpan Makanan
+        </button>
+        <button class="btn-action btn-secondary" id="btn-revive" style="display:none;">
+          Hidupkan Ikan Kembali
+        </button>
+      </div>
+
+      <!-- Live Parameters -->
+      <div class="card">
+        <div class="card-title">Penyesuaian Gerak</div>
+        <div class="slider-row">
+          <div class="slider-label">
+            <span>Kecepatan Renang</span>
+            <span id="val-speed">1.0x</span>
+          </div>
+          <input type="range" id="slider-speed" min="0.4" max="2.2" step="0.1" value="1.0">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">
+            <span>Amplitudo Liukan</span>
+            <span id="val-wave">1.0x</span>
+          </div>
+          <input type="range" id="slider-wave" min="0.3" max="2.0" step="0.1" value="1.0">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label">
+            <span>Ukuran Ikan</span>
+            <span id="val-scale">0.85x</span>
+          </div>
+          <input type="range" id="slider-scale" min="0.5" max="1.3" step="0.05" value="0.85">
+        </div>
+      </div>
+
+      <!-- Anatomy Breakdown -->
+      <div class="card">
+        <div class="card-title">Anatomi Spesimen</div>
+        <div class="specimen-info" id="specimen-stats">
+          <div><span>Garis Vektor</span><span id="stat-lines">-</span></div>
+          <div><span>Tipe Sisik</span><span id="stat-scale">-</span></div>
+          <div><span>Tipe Ekor</span><span id="stat-tail">-</span></div>
+          <div><span>Rahang/Gigi</span><span id="stat-jaw">-</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="fishdraw.js"></script>
+  <script src="fish_animator.js"></script>
+  <script>
+    (function () {
+      const canvas = document.getElementById('aquarium');
+      const ctx = canvas.getContext('2d');
+
+      // Adjust high-DPI scaling
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.resetTransform();
+        ctx.scale(dpr, dpr);
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      // Initialize Animator
+      let animator = new FishAnimator({
+        x: canvas.getBoundingClientRect().width * 0.5,
+        y: canvas.getBoundingClientRect().height * 0.5,
+        scale: 0.85
+      });
+
+      // Food pellets in the water
+      const pellets = [];
+
+      // Sliders & settings
+      let speedMult = 1.0;
+      let waveMult = 1.0;
+
+      // Update UI displays
+      function updateSpecimenUI() {
+        document.getElementById('species-display').textContent = animator.speciesName;
+        document.getElementById('species-seed').textContent = 'sp: ' + animator.seed;
+
+        const p = animator.model.params;
+        const totalLines = Object.values(animator.model.parts).reduce((acc, cur) => acc + cur.length, 0);
+        document.getElementById('stat-lines').textContent = totalLines + ' polylines';
+        document.getElementById('stat-scale').textContent = 'Tipe ' + p.scale_type;
+        document.getElementById('stat-tail').textContent = 'Tipe ' + p.tail_type;
+        document.getElementById('stat-jaw').textContent = (p.has_teeth ? 'Bergigi' : 'Halus') + (p.has_moustache ? ', Kumis' : '');
+      }
+
+      function updateStatusBadge(state) {
+        const badge = document.getElementById('status-badge');
+        const text = document.getElementById('status-text');
+        badge.className = 'state-badge state-' + state;
+
+        const btnRevive = document.getElementById('btn-revive');
+        if (state === 'die') {
+          btnRevive.style.display = 'block';
+        } else {
+          btnRevive.style.display = 'none';
+        }
+
+        const labels = {
+          idle: 'Idle (Santai & Apung)',
+          swim: 'Berenang (Meliuk Aktif)',
+          eat: 'Makan (Menelan Umpan)',
+          die: 'Mati (Belly-Up)'
+        };
+        text.textContent = labels[state] || state;
+
+        document.querySelectorAll('.btn-state').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.state === state);
+        });
+      }
+
+      updateSpecimenUI();
+      updateStatusBadge(animator.state);
+
+      // State Buttons
+      document.querySelectorAll('.btn-state').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const st = btn.dataset.state;
+          animator.setState(st);
+          updateStatusBadge(animator.state);
+        });
+      });
+
+      // Actions
+      document.getElementById('btn-new-fish').addEventListener('click', () => {
+        animator.generate();
+        updateSpecimenUI();
+        updateStatusBadge(animator.state);
+      });
+
+      document.getElementById('btn-revive').addEventListener('click', () => {
+        animator.setState('revive');
+        updateStatusBadge(animator.state);
+      });
+
+      function dropPellet(x, y) {
+        pellets.push({
+          x: x,
+          y: y,
+          vy: 25 + Math.random() * 20,
+          radius: 3.5,
+          eaten: false,
+          alpha: 1.0
+        });
+        animator.feed(x, y);
+        updateStatusBadge('eat');
+      }
+
+      document.getElementById('btn-feed-now').addEventListener('click', () => {
+        const rect = canvas.getBoundingClientRect();
+        const fx = animator.x + Math.cos(animator.heading) * 160;
+        const fy = Math.max(60, animator.y - 80 + Math.random() * 60);
+        dropPellet(fx, fy);
+      });
+
+      canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        dropPellet(x, y);
+      });
+
+      // Sliders
+      document.getElementById('slider-speed').addEventListener('input', (e) => {
+        speedMult = parseFloat(e.target.value);
+        document.getElementById('val-speed').textContent = speedMult.toFixed(1) + 'x';
+      });
+
+      document.getElementById('slider-wave').addEventListener('input', (e) => {
+        waveMult = parseFloat(e.target.value);
+        document.getElementById('val-wave').textContent = waveMult.toFixed(1) + 'x';
+      });
+
+      document.getElementById('slider-scale').addEventListener('input', (e) => {
+        animator.scale = parseFloat(e.target.value);
+        document.getElementById('val-scale').textContent = animator.scale.toFixed(2) + 'x';
+      });
+
+      // Main Loop
+      let lastTime = performance.now();
+
+      function loop(now) {
+        const dt = Math.min(0.05, (now - lastTime) / 1000) * speedMult;
+        lastTime = now;
+
+        const rect = canvas.getBoundingClientRect();
+        const bounds = { width: rect.width, height: rect.height };
+
+        // Update food pellets
+        for (let i = pellets.length - 1; i >= 0; i--) {
+          const p = pellets[i];
+          p.y += p.vy * dt;
+          if (p.y > bounds.height - 20) {
+            p.y = bounds.height - 20;
+            p.alpha -= dt * 0.5;
+          }
+          if (p.alpha <= 0 || p.eaten) {
+            pellets.splice(i, 1);
+          }
+        }
+
+        // Apply wave multiplier to animator wave amplitude
+        animator.update(dt, bounds);
+        if (animator.currentWaveAmp) {
+          animator.currentWaveAmp *= waveMult;
+        }
+
+        // Keep status badge updated if state automatically changes (e.g. eat -> idle)
+        const activeBtn = document.querySelector('.btn-state.active');
+        if (activeBtn && activeBtn.dataset.state !== animator.state) {
+          updateStatusBadge(animator.state);
+        }
+
+        // Render Frame
+        ctx.clearRect(0, 0, rect.width, rect.height);
+
+        // Water background subtle paper grain / wash
+        ctx.save();
+        ctx.fillStyle = '#fbf9f4';
+        ctx.fillRect(0, 0, rect.width, rect.height);
+
+        // Draw food pellets
+        for (let i = 0; i < pellets.length; i++) {
+          const p = pellets[i];
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = '#7a3e21';
+          ctx.strokeStyle = '#3e1d0f';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Render animated fish
+        animator.render(ctx, {
+          strokeColor: '#161616',
+          lineWidth: 1.15
+        });
+
+        ctx.restore();
+
+        requestAnimationFrame(loop);
+      }
+
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>
