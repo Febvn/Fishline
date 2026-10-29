@@ -1883,14 +1883,22 @@ function fish_head(x0,y0,x1,y1,x2,y2,arg){
 
   let outlinel = [[0,0],[curve0[curve0.length-1][0],0],curve0[curve0.length-1],...curve2,curve1[0],[curve1[0][0],300],[0,300]];
 
-  
+  let fh_parts = {
+    head_upper: [...olines, ...inlines, ...lip0s, ...teeth0s, ...bbs, ...sh, ...sh2],
+    jaw: [...lip1s, ...teeth1s, ...jaw],
+    eye: ef,
+    jaw_hinge: jaw_pt0,
+    eye_center: [ex, ey],
+    eye_size: arg.eye_size
+  };
+
   return [outlinel,[
     ...olines,...inlines,
     ...lip0s,...lip1s,
     ...ef,...sh,...sh2,
     ...bbs,
     ...teeth0s,...teeth1s,
-    ...jaw]];
+    ...jaw], fh_parts];
 }
 
 function bean(x){
@@ -1902,7 +1910,7 @@ function deviate(n){
 }
 
 
-function fish(arg){
+function fish_structured(arg){
   let n = 32;
   let curve0 = [];
   let curve1 = [];
@@ -2129,11 +2137,11 @@ function fish(arg){
     }
     
   }
-  let cf,fh;
+  let cf,fh,fh_parts;
   if (arg.neck_type == 0){
-    ;[cf,fh] = fish_head(50-arg.head_length,150+arg.nose_height,...curve0[6],...curve1[5],arg);
+    ;[cf,fh,fh_parts] = fish_head(50-arg.head_length,150+arg.nose_height,...curve0[6],...curve1[5],arg);
   }else{
-    ;[cf,fh] = fish_head(50-arg.head_length,150+arg.nose_height,...curve0[5],...curve1[6],arg);
+    ;[cf,fh,fh_parts] = fish_head(50-arg.head_length,150+arg.nose_height,...curve0[5],...curve1[6],arg);
   }
   bd = clip_multi(bd,cf).false;
   
@@ -2162,19 +2170,50 @@ function fish(arg){
     sh3 = clip_multi(sh3,cf).false;
   }
 
-  return bd.
-  concat(f0).
-  concat(f1).
-  concat(f2).
-  concat(f3).
-  concat(f4).
-  concat(f5).
-  concat(fh).
-  concat(sh).
-  concat(sh2).
-  concat(sh3).
-  // concat([cf]).
-  concat();
+  return {
+    parts: {
+      body: bd,
+      dorsal: f0,
+      pectoral: f1,
+      pelvic: f2,
+      anal: f3,
+      tail: f4,
+      finlet: f5,
+      head_upper: fh_parts.head_upper,
+      jaw: fh_parts.jaw,
+      eye: fh_parts.eye,
+      shading: [...sh, ...sh2, ...sh3]
+    },
+    anchors: {
+      jaw_hinge: fh_parts.jaw_hinge,
+      eye_center: fh_parts.eye_center,
+      eye_size: fh_parts.eye_size,
+      pectoral_root: f1_pt,
+      tail_root: curve0[curve0.length-1],
+      head_tip: [50-arg.head_length, 150+arg.nose_height],
+      curve0: curve0,
+      curve1: curve1,
+      spine_x_start: 50-arg.head_length,
+      spine_x_end: curve0[curve0.length-1][0] + (arg.tail_length || 60),
+      spine_y_center: 150
+    },
+    params: arg
+  };
+}
+
+function fish(arg){
+  let s = fish_structured(arg);
+  return s.parts.body.
+  concat(s.parts.dorsal).
+  concat(s.parts.pectoral).
+  concat(s.parts.pelvic).
+  concat(s.parts.anal).
+  concat(s.parts.tail).
+  concat(s.parts.finlet).
+  concat(s.parts.head_upper).
+  concat(s.parts.jaw).
+  concat(s.parts.eye).
+  concat(s.parts.shading);
 }
 
 function reframe(polylines,pad=20,text=null){
@@ -2562,6 +2601,17 @@ function str_to_seed(str){
   return n;
 }
 
+function set_seed(seed){
+  if (seed === undefined){
+    jsr = ~~(Math.random()*10000);
+  }else if (typeof seed === "string"){
+    jsr = str_to_seed(seed);
+  }else{
+    jsr = seed;
+  }
+  return jsr;
+}
+
 function main(seed){
   if (seed === undefined){
     jsr = ~~(Math.random()*10000);
@@ -2575,7 +2625,7 @@ function main(seed){
 
 
 if (typeof module != "undefined"){
-  module.exports = {main,generate_params,default_params,fish,reframe,cleanup,draw_svg,binomen,str_to_seed};
+  module.exports = {main,set_seed,generate_params,default_params,fish,fish_structured,reframe,cleanup,draw_svg,binomen,str_to_seed};
   if (require.main === module) {
     let seed = undefined;
     let format = 'svg';
