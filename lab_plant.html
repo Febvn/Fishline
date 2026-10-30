@@ -500,7 +500,7 @@
             </button>
             <button class="btn-arch" data-arch="1" id="arch-btn-1">
               <span class="arch-code">02</span>
-              <span>Kelp (Rumput Laut)</span>
+              <span>Kelp (Rumput Laut) [Baru]</span>
             </button>
             <button class="btn-arch" data-arch="2" id="arch-btn-2">
               <span class="arch-code">03</span>
@@ -508,11 +508,11 @@
             </button>
             <button class="btn-arch" data-arch="3" id="arch-btn-3">
               <span class="arch-code">04</span>
-              <span>Sheet (Alga Selada)</span>
+              <span>Sheet (Alga Selada) [Baru]</span>
             </button>
             <button class="btn-arch" data-arch="4" id="arch-btn-4">
               <span class="arch-code">05</span>
-              <span>Bubble (Alga Gelembung)</span>
+              <span>Bubble (Mutiara) [Baru]</span>
             </button>
             <button class="btn-arch" data-arch="5" id="arch-btn-5">
               <span class="arch-code">06</span>
@@ -520,16 +520,20 @@
             </button>
             <button class="btn-arch" data-arch="6" id="arch-btn-6" style="grid-column: span 2;">
               <span class="arch-code">07</span>
-              <span>Whorled & Fanwort (Cabomba / Coontail / Menjari)</span>
+              <span>Whorled & Fanwort (Cabomba / Coontail) [Baru]</span>
             </button>
           </div>
         </div>
 
-        <!-- 4. Parameter Geometri & Matematika Daun -->
+        <!-- 4. Parameter Geometri & Variasi Alami Daun -->
         <div class="control-group">
           <div class="group-label">
-            <span>Parameter Geometri Bilah (Bézier)</span>
+            <span>Dimensi & Variasi Acak Alami</span>
           </div>
+
+          <button class="btn-action-sm btn-action-outline" id="btn-random-dimensions" style="width:100%; margin-bottom:4px;">
+            Acak Dimensi & Kerapatan Alami
+          </button>
 
           <div class="slider-field">
             <div class="slider-header">
@@ -549,10 +553,18 @@
 
           <div class="slider-field">
             <div class="slider-header">
-              <span>Jumlah Bilah per Rumpun:</span>
+              <span>Jumlah Vegetasi per Rumpun (Kerapatan):</span>
               <span class="slider-val" id="val-blades">8 helai</span>
             </div>
-            <input type="range" id="slider-blades" min="1" max="28" step="1" value="8">
+            <input type="range" id="slider-blades" min="2" max="28" step="1" value="8">
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Skala Variasi Acak Antar-Helai:</span>
+              <span class="slider-val" id="val-variance">1.0x</span>
+            </div>
+            <input type="range" id="slider-variance" min="0.4" max="1.8" step="0.1" value="1.0">
           </div>
         </div>
 
@@ -839,6 +851,24 @@
       });
 
       // Sliders
+      let paramVariance = 1.0;
+
+      document.getElementById('btn-random-dimensions').addEventListener('click', () => {
+        // Naturally randomize length, width, and blade density based on active species baseline
+        paramLength = Math.round(activeSpecies.height * (0.75 + Math.random() * 0.5));
+        paramWidth = Math.round(activeSpecies.baseW * (0.75 + Math.random() * 0.5));
+        paramBlades = Math.round(activeSpecies.blades * (0.8 + Math.random() * 0.5));
+        syncInfoUI();
+        if (viewMode === 'single') createCluster();
+        else createColony();
+      });
+
+      document.getElementById('slider-variance').addEventListener('input', (e) => {
+        paramVariance = parseFloat(e.target.value);
+        document.getElementById('val-variance').textContent = paramVariance.toFixed(1) + 'x';
+        if (viewMode === 'single') createCluster();
+      });
+
       document.getElementById('slider-length').addEventListener('input', (e) => {
         paramLength = parseInt(e.target.value);
         document.getElementById('val-length').textContent = paramLength + ' px';

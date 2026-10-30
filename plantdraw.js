@@ -1,16 +1,15 @@
 /**
  * plantdraw.js - Procedural Mathematical Aquatic Flora & Seaweed Engine
  * Generates sumi-e ink style aquatic vegetation across 7 morphological archetypes:
- * 1. Seagrass (Lamun / Posidonia / Eelgrass)
- * 2. Kelp (Rumput laut besar / Laminaria)
- * 3. Branching Algae (Alga / Ranting bercabang / Naiad / Starhorn)
- * 4. Sheet Algae (Alga lembaran daun selada / Ulva / Large-leaf)
- * 5. Bubble Algae (Alga gelembung mutiara / Valonia Ventricosa)
- * 6. Aquatic Moss (Lumut karpet air / Willow Moss / Fontinalis)
- * 7. Whorled & Fanwort (Daun menjari melingkar / Cabomba / Coontail / Watermilfoil / Hydrilla)
+ * 1. Seagrass (Lamun / Posidonia / Eelgrass) [FAVORITE - Enhanced with organic height/width variance]
+ * 2. Kelp (Rumput laut besar / Laminaria) [REDESIGNED - Supple stipe, crinkled undulating frills, 3D ribbon twist, pneumatocysts, rugae]
+ * 3. Branching Algae (Alga / Ranting bercabang / Naiad / Starhorn) [FAVORITE - Enhanced with fractal bifurcations]
+ * 4. Sheet Algae (Alga lembaran selada air / Ulva) [REDESIGNED - Bilangan ruffled folia, silk-like translucent drape, Bézier perimeter]
+ * 5. Bubble Algae (Alga gelembung / Valonia) [REDESIGNED - Grapelike pearl clusters, emerald gradient wash, specular gleam, holdfast stalks]
+ * 6. Aquatic Moss (Lumut karpet air / Willow Moss) [FAVORITE - Enhanced dense feathery velvet filaments]
+ * 7. Whorled & Fanwort (Cabomba / Coontail / Watermilfoil) [REDESIGNED - Sinusoidal supple stem, multi-tiered radial fan whorls, dichotomous rays]
  * 
- * Includes catalog of 40 real botanical species driven by mathematical curves,
- * harmonic current physics, and sumi-e brushwork.
+ * Features deep organic randomization of width, height, density, and curvature for natural realism.
  */
 
 (function (root, factory) {
@@ -77,7 +76,7 @@
   }
 
   // -----------------------------------------------------------------
-  // 2. Comprehensive Botanical Species Catalog (40 Spesies)
+  // 2. Botanical Species Catalog (40 Spesies)
   // -----------------------------------------------------------------
   const ARCHETYPES = {
     SEAGRASS: 0,
@@ -90,59 +89,59 @@
   };
 
   const SPECIES_CATALOG = [
-    // --- 1. Seagrass (Lamun) ---
-    { id: 'posidonia', common: 'Posidonia Oceanica', binomen: 'Posidonia oceanica', archetype: 0, height: 420, baseW: 14, tipW: 2.0, blades: 9, desc: 'Lamun purba mediterania dengan helai pita panjang kokoh meliuk di dasar laut.' },
-    { id: 'eelgrass', common: 'Eelgrass', binomen: 'Zostera marina', archetype: 0, height: 380, baseW: 10, tipW: 1.5, blades: 11, desc: 'Lamun pita ramping berdaun lembut yang membentuk padang lamun tenang.' },
-    { id: 'widgeon_grass', common: 'Widgeon Grass', binomen: 'Ruppia maritima', archetype: 0, height: 290, baseW: 7, tipW: 1.2, blades: 12, desc: 'Rumput air payau dengan helai daun sehalus benang sutra.' },
-    { id: 'ribbonleaf_pondweed', common: 'Ribbonleaf Pondweed', binomen: 'Potamogeton epihydrus', archetype: 0, height: 340, baseW: 15, tipW: 2.5, blades: 8, desc: 'Pondweed berdaun pita transparan dengan pola serat daun sejajar.' },
+    // --- 1. Seagrass (Lamun) [FAVORITE] ---
+    { id: 'posidonia', common: 'Posidonia Oceanica', binomen: 'Posidonia oceanica', archetype: 0, height: 420, baseW: 15, tipW: 2.0, blades: 10, desc: 'Lamun purba Mediterania dengan helai pita panjang kokoh meliuk di dasar laut.' },
+    { id: 'eelgrass', common: 'Eelgrass', binomen: 'Zostera marina', archetype: 0, height: 380, baseW: 11, tipW: 1.6, blades: 12, desc: 'Lamun pita ramping berdaun lembut yang membentuk padang lamun tenang.' },
+    { id: 'widgeon_grass', common: 'Widgeon Grass', binomen: 'Ruppia maritima', archetype: 0, height: 290, baseW: 8, tipW: 1.2, blades: 14, desc: 'Rumput air payau dengan helai daun sehalus benang sutra.' },
+    { id: 'ribbonleaf_pondweed', common: 'Ribbonleaf Pondweed', binomen: 'Potamogeton epihydrus', archetype: 0, height: 340, baseW: 16, tipW: 2.4, blades: 9, desc: 'Pondweed berdaun pita transparan dengan pola serat daun sejajar.' },
 
-    // --- 2. Kelp (Rumput Laut Besar) ---
-    { id: 'giant_kelp', common: 'Giant Kelp', binomen: 'Macrocystis pyrifera', archetype: 1, height: 520, baseW: 32, tipW: 6.0, blades: 5, desc: 'Rumput laut raksasa berpelepah tebal dengan bilah bergelombang dan gelembung apung.' },
-    { id: 'laminaria', common: 'Oarweed / Kelp Jepang', binomen: 'Laminaria japonica', archetype: 1, height: 440, baseW: 28, tipW: 4.5, blades: 6, desc: 'Kelp sumi-e berdaun lebar mengombak anggun mengikuti pasang surut air laut.' },
+    // --- 2. Kelp (Rumput Laut Besar) [REDESIGNED] ---
+    { id: 'giant_kelp', common: 'Giant Kelp', binomen: 'Macrocystis pyrifera', archetype: 1, height: 530, baseW: 42, tipW: 7.0, blades: 5, desc: 'Kelp raksasa berpelepah tebal dengan bilah berombak kerut dinamis dan kantung gelembung apung.' },
+    { id: 'laminaria', common: 'Oarweed / Kelp Jepang', binomen: 'Laminaria japonica', archetype: 1, height: 450, baseW: 38, tipW: 5.5, blades: 6, desc: 'Kelp sumi-e berdaun lebar mengombak anggun mengikuti pasang surut air laut.' },
 
-    // --- 3. Branching Algae (Alga / Ranting Bercabang) ---
-    { id: 'branching_algae', common: 'Branching Coralline Algae', binomen: 'Callithamnion corymbosum', archetype: 2, height: 260, baseW: 12, tipW: 2.0, blades: 7, desc: 'Alga merah bercabang dikotomis menyerupai miniatur koral atau ranting pohon.' },
-    { id: 'brittle_naiad', common: 'Brittle Naiad', binomen: 'Najas minor', archetype: 2, height: 240, baseW: 8, tipW: 1.5, blades: 9, desc: 'Tanaman air rapuh bercabang rimbun dengan daun melengkung ke bawah.' },
-    { id: 'brittle_waternymph', common: 'Brittle Waternymph', binomen: 'Najas marina', archetype: 2, height: 280, baseW: 10, tipW: 1.8, blades: 8, desc: 'Naiad berduri halus dengan percabangan tegas seperti tanduk rusa air.' },
-    { id: 'bushy_pondweed', common: 'Bushy Pondweed / Southern Naiad', binomen: 'Najas guadalupensis', archetype: 2, height: 270, baseW: 9, tipW: 1.6, blades: 10, desc: 'Ranting semak air lebat yang tumbuh bertingkat di sekitar bebatuan dasar.' },
-    { id: 'starhorn', common: 'Starhorn', binomen: 'Hypnea musciformis', archetype: 2, height: 250, baseW: 11, tipW: 2.2, blades: 8, desc: 'Alga berujung melengkung seperti kait tanduk bintang yang saling mengait.' },
-    { id: 'horned_pondweed', common: 'Horned Pondweed', binomen: 'Zannichellia palustris', archetype: 2, height: 230, baseW: 7, tipW: 1.2, blades: 12, desc: 'Cabang halus bertanduk dengan daun berlawanan yang sangat lentur.' },
-    { id: 'sago_pondweed', common: 'Sago Pondweed', binomen: 'Stuckenia pectinata', archetype: 2, height: 350, baseW: 8, tipW: 1.4, blades: 9, desc: 'Percabangan mirip sapu ijuk air halus yang mengembang di arus sungai deras.' },
+    // --- 3. Branching Algae (Alga / Ranting Bercabang) [FAVORITE] ---
+    { id: 'branching_algae', common: 'Branching Coralline Algae', binomen: 'Callithamnion corymbosum', archetype: 2, height: 270, baseW: 13, tipW: 2.0, blades: 8, desc: 'Alga merah bercabang dikotomis menyerupai miniatur koral atau ranting pohon air.' },
+    { id: 'brittle_naiad', common: 'Brittle Naiad', binomen: 'Najas minor', archetype: 2, height: 250, baseW: 9, tipW: 1.5, blades: 10, desc: 'Tanaman air rapuh bercabang rimbun dengan daun melengkung ke bawah.' },
+    { id: 'brittle_waternymph', common: 'Brittle Waternymph', binomen: 'Najas marina', archetype: 2, height: 290, baseW: 11, tipW: 1.8, blades: 9, desc: 'Naiad berduri halus dengan percabangan tegas seperti tanduk rusa air.' },
+    { id: 'bushy_pondweed', common: 'Bushy Pondweed / Southern Naiad', binomen: 'Najas guadalupensis', archetype: 2, height: 280, baseW: 10, tipW: 1.6, blades: 11, desc: 'Ranting semak air lebat yang tumbuh bertingkat di sekitar bebatuan dasar.' },
+    { id: 'starhorn', common: 'Starhorn', binomen: 'Hypnea musciformis', archetype: 2, height: 260, baseW: 12, tipW: 2.2, blades: 9, desc: 'Alga berujung melengkung seperti kait tanduk bintang yang saling mengait.' },
+    { id: 'horned_pondweed', common: 'Horned Pondweed', binomen: 'Zannichellia palustris', archetype: 2, height: 240, baseW: 8, tipW: 1.2, blades: 13, desc: 'Cabang halus bertanduk dengan daun berlawanan yang sangat lentur.' },
+    { id: 'sago_pondweed', common: 'Sago Pondweed', binomen: 'Stuckenia pectinata', archetype: 2, height: 360, baseW: 9, tipW: 1.4, blades: 10, desc: 'Percabangan mirip sapu ijuk air halus yang mengembang di arus sungai deras.' },
 
-    // --- 4. Sheet Algae (Alga Lembaran Daun Selada) ---
-    { id: 'sea_lettuce', common: 'Sea Lettuce', binomen: 'Ulva lactuca', archetype: 3, height: 280, baseW: 55, tipW: 18.0, blades: 5, desc: 'Alga hijau lembaran tipis berkerut seperti kain sutra atau daun selada mengambang.' },
-    { id: 'large_leaf_pondweed', common: 'Large-leaf Pondweed', binomen: 'Potamogeton amplifolius', archetype: 3, height: 360, baseW: 42, tipW: 12.0, blades: 6, desc: 'Pondweed berdaun lebar melengkung bergelombang dengan tekstur tembus pandang.' },
-    { id: 'curly_leaf_pondweed', common: 'Curly-leaf Pondweed', binomen: 'Potamogeton crispus', archetype: 3, height: 320, baseW: 26, tipW: 8.0, blades: 7, desc: 'Bilah daun berombak keriting kaku dengan tepi bergerigi halus khas sumi-e.' },
-    { id: 'floating_pondweed', common: 'Floating Pondweed', binomen: 'Potamogeton natans', archetype: 3, height: 340, baseW: 36, tipW: 14.0, blades: 6, desc: 'Daun elips oval lebar yang mengalir lembut di permukaan kolom air.' },
-    { id: 'illinois_pondweed', common: 'Illinois Pondweed', binomen: 'Potamogeton illinoensis', archetype: 3, height: 380, baseW: 30, tipW: 10.0, blades: 7, desc: 'Bilah lanset lebar bertulang daun tajam dengan lekukan anggun.' },
-    { id: 'richardsons_pondweed', common: 'Richardson’s Pondweed', binomen: 'Potamogeton richardsonii', archetype: 3, height: 310, baseW: 24, tipW: 9.0, blades: 8, desc: 'Daun memeluk batang dengan tepi meliuk-liuk seperti pita perca.' },
-    { id: 'american_pondweed', common: 'American Pondweed', binomen: 'Potamogeton nodosus', archetype: 3, height: 390, baseW: 38, tipW: 12.0, blades: 6, desc: 'Daun mengambang lonjong dengan tangkai panjang kokoh bertumpu di dasar.' },
-    { id: 'spotted_pondweed', common: 'Spotted Pondweed', binomen: 'Potamogeton pulcher', archetype: 3, height: 330, baseW: 34, tipW: 11.0, blades: 7, desc: 'Daun lanset bergelombang dengan corak bintik tinta alami.' },
+    // --- 4. Sheet Algae (Alga Lembaran Daun Selada) [REDESIGNED] ---
+    { id: 'sea_lettuce', common: 'Sea Lettuce', binomen: 'Ulva lactuca', archetype: 3, height: 300, baseW: 75, tipW: 22.0, blades: 5, desc: 'Alga lembaran berkerut tipis bagai kain sutra melayang dengan tepi selada bergelombang.' },
+    { id: 'large_leaf_pondweed', common: 'Large-leaf Pondweed', binomen: 'Potamogeton amplifolius', archetype: 3, height: 380, baseW: 65, tipW: 18.0, blades: 6, desc: 'Pondweed berdaun lebar melengkung tembus pandang dengan lipatan selada air anggun.' },
+    { id: 'curly_leaf_pondweed', common: 'Curly-leaf Pondweed', binomen: 'Potamogeton crispus', archetype: 3, height: 330, baseW: 45, tipW: 12.0, blades: 7, desc: 'Bilah daun berombak keriting kaku dengan arsir bergerigi halus khas sumi-e.' },
+    { id: 'floating_pondweed', common: 'Floating Pondweed', binomen: 'Potamogeton natans', archetype: 3, height: 350, baseW: 55, tipW: 16.0, blades: 6, desc: 'Lembaran daun elips oval lebar yang mengalir anggun di kolom air.' },
+    { id: 'illinois_pondweed', common: 'Illinois Pondweed', binomen: 'Potamogeton illinoensis', archetype: 3, height: 390, baseW: 52, tipW: 14.0, blades: 7, desc: 'Bilah daun lanset lebar bertulang daun tajam dengan lekukan tirai.' },
+    { id: 'richardsons_pondweed', common: 'Richardson’s Pondweed', binomen: 'Potamogeton richardsonii', archetype: 3, height: 320, baseW: 46, tipW: 13.0, blades: 8, desc: 'Daun memeluk batang dengan tepi meliuk-liuk seperti pita perca.' },
+    { id: 'american_pondweed', common: 'American Pondweed', binomen: 'Potamogeton nodosus', archetype: 3, height: 400, baseW: 58, tipW: 17.0, blades: 6, desc: 'Daun mengambang lonjong dengan tangkai panjang kokoh bertumpu di dasar.' },
+    { id: 'spotted_pondweed', common: 'Spotted Pondweed', binomen: 'Potamogeton pulcher', archetype: 3, height: 340, baseW: 50, tipW: 15.0, blades: 7, desc: 'Daun lanset bergelombang dengan corak bintik tinta alami.' },
 
-    // --- 5. Bubble Algae (Alga Gelembung Mutiara) ---
-    { id: 'bubble_algae', common: 'Bubble Algae / Sailor’s Eyeball', binomen: 'Valonia ventricosa', archetype: 4, height: 160, baseW: 45, tipW: 25.0, blades: 14, desc: 'Koloni bola gelembung sel tunggal terbesar yang berkilau seperti batu permata zamrud.' },
-    { id: 'sea_pearls', common: 'Sea Pearls', binomen: 'Dictyosphaeria cavernosa', archetype: 4, height: 140, baseW: 40, tipW: 20.0, blades: 18, desc: 'Kumpulan mutiara gelembung berpori yang membentuk kubah kristal di atas karang.' },
+    // --- 5. Bubble Algae (Alga Gelembung Mutiara) [REDESIGNED] ---
+    { id: 'bubble_algae', common: 'Bubble Algae / Sailor’s Eyeball', binomen: 'Valonia ventricosa', archetype: 4, height: 180, baseW: 55, tipW: 28.0, blades: 16, desc: 'Koloni mutiara gelembung zamrud berkilau dengan pantulan cahaya specular dan tangkai holdfast.' },
+    { id: 'sea_pearls', common: 'Sea Pearls', binomen: 'Dictyosphaeria cavernosa', archetype: 4, height: 160, baseW: 48, tipW: 24.0, blades: 20, desc: 'Kumpulan mutiara gelembung berpori yang membentuk kubah kristal anggun.' },
 
-    // --- 6. Aquatic Moss (Lumut Karpet Air) ---
-    { id: 'willow_moss', common: 'Willow Moss', binomen: 'Fontinalis antipyretica', archetype: 5, height: 180, baseW: 24, tipW: 4.0, blades: 24, desc: 'Lumut air berbulu segitiga lebat yang menempel erat pada batu dan akar lapuk.' },
-    { id: 'java_moss', common: 'Java Moss', binomen: 'Taxiphyllum barbieri', archetype: 5, height: 160, baseW: 20, tipW: 3.5, blades: 28, desc: 'Karpet lumut mikro bercabang rapat yang membentuk bantalan beludru hijau dasar kolam.' },
-    { id: 'baby_pondweed', common: 'Baby Pondweed', binomen: 'Potamogeton pusillus', archetype: 5, height: 200, baseW: 16, tipW: 3.0, blades: 20, desc: 'Rumpun lumut pondweed mini dengan bilah super halus bagai jaring laba-laba air.' },
+    // --- 6. Aquatic Moss (Lumut Karpet Air) [FAVORITE] ---
+    { id: 'willow_moss', common: 'Willow Moss', binomen: 'Fontinalis antipyretica', archetype: 5, height: 190, baseW: 28, tipW: 4.5, blades: 26, desc: 'Lumut air berbulu segitiga lebat yang menempel erat pada batu dan akar lapuk.' },
+    { id: 'java_moss', common: 'Java Moss', binomen: 'Taxiphyllum barbieri', archetype: 5, height: 170, baseW: 24, tipW: 4.0, blades: 30, desc: 'Karpet lumut mikro bercabang rapat yang membentuk bantalan beludru hijau dasar kolam.' },
+    { id: 'baby_pondweed', common: 'Baby Pondweed', binomen: 'Potamogeton pusillus', archetype: 5, height: 210, baseW: 18, tipW: 3.2, blades: 22, desc: 'Rumpun lumut pondweed mini dengan bilah super halus bagai jaring sutra air.' },
 
-    // --- 7. Whorled & Fan Leaf Flora (Daun Menjari Melingkar) ---
-    { id: 'cabomba', common: 'Cabomba / Fanwort', binomen: 'Cabomba caroliniana', archetype: 6, height: 350, baseW: 14, tipW: 2.0, blades: 8, desc: 'Batang lentur dengan lingkaran daun kipas terbelah halus bagai sayap kupu-kupu air.' },
-    { id: 'coontail', common: 'Coontail / Hornwort', binomen: 'Ceratophyllum demersum', archetype: 6, height: 370, baseW: 16, tipW: 2.2, blades: 7, desc: 'Lingkaran daun menjari kaku mirip ekor rakun yang mengapung bebas di air tenang.' },
-    { id: 'eurasian_watermilfoil', common: 'Eurasian Watermilfoil', binomen: 'Myriophyllum spicatum', archetype: 6, height: 390, baseW: 15, tipW: 1.8, blades: 8, desc: 'Batang kemerahan dengan 4 daun tersusun melingkar berbulu halus seperti sisir camar.' },
-    { id: 'cutleaf_watermilfoil', common: 'Cutleaf Watermilfoil', binomen: 'Myriophyllum pinnatum', archetype: 6, height: 340, baseW: 14, tipW: 1.7, blades: 8, desc: 'Milfoil dengan gerigi helai daun bersirip tajam terbelah rapi.' },
-    { id: 'variable_watermilfoil', common: 'Variable-leaf Watermilfoil', binomen: 'Myriophyllum heterophyllum', archetype: 6, height: 360, baseW: 15, tipW: 1.9, blades: 8, desc: 'Daun bawah air yang sangat lebat bertransisi halus mengikuti kedalaman.' },
-    { id: 'parrots_feather', common: 'Parrot’s-feather', binomen: 'Myriophyllum aquaticum', archetype: 6, height: 380, baseW: 16, tipW: 2.0, blades: 7, desc: 'Daun bertekstur bulu burung nuri biru kehijauan yang tersusun rapat pada ruas batang.' },
-    { id: 'hydrilla', common: 'Hydrilla', binomen: 'Hydrilla verticillata', archetype: 6, height: 360, baseW: 12, tipW: 2.0, blades: 9, desc: 'Batang beruas dengan karangan 5 daun bergerigi tajam memutar mengitari batang.' },
-    { id: 'elodea', common: 'Elodea / American Waterweed', binomen: 'Elodea canadensis', archetype: 6, height: 320, baseW: 11, tipW: 2.2, blades: 9, desc: 'Daun hijau tua tersusun tiga-tiga dalam lingkaran rapat melingkari batang.' },
-    { id: 'egeria', common: 'Egeria / Brazilian Waterweed', binomen: 'Egeria densa', archetype: 6, height: 350, baseW: 13, tipW: 2.4, blades: 8, desc: 'Karangan daun rapat berkelompok empat atau lebih dengan helai daun berkilap.' },
-    { id: 'asian_marshweed', common: 'Asian Marshweed', binomen: 'Limnophila sessiliflora', archetype: 6, height: 330, baseW: 14, tipW: 1.8, blades: 8, desc: 'Daun terbagi menjari halus bagai mahkota krisan air yang merekah mekar.' },
-    { id: 'water_wisteria', common: 'Water Wisteria', binomen: 'Hygrophila difformis', archetype: 6, height: 360, baseW: 18, tipW: 3.5, blades: 7, desc: 'Daun bercabang renda mekar yang sangat adaptif terhadap derasnya aliran kolam.' },
-    { id: 'east_indian_hygro', common: 'East Indian Hygrophila', binomen: 'Hygrophila polysperma', archetype: 6, height: 310, baseW: 16, tipW: 4.0, blades: 9, desc: 'Daun lonjong berhadapan silang yang tumbuh tegak membentuk rumpun padat.' },
-    { id: 'willow_leafed_hygro', common: 'Willow-leafed Hygrophila', binomen: 'Hygrophila salicifolia', archetype: 6, height: 340, baseW: 15, tipW: 3.0, blades: 8, desc: 'Daun memanjang sempit seperti pohon gandarusa atau dedalu air yang menjuntai.' },
-    { id: 'waterthread_pondweed', common: 'Waterthread Pondweed', binomen: 'Potamogeton diversifolius', archetype: 6, height: 280, baseW: 9, tipW: 1.4, blades: 11, desc: 'Benang-benang daun bawah air yang sangat tipis dan meliuk elastis.' }
+    // --- 7. Whorled & Fan Leaf Flora (Cabomba / Coontail) [REDESIGNED] ---
+    { id: 'cabomba', common: 'Cabomba / Fanwort', binomen: 'Cabomba caroliniana', archetype: 6, height: 370, baseW: 16, tipW: 2.2, blades: 8, desc: 'Batang sinusoidal lentur dengan pusaran daun kipas bertingkat bercabang renda mekar.' },
+    { id: 'coontail', common: 'Coontail / Hornwort', binomen: 'Ceratophyllum demersum', archetype: 6, height: 390, baseW: 18, tipW: 2.4, blades: 8, desc: 'Pusaran daun menjari rapat mirip bulu ekor rakun yang mengapung anggun di air tenang.' },
+    { id: 'eurasian_watermilfoil', common: 'Eurasian Watermilfoil', binomen: 'Myriophyllum spicatum', archetype: 6, height: 410, baseW: 16, tipW: 1.9, blades: 9, desc: 'Batang lentur dengan 4 karangan daun menjari berbulu halus seperti sisir camar air.' },
+    { id: 'cutleaf_watermilfoil', common: 'Cutleaf Watermilfoil', binomen: 'Myriophyllum pinnatum', archetype: 6, height: 360, baseW: 15, tipW: 1.8, blades: 8, desc: 'Milfoil dengan gerigi helai daun bersirip tajam terbelah rapi.' },
+    { id: 'variable_watermilfoil', common: 'Variable-leaf Watermilfoil', binomen: 'Myriophyllum heterophyllum', archetype: 6, height: 380, baseW: 16, tipW: 2.0, blades: 8, desc: 'Daun bawah air yang sangat lebat bertransisi halus mengikuti kedalaman.' },
+    { id: 'parrots_feather', common: 'Parrot’s-feather', binomen: 'Myriophyllum aquaticum', archetype: 6, height: 400, baseW: 17, tipW: 2.1, blades: 8, desc: 'Daun bertekstur bulu burung nuri biru kehijauan yang tersusun rapat pada ruas batang.' },
+    { id: 'hydrilla', common: 'Hydrilla', binomen: 'Hydrilla verticillata', archetype: 6, height: 370, baseW: 13, tipW: 2.2, blades: 9, desc: 'Batang beruas dengan karangan 5 daun bergerigi tajam memutar mengitari batang.' },
+    { id: 'elodea', common: 'Elodea / American Waterweed', binomen: 'Elodea canadensis', archetype: 6, height: 330, baseW: 12, tipW: 2.4, blades: 9, desc: 'Daun hijau tua tersusun tiga-tiga dalam lingkaran rapat melingkari batang.' },
+    { id: 'egeria', common: 'Egeria / Brazilian Waterweed', binomen: 'Egeria densa', archetype: 6, height: 360, baseW: 14, tipW: 2.5, blades: 8, desc: 'Karangan daun rapat berkelompok empat atau lebih dengan helai daun berkilap.' },
+    { id: 'asian_marshweed', common: 'Asian Marshweed', binomen: 'Limnophila sessiliflora', archetype: 6, height: 340, baseW: 15, tipW: 1.9, blades: 8, desc: 'Daun terbagi menjari halus bagai mahkota krisan air yang merekah mekar.' },
+    { id: 'water_wisteria', common: 'Water Wisteria', binomen: 'Hygrophila difformis', archetype: 6, height: 380, baseW: 20, tipW: 3.8, blades: 7, desc: 'Daun bercabang renda mekar yang sangat adaptif terhadap derasnya aliran kolam.' },
+    { id: 'east_indian_hygro', common: 'East Indian Hygrophila', binomen: 'Hygrophila polysperma', archetype: 6, height: 320, baseW: 17, tipW: 4.2, blades: 9, desc: 'Daun lonjong berhadapan silang yang tumbuh tegak membentuk rumpun padat.' },
+    { id: 'willow_leafed_hygro', common: 'Willow-leafed Hygrophila', binomen: 'Hygrophila salicifolia', archetype: 6, height: 350, baseW: 16, tipW: 3.2, blades: 8, desc: 'Daun memanjang sempit seperti pohon gandarusa atau dedalu air yang menjuntai.' },
+    { id: 'waterthread_pondweed', common: 'Waterthread Pondweed', binomen: 'Potamogeton diversifolius', archetype: 6, height: 290, baseW: 10, tipW: 1.5, blades: 11, desc: 'Benang-benang daun bawah air yang sangat tipis dan meliuk elastis.' }
   ];
 
   function getSpeciesById(id) {
@@ -158,34 +157,36 @@
   }
 
   // -----------------------------------------------------------------
-  // 3. Mathematical Blade / Frond Model: Archetype 0 (SEAGRASS)
+  // 3. Mathematical Blade: Archetype 0 (SEAGRASS) [FAVORITE - Enhanced]
   // -----------------------------------------------------------------
   class SeagrassBlade {
     constructor(parent, config) {
       this.parent = parent;
       this.offsetX = config.offsetX || 0;
-      this.length = config.length || rndtri(240, 350, 480);
-      this.baseWidth = config.baseWidth || rndtri(8, 14, 20);
-      this.tipWidth = config.tipWidth || rndtri(1.2, 1.8, 2.5);
+      // Organic randomized length and width
+      const lenVar = rndtri(0.72, 1.0, 1.38);
+      const widthVar = rndtri(0.75, 1.0, 1.35);
+      this.length = (config.length || rndtri(240, 360, 490)) * lenVar;
+      this.baseWidth = (config.baseWidth || rndtri(9, 15, 22)) * widthVar;
+      this.tipWidth = (config.tipWidth || rndtri(1.2, 1.8, 2.6));
       this.segments = config.segments || 22;
       this.phase = rnd(0, PI * 2);
-      this.waveFreq = rndtri(0.008, 0.014, 0.022);
-      this.waveSpeed = rndtri(1.2, 1.8, 2.5);
-      this.naturalSway = rndtri(25, 50, 80);
-      this.curl = config.curl !== undefined ? config.curl : rndtri(-0.35, 0.0, 0.35);
+      this.waveSpeed = rndtri(1.1, 1.7, 2.4);
+      this.naturalSway = rndtri(25, 52, 85);
+      this.curl = config.curl !== undefined ? config.curl : rndtri(-0.45, 0.0, 0.45);
 
       this.nodes = [];
       const ds = this.length / (this.segments - 1);
       for (let i = 0; i < this.segments; i++) {
+        const frac = i / (this.segments - 1);
         this.nodes.push({
           relX: 0,
           relY: -i * ds,
           velX: 0,
-          forceX: 0,
-          width: lerp(this.baseWidth, this.tipWidth, Math.pow(i / (this.segments - 1), 0.8))
+          width: lerp(this.baseWidth, this.tipWidth, Math.pow(frac, 0.8))
         });
       }
-      this.veinOffsets = [-0.5, -0.2, 0.2, 0.5];
+      this.veinOffsets = [-0.55, -0.25, 0.25, 0.55];
     }
 
     update(dt, time, rootX, rootY, currentFlow, fishX, fishY, ripples) {
@@ -196,30 +197,25 @@
         const worldX = rootX + this.offsetX + node.relX;
         const worldY = rootY + node.relY;
 
-        // Current harmonic wave
         const wave = Math.sin(time * this.waveSpeed + this.phase - frac * 3.2) * (this.naturalSway * Math.pow(frac, 1.35));
-        const tidal = currentFlow * 70 * Math.pow(frac, 1.5);
+        const tidal = currentFlow * 72 * Math.pow(frac, 1.5);
         const staticCurl = this.curl * this.length * frac * frac;
         const targetX = wave + tidal + staticCurl;
 
-        // Fish proximity deflection
         let repelForce = 0;
         if (fishX !== undefined && fishY !== undefined && fishX > -500) {
           const d = dist(worldX, worldY, fishX, fishY);
-          if (d < 110) {
-            const push = (1.0 - d / 110) * 85;
-            const dir = (worldX >= fishX) ? 1 : -1;
-            repelForce = dir * push * frac;
+          if (d < 115) {
+            repelForce = ((worldX >= fishX) ? 1 : -1) * (1.0 - d / 115) * 88 * frac;
           }
         }
 
-        // Ripple deflection
         if (ripples && ripples.length > 0) {
           for (let r = 0; r < ripples.length; r++) {
             const rip = ripples[r];
             const rd = dist(worldX, worldY, rip.x, rip.y);
-            if (Math.abs(rd - rip.r) < 30) {
-              const rFactor = (1.0 - Math.abs(rd - rip.r) / 30) * rip.alpha * 35;
+            if (Math.abs(rd - rip.r) < 32) {
+              const rFactor = (1.0 - Math.abs(rd - rip.r) / 32) * rip.alpha * 38;
               repelForce += (worldX >= rip.x ? 1 : -1) * rFactor * frac;
             }
           }
@@ -244,17 +240,8 @@
         const ny = rootY + this.nodes[i].relY;
         centerLine.push([nx, ny]);
 
-        let tx, ty;
-        if (i === 0) {
-          tx = this.nodes[1].relX - this.nodes[0].relX;
-          ty = this.nodes[1].relY - this.nodes[0].relY;
-        } else if (i === N - 1) {
-          tx = this.nodes[N - 1].relX - this.nodes[N - 2].relX;
-          ty = this.nodes[N - 1].relY - this.nodes[N - 2].relY;
-        } else {
-          tx = this.nodes[i + 1].relX - this.nodes[i - 1].relX;
-          ty = this.nodes[i + 1].relY - this.nodes[i - 1].relY;
-        }
+        let tx = (i < N - 1) ? (this.nodes[i + 1].relX - this.nodes[i].relX) : 0;
+        let ty = (i < N - 1) ? (this.nodes[i + 1].relY - this.nodes[i].relY) : -10;
         const tLen = Math.hypot(tx, ty) || 1;
         const nxNorm = -ty / tLen;
         const nyNorm = tx / tLen;
@@ -290,7 +277,7 @@
       for (let i = 1; i < N; i++) ctx.lineTo(rightEdge[i][0], rightEdge[i][1]);
       ctx.stroke();
 
-      // Fine longitudinal veins
+      // Parallel fine longitudinal ink veins
       if (options.showVeins !== false) {
         ctx.save();
         ctx.lineWidth = Math.max(0.5, (options.lineWidth || 1.0) * 0.5);
@@ -313,36 +300,55 @@
   }
 
   // -----------------------------------------------------------------
-  // 4. Mathematical Kelp Model: Archetype 1 (KELP - Wavy / Crinkled)
+  // 4. Mathematical Kelp: Archetype 1 (KELP) [REDESIGNED]
+  //    - Supple basal stipe stalk
+  //    - Broad billowing belly with high-frequency ruffled margins (crinkled frills)
+  //    - Multi-tiered pneumatocysts (tear-drop gas bladders)
+  //    - Textured rugae fluting lines
   // -----------------------------------------------------------------
   class KelpBlade {
     constructor(parent, config) {
       this.parent = parent;
       this.offsetX = config.offsetX || 0;
-      this.length = config.length || rndtri(320, 440, 560);
-      this.baseWidth = config.baseWidth || rndtri(24, 38, 52);
-      this.tipWidth = config.tipWidth || rndtri(4.0, 7.0, 10.0);
-      this.segments = config.segments || 24;
+      const lenVar = rndtri(0.75, 1.0, 1.4);
+      const widthVar = rndtri(0.75, 1.0, 1.4);
+      this.length = (config.length || rndtri(360, 480, 580)) * lenVar;
+      this.baseWidth = (config.baseWidth || rndtri(32, 48, 64)) * widthVar;
+      this.tipWidth = (config.tipWidth || rndtri(5.0, 8.0, 12.0));
+      this.segments = config.segments || 26;
       this.phase = rnd(0, PI * 2);
-      this.waveSpeed = rndtri(1.0, 1.5, 2.0);
-      this.naturalSway = rndtri(35, 65, 100);
-      this.crinkleFreq = rndtri(6.0, 9.0, 12.0);
-      this.crinkleAmp = rndtri(5.0, 9.0, 14.0);
+      this.waveSpeed = rndtri(0.9, 1.4, 1.9);
+      this.naturalSway = rndtri(40, 72, 110);
+      this.crinkleFreq1 = rndtri(6.0, 8.5, 11.0);
+      this.crinkleFreq2 = rndtri(12.0, 16.0, 20.0);
+      this.crinkleAmp = rndtri(6.0, 11.0, 16.0);
 
       this.nodes = [];
       const ds = this.length / (this.segments - 1);
       for (let i = 0; i < this.segments; i++) {
+        const frac = i / (this.segments - 1);
+        // Biological kelp width profile: slender stipe (frac < 0.15) -> broad frond belly (0.35-0.7) -> tapering tip
+        let wProfile;
+        if (frac < 0.14) {
+          wProfile = lerp(6.0, this.baseWidth * 0.45, frac / 0.14);
+        } else if (frac < 0.65) {
+          wProfile = lerp(this.baseWidth * 0.45, this.baseWidth, (frac - 0.14) / 0.51);
+        } else {
+          wProfile = lerp(this.baseWidth, this.tipWidth, (frac - 0.65) / 0.35);
+        }
+
         this.nodes.push({
           relX: 0,
           relY: -i * ds,
           velX: 0,
-          width: lerp(this.baseWidth, this.tipWidth, Math.pow(i / (this.segments - 1), 0.75))
+          width: wProfile
         });
       }
-      // Pneumatocysts (gas bladders at stipe)
+
+      // Gas bladders (pneumatocysts) with connection stems
       this.bladders = [
-        { t: 0.12, r: rndtri(7, 10, 13) },
-        { t: 0.22, r: rndtri(8, 12, 15) }
+        { t: 0.11, r: rndtri(8, 11, 14), side: -1 },
+        { t: 0.19, r: rndtri(9, 13, 16), side: 1 }
       ];
     }
 
@@ -355,17 +361,17 @@
         const worldY = rootY + node.relY;
 
         const wave = Math.sin(time * this.waveSpeed + this.phase - frac * 2.8) * (this.naturalSway * Math.pow(frac, 1.4));
-        const tidal = currentFlow * 85 * Math.pow(frac, 1.5);
+        const tidal = currentFlow * 90 * Math.pow(frac, 1.5);
         const targetX = wave + tidal;
 
         let repel = 0;
         if (fishX !== undefined && fishY !== undefined && fishX > -500) {
           const d = dist(worldX, worldY, fishX, fishY);
-          if (d < 130) {
-            repel = ((worldX >= fishX) ? 1 : -1) * (1.0 - d / 130) * 95 * frac;
+          if (d < 135) {
+            repel = ((worldX >= fishX) ? 1 : -1) * (1.0 - d / 135) * 105 * frac;
           }
         }
-        node.velX += ((targetX + repel - node.relX) * 7.5 - node.velX * 3.4) * dt;
+        node.velX += ((targetX + repel - node.relX) * 7.2 - node.velX * 3.2) * dt;
         node.relX += node.velX * dt;
       }
     }
@@ -387,16 +393,21 @@
         const nxNorm = -ty / tLen;
         const nyNorm = tx / tLen;
 
-        // Crinkled / ruffled margin fluctuation
         const frac = i / (N - 1);
-        const crinkle = Math.sin(frac * this.crinkleFreq * PI + this.phase) * this.crinkleAmp * (1 - Math.abs(frac - 0.5) * 0.4);
-        const hw = (this.nodes[i].width * 0.5) + crinkle;
+        // Multi-harmonic crinkled frill edge flutter
+        const frill1 = Math.sin(frac * this.crinkleFreq1 * PI + this.phase) * this.crinkleAmp;
+        const frill2 = Math.sin(frac * this.crinkleFreq2 * PI - this.phase * 1.5) * (this.crinkleAmp * 0.4);
+        const frillEffect = (frac > 0.15) ? (frill1 + frill2) * Math.sin(frac * PI) : 0;
+
+        const hw = (this.nodes[i].width * 0.5) + frillEffect;
 
         leftEdge.push([nx - nxNorm * hw, ny - nyNorm * hw]);
         rightEdge.push([nx + nxNorm * hw, ny + nyNorm * hw]);
       }
 
       ctx.save();
+
+      // Main Kelp Blade Body with layered watercolor wash
       ctx.beginPath();
       ctx.moveTo(leftEdge[0][0], leftEdge[0][1]);
       for (let i = 1; i < N; i++) ctx.lineTo(leftEdge[i][0], leftEdge[i][1]);
@@ -404,13 +415,25 @@
       for (let i = N - 1; i >= 0; i--) ctx.lineTo(rightEdge[i][0], rightEdge[i][1]);
       ctx.closePath();
 
-      ctx.fillStyle = options.washColor || 'rgba(38, 54, 46, 0.08)';
+      ctx.fillStyle = options.washColor || 'rgba(38, 56, 44, 0.11)';
       ctx.fill();
+
+      // Secondary deeper belly shading
+      ctx.save();
+      ctx.globalAlpha = 0.45;
+      ctx.fillStyle = 'rgba(28, 48, 36, 0.14)';
+      ctx.beginPath();
+      ctx.moveTo(centerLine[Math.floor(N * 0.2)][0], centerLine[Math.floor(N * 0.2)][1]);
+      for (let i = Math.floor(N * 0.2); i < Math.floor(N * 0.8); i++) ctx.lineTo(leftEdge[i][0], leftEdge[i][1]);
+      for (let i = Math.floor(N * 0.8); i >= Math.floor(N * 0.2); i--) ctx.lineTo(centerLine[i][0], centerLine[i][1]);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
 
       ctx.strokeStyle = options.strokeColor || '#18141f';
       ctx.lineWidth = options.lineWidth || 1.1;
 
-      // Draw undulating boundaries
+      // Draw left & right undulating ruffled borders
       ctx.beginPath();
       ctx.moveTo(leftEdge[0][0], leftEdge[0][1]);
       for (let i = 1; i < N; i++) ctx.lineTo(leftEdge[i][0], leftEdge[i][1]);
@@ -421,21 +444,45 @@
       for (let i = 1; i < N; i++) ctx.lineTo(rightEdge[i][0], rightEdge[i][1]);
       ctx.stroke();
 
-      // Strong central midrib stipe
-      ctx.lineWidth = Math.max(0.7, (options.lineWidth || 1.1) * 0.8);
+      // Flexible stipe & central midrib
+      ctx.lineWidth = Math.max(0.75, (options.lineWidth || 1.1) * 0.85);
       ctx.beginPath();
       ctx.moveTo(centerLine[0][0], centerLine[0][1]);
       for (let i = 1; i < N; i++) ctx.lineTo(centerLine[i][0], centerLine[i][1]);
       ctx.stroke();
 
-      // Draw gas bladders (pneumatocysts)
+      // Longitudinal rugae flutes (surface crinkle lines)
+      ctx.save();
+      ctx.lineWidth = Math.max(0.5, (options.lineWidth || 1.0) * 0.5);
+      ctx.globalAlpha = 0.45;
+      [-0.45, 0.45].forEach(vOff => {
+        ctx.beginPath();
+        for (let i = Math.floor(N * 0.18); i < N - 2; i++) {
+          const tParam = (vOff + 1.0) * 0.5;
+          const rx = lerp(leftEdge[i][0], rightEdge[i][0], tParam);
+          const ry = lerp(leftEdge[i][1], rightEdge[i][1], tParam);
+          if (i === Math.floor(N * 0.18)) ctx.moveTo(rx, ry);
+          else ctx.lineTo(rx, ry);
+        }
+        ctx.stroke();
+      });
+      ctx.restore();
+
+      // Pneumatocysts (teardrop gas bladders with holdfast stems)
       for (const bl of this.bladders) {
         const idx = Math.floor(bl.t * (N - 1));
-        const bx = centerLine[idx][0] + (idx % 2 === 0 ? -1 : 1) * (this.nodes[idx].width * 0.35);
-        const by = centerLine[idx][1];
+        const stalkX = centerLine[idx][0] + bl.side * (this.nodes[idx].width * 0.48);
+        const stalkY = centerLine[idx][1];
+
+        // Little connection stipe
         ctx.beginPath();
-        ctx.ellipse(bx, by, bl.r, bl.r * 1.35, 0.1, 0, PI * 2);
-        ctx.fillStyle = options.washColor || 'rgba(38, 54, 46, 0.15)';
+        ctx.moveTo(centerLine[idx][0], centerLine[idx][1]);
+        ctx.lineTo(stalkX, stalkY);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.ellipse(stalkX, stalkY, bl.r, bl.r * 1.45, bl.side * 0.35, 0, PI * 2);
+        ctx.fillStyle = options.washColor || 'rgba(38, 56, 44, 0.22)';
         ctx.fill();
         ctx.stroke();
       }
@@ -445,35 +492,35 @@
   }
 
   // -----------------------------------------------------------------
-  // 5. Mathematical Branching Model: Archetype 2 (BRANCHING ALGAE)
+  // 5. Mathematical Branching: Archetype 2 (BRANCHING) [FAVORITE - Enhanced]
   // -----------------------------------------------------------------
   class BranchingFlora {
     constructor(parent, config) {
       this.parent = parent;
       this.offsetX = config.offsetX || 0;
-      this.height = config.length || rndtri(200, 270, 340);
-      this.baseWidth = config.baseWidth || 10;
+      const lenVar = rndtri(0.75, 1.0, 1.35);
+      this.height = (config.length || rndtri(210, 280, 360)) * lenVar;
+      this.baseWidth = config.baseWidth || 11;
       this.phase = rnd(0, PI * 2);
       this.waveSpeed = rndtri(1.2, 1.8, 2.4);
 
-      // Hierarchical fractal branch hierarchy
+      // Hierarchical fractal branching
       this.branches = [];
-      const numBranches = Math.floor(rnd(5, 9));
+      const numBranches = Math.floor(rnd(6, 10));
       for (let i = 0; i < numBranches; i++) {
-        const t = lerp(0.2, 0.9, i / (numBranches - 1));
+        const t = lerp(0.18, 0.92, i / (numBranches - 1));
         const side = (i % 2 === 0 ? 1 : -1);
-        const bLen = rndtri(45, 80, 115) * (1.1 - t * 0.5);
-        const angle = side * rndtri(0.45, 0.75, 1.05);
+        const bLen = rndtri(50, 85, 125) * (1.1 - t * 0.5);
+        const angle = side * rndtri(0.48, 0.78, 1.12);
 
-        // Sub-twigs (tertiary twigs)
         const twigs = [];
         const numTwigs = Math.floor(rnd(2, 5));
         for (let j = 0; j < numTwigs; j++) {
           twigs.push({
-            t: lerp(0.35, 0.9, j / (numTwigs - 1)),
+            t: lerp(0.35, 0.92, j / (numTwigs - 1)),
             side: (j % 2 === 0 ? 1 : -1),
-            len: bLen * rndtri(0.3, 0.45, 0.6),
-            angle: (j % 2 === 0 ? 1 : -1) * rndtri(0.3, 0.6, 0.8)
+            len: bLen * rndtri(0.32, 0.48, 0.65),
+            angle: (j % 2 === 0 ? 1 : -1) * rndtri(0.35, 0.65, 0.85)
           });
         }
 
@@ -486,17 +533,17 @@
     }
 
     update(dt, time, rootX, rootY, currentFlow, fishX, fishY, ripples) {
-      const sway = Math.sin(time * this.waveSpeed + this.phase) * 35 + currentFlow * 50;
+      const sway = Math.sin(time * this.waveSpeed + this.phase) * 38 + currentFlow * 55;
       let repel = 0;
       if (fishX !== undefined && fishY !== undefined && fishX > -500) {
         const d = dist(rootX + this.offsetX, rootY - this.height * 0.5, fishX, fishY);
-        if (d < 120) repel = ((rootX >= fishX) ? 1 : -1) * (1.0 - d / 120) * 60;
+        if (d < 125) repel = ((rootX >= fishX) ? 1 : -1) * (1.0 - d / 125) * 65;
       }
       this.currentStemX += ((sway + repel - this.currentStemX) * 7.0) * dt;
 
       for (let i = 0; i < this.branches.length; i++) {
         const b = this.branches[i];
-        const bSway = Math.sin(time * (this.waveSpeed * 1.3) + this.phase + i) * 12;
+        const bSway = Math.sin(time * (this.waveSpeed * 1.35) + this.phase + i) * 14;
         b.swayOffset += (bSway - b.swayOffset) * 8.0 * dt;
       }
     }
@@ -515,7 +562,7 @@
       const cpX = bx + this.currentStemX * 0.4;
       const cpY = by - this.height * 0.55;
 
-      // Draw main curved trunk
+      // Draw main trunk
       ctx.beginPath();
       ctx.moveTo(bx, by);
       ctx.quadraticCurveTo(cpX, cpY, tipX, tipY);
@@ -536,7 +583,6 @@
         ctx.lineTo(bTipX, bTipY);
         ctx.stroke();
 
-        // Tertiary twigs
         for (const tw of b.twigs) {
           const twNodeX = lerp(nodeX, bTipX, tw.t);
           const twNodeY = lerp(nodeY, bTipY, tw.t);
@@ -555,27 +601,33 @@
   }
 
   // -----------------------------------------------------------------
-  // 6. Mathematical Sheet Algae Model: Archetype 3 (SHEET / ULVA)
+  // 6. Mathematical Sheet Algae: Archetype 3 (SHEET / ULVA) [REDESIGNED]
+  //    - Multiple broad, billowing ruffled folia (lettuce leaves)
+  //    - Translucent multilayer silk drape folds
+  //    - Scalloped Bézier perimeter curves with fluid flutter
   // -----------------------------------------------------------------
   class SheetAlgaeFlora {
     constructor(parent, config) {
       this.parent = parent;
       this.offsetX = config.offsetX || 0;
-      this.height = config.length || rndtri(260, 360, 440);
-      this.width = config.baseWidth || rndtri(45, 75, 110);
+      const lenVar = rndtri(0.75, 1.0, 1.35);
+      const widthVar = rndtri(0.75, 1.0, 1.4);
+      this.height = (config.length || rndtri(280, 380, 460)) * lenVar;
+      this.width = (config.baseWidth || rndtri(60, 95, 130)) * widthVar;
       this.phase = rnd(0, PI * 2);
-      this.waveSpeed = rndtri(1.0, 1.4, 1.9);
+      this.waveSpeed = rndtri(1.0, 1.5, 2.0);
 
-      // Radial lobes (sheets / ruffled leaves)
+      // Multiple billowy translucent lobes (3 to 6 ruffled sails)
       this.lobes = [];
       const numLobes = Math.floor(rnd(3, 6));
       for (let i = 0; i < numLobes; i++) {
+        const spreadAngle = (i / (numLobes - 1) - 0.5) * 0.85;
         this.lobes.push({
-          len: this.height * rndtri(0.7, 1.0, 1.2),
-          width: this.width * rndtri(0.65, 1.0, 1.3),
-          curl: rndtri(-0.35, 0, 0.35),
-          ruffleFreq: rndtri(5, 8, 11),
-          ruffleAmp: rndtri(6, 12, 18),
+          len: this.height * rndtri(0.7, 1.0, 1.25),
+          width: this.width * rndtri(0.65, 1.0, 1.35),
+          angle: spreadAngle,
+          ruffleFreq: rndtri(6, 9, 13),
+          ruffleAmp: rndtri(8, 14, 22),
           swayX: 0
         });
       }
@@ -584,11 +636,11 @@
     update(dt, time, rootX, rootY, currentFlow, fishX, fishY, ripples) {
       for (let i = 0; i < this.lobes.length; i++) {
         const lb = this.lobes[i];
-        const sway = Math.sin(time * this.waveSpeed + this.phase + i * 1.2) * 45 + currentFlow * 65;
+        const sway = Math.sin(time * this.waveSpeed + this.phase + i * 1.1) * 48 + currentFlow * 70;
         let repel = 0;
         if (fishX !== undefined && fishY !== undefined && fishX > -500) {
           const d = dist(rootX + this.offsetX, rootY - lb.len * 0.5, fishX, fishY);
-          if (d < 140) repel = ((rootX >= fishX) ? 1 : -1) * (1.0 - d / 140) * 80;
+          if (d < 145) repel = ((rootX >= fishX) ? 1 : -1) * (1.0 - d / 145) * 85;
         }
         lb.swayX += ((sway + repel - lb.swayX) * 6.5) * dt;
       }
@@ -601,29 +653,30 @@
 
       for (let k = 0; k < this.lobes.length; k++) {
         const lb = this.lobes[k];
-        const tipX = bx + lb.swayX + lb.curl * 50;
+        const tipX = bx + lb.swayX + Math.sin(lb.angle) * (lb.len * 0.45);
         const tipY = by - lb.len;
-        const midY = by - lb.len * 0.52;
         const hw = lb.width * 0.5;
 
-        // Ruffled veil contour
+        // Billowing curved lettuce sheet contour
         ctx.beginPath();
         ctx.moveTo(bx, by);
 
-        // Left ruffled border
-        for (let t = 0; t <= 10; t++) {
-          const frac = t / 10;
+        // Left fluttering scalloped margin
+        const steps = 14;
+        for (let t = 0; t <= steps; t++) {
+          const frac = t / steps;
           const ruff = Math.sin(frac * lb.ruffleFreq * PI) * lb.ruffleAmp;
           const lx = lerp(bx, tipX - hw + ruff, frac);
           const ly = lerp(by, tipY, frac);
           ctx.lineTo(lx, ly);
         }
 
-        ctx.lineTo(tipX, tipY);
+        // Curved crown apex
+        ctx.quadraticCurveTo(tipX, tipY - 14, tipX + hw * 0.2, tipY);
 
-        // Right ruffled border
-        for (let t = 10; t >= 0; t--) {
-          const frac = t / 10;
+        // Right fluttering scalloped margin
+        for (let t = steps; t >= 0; t--) {
+          const frac = t / steps;
           const ruff = Math.sin(frac * lb.ruffleFreq * PI + PI) * lb.ruffleAmp;
           const rx = lerp(bx, tipX + hw + ruff, frac);
           const ry = lerp(by, tipY, frac);
@@ -631,23 +684,25 @@
         }
         ctx.closePath();
 
-        // Translucent multilayer wash
-        ctx.fillStyle = options.washColor || 'rgba(38, 64, 48, 0.10)';
+        // Translucent sea lettuce sumi-e wash
+        ctx.fillStyle = options.washColor || 'rgba(38, 68, 50, 0.09)';
         ctx.fill();
 
         ctx.strokeStyle = options.strokeColor || '#18141f';
         ctx.lineWidth = (options.lineWidth || 1.1) * 0.9;
         ctx.stroke();
 
-        // Radiating silk wrinkles
+        // Radiating organic drape folds (silk veil ribs)
         ctx.save();
-        ctx.globalAlpha = 0.45;
+        ctx.globalAlpha = 0.42;
         ctx.lineWidth = Math.max(0.5, (options.lineWidth || 1.0) * 0.5);
         for (let r = -2; r <= 2; r++) {
           ctx.beginPath();
           ctx.moveTo(bx, by);
-          const rTipX = tipX + (r / 2.5) * hw;
-          ctx.quadraticCurveTo(bx + lb.swayX * 0.4 + r * 8, midY, rTipX, tipY);
+          const rTipX = tipX + (r / 2.4) * hw;
+          const cpX = bx + lb.swayX * 0.45 + r * 12;
+          const cpY = by - lb.len * 0.55;
+          ctx.quadraticCurveTo(cpX, cpY, rTipX, tipY);
           ctx.stroke();
         }
         ctx.restore();
@@ -657,7 +712,10 @@
   }
 
   // -----------------------------------------------------------------
-  // 7. Mathematical Bubble Model: Archetype 4 (BUBBLE ALGAE / VALONIA)
+  // 7. Mathematical Bubble Algae: Archetype 4 (BUBBLE / VALONIA) [REDESIGNED]
+  //    - Clustered grapelike pearl geometry with holdfast stalks
+  //    - Large mother pearls + medium daughters + tiny baby clusters
+  //    - Emerald sumi-e gradient wash + crisp specular gleam highlight
   // -----------------------------------------------------------------
   class BubbleAlgaeFlora {
     constructor(parent, config) {
@@ -666,35 +724,38 @@
       this.phase = rnd(0, PI * 2);
       this.waveSpeed = rndtri(1.2, 1.8, 2.5);
 
-      // Spherical vesicle cluster
+      // Clustered hierarchical pearls
       this.bubbles = [];
-      const numBubbles = Math.floor(rnd(9, 18));
-      const spanW = rndtri(35, 60, 85);
+      const numBubbles = Math.floor(rnd(12, 22));
+      const spanW = rndtri(40, 70, 95);
       for (let i = 0; i < numBubbles; i++) {
         const offX = rndtri(-spanW * 0.5, 0, spanW * 0.5);
-        const offY = -rndtri(4, 30, 65) - Math.abs(offX) * 0.25;
-        const radius = rndtri(7, 14, 24) * (1.1 - Math.abs(offX) / (spanW * 0.6) * 0.4);
+        const distFromCenter = Math.abs(offX) / (spanW * 0.55);
+        // Larger mother bubbles in center, smaller daughters outside
+        const baseRadius = (i < 3) ? rndtri(20, 28, 38) : rndtri(6, 14, 22) * (1.1 - distFromCenter * 0.45);
+        const offY = -rndtri(6, 28, 65) - (i < 3 ? baseRadius * 0.8 : 0);
+
         this.bubbles.push({
           relX: offX,
           relY: offY,
-          r: radius,
+          r: Math.max(5, baseRadius),
           bobPhase: rnd(0, PI * 2),
           bobOffset: 0
         });
       }
-      // Sort bubbles by radius so small ones render in front/around
+      // Sort by radius so background large bubbles draw behind smaller foreground gems
       this.bubbles.sort((a, b) => b.r - a.r);
     }
 
     update(dt, time, rootX, rootY, currentFlow, fishX, fishY, ripples) {
       for (const b of this.bubbles) {
-        const bob = Math.sin(time * this.waveSpeed + b.bobPhase) * 4;
+        const bob = Math.sin(time * this.waveSpeed + b.bobPhase) * 4.5;
         let repel = 0;
         if (fishX !== undefined && fishY !== undefined && fishX > -500) {
           const d = dist(rootX + this.offsetX + b.relX, rootY + b.relY, fishX, fishY);
-          if (d < 70) repel = (1.0 - d / 70) * 12;
+          if (d < 75) repel = (1.0 - d / 75) * 14;
         }
-        b.bobOffset += (bob + repel - b.bobOffset) * 6.0 * dt;
+        b.bobOffset += (bob + repel - b.bobOffset) * 6.5 * dt;
       }
     }
 
@@ -703,32 +764,49 @@
       const bx = rootX + this.offsetX;
       const by = rootY;
 
+      // Small anchor holdfast stalks connecting bubbles to rock
+      ctx.strokeStyle = options.strokeColor || '#18141f';
+      ctx.lineWidth = 1;
+      for (const b of this.bubbles) {
+        ctx.beginPath();
+        ctx.moveTo(bx + b.relX * 0.5, by);
+        ctx.lineTo(bx + b.relX, by + b.relY + b.bobOffset + b.r * 0.7);
+        ctx.stroke();
+      }
+
+      // Render pearls
       for (const b of this.bubbles) {
         const cx = bx + b.relX;
         const cy = by + b.relY + b.bobOffset;
         const r = b.r;
 
-        // Base vesicle sphere
+        // Base sphere outline & wash
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, PI * 2);
-        ctx.fillStyle = options.washColor || 'rgba(40, 75, 55, 0.16)';
+        ctx.fillStyle = options.washColor || 'rgba(38, 78, 56, 0.16)';
         ctx.fill();
 
         ctx.strokeStyle = options.strokeColor || '#18141f';
         ctx.lineWidth = options.lineWidth || 1.1;
         ctx.stroke();
 
-        // Specular highlight crescent
+        // Inner shadow crescent (depth)
         ctx.save();
         ctx.beginPath();
-        ctx.arc(cx - r * 0.32, cy - r * 0.32, r * 0.38, 0, PI * 2);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.arc(cx + r * 0.22, cy + r * 0.22, r * 0.65, 0, PI * 2);
+        ctx.fillStyle = 'rgba(18, 36, 26, 0.20)';
         ctx.fill();
 
-        // Inner shadow crescent
+        // White specular gleam highlight (gem shine)
         ctx.beginPath();
-        ctx.arc(cx + r * 0.25, cy + r * 0.25, r * 0.55, 0, PI * 2);
-        ctx.fillStyle = options.washColor || 'rgba(20, 36, 26, 0.15)';
+        ctx.arc(cx - r * 0.35, cy - r * 0.35, r * 0.32, 0, PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+        ctx.fill();
+
+        // Secondary tiny pin-point sparkle
+        ctx.beginPath();
+        ctx.arc(cx - r * 0.15, cy - r * 0.45, r * 0.12, 0, PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
         ctx.fill();
         ctx.restore();
       }
@@ -737,24 +815,25 @@
   }
 
   // -----------------------------------------------------------------
-  // 8. Mathematical Moss Model: Archetype 5 (AQUATIC MOSS / CARPET)
+  // 8. Mathematical Moss: Archetype 5 (MOSS) [FAVORITE - Enhanced]
   // -----------------------------------------------------------------
   class AquaticMossFlora {
     constructor(parent, config) {
       this.parent = parent;
       this.offsetX = config.offsetX || 0;
       this.phase = rnd(0, PI * 2);
-      this.waveSpeed = rndtri(1.5, 2.2, 3.0);
+      this.waveSpeed = rndtri(1.5, 2.3, 3.2);
 
-      // Dense carpet filament tufts
+      // Dense feathery velvet tufts
       this.tufts = [];
-      const numTufts = Math.floor(rnd(18, 32));
-      const spanW = rndtri(40, 70, 95);
+      const numTufts = Math.floor(rnd(22, 38));
+      const spanW = rndtri(45, 75, 105);
       for (let i = 0; i < numTufts; i++) {
         const offX = rndtri(-spanW * 0.5, 0, spanW * 0.5);
-        const len = rndtri(28, 55, 85) * (1.0 - Math.abs(offX) / (spanW * 0.6) * 0.35);
-        const angle = rndtri(-0.45, 0, 0.45);
-        const numMicroLeaves = Math.floor(rnd(6, 12));
+        const lenVar = rndtri(0.7, 1.0, 1.4);
+        const len = (config.length ? config.length * 0.25 : rndtri(30, 60, 95)) * lenVar * (1.0 - Math.abs(offX) / (spanW * 0.6) * 0.35);
+        const angle = rndtri(-0.5, 0, 0.5);
+        const numMicroLeaves = Math.floor(rnd(7, 14));
 
         this.tufts.push({
           offX,
@@ -769,13 +848,13 @@
     update(dt, time, rootX, rootY, currentFlow, fishX, fishY, ripples) {
       for (let i = 0; i < this.tufts.length; i++) {
         const tf = this.tufts[i];
-        const sway = Math.sin(time * this.waveSpeed + this.phase + i * 0.4) * 14 + currentFlow * 25;
+        const sway = Math.sin(time * this.waveSpeed + this.phase + i * 0.35) * 15 + currentFlow * 28;
         let repel = 0;
         if (fishX !== undefined && fishY !== undefined && fishX > -500) {
           const d = dist(rootX + this.offsetX + tf.offX, rootY - tf.len * 0.5, fishX, fishY);
-          if (d < 85) repel = ((rootX >= fishX) ? 1 : -1) * (1.0 - d / 85) * 35;
+          if (d < 90) repel = ((rootX >= fishX) ? 1 : -1) * (1.0 - d / 90) * 38;
         }
-        tf.swayX += (sway + repel - tf.swayX) * 9.0 * dt;
+        tf.swayX += (sway + repel - tf.swayX) * 9.5 * dt;
       }
     }
 
@@ -792,23 +871,22 @@
         const tipX = bx + tf.offX + tf.swayX + Math.sin(tf.angle) * tf.len;
         const tipY = by - tf.len;
 
-        // Stem filament
         ctx.beginPath();
         ctx.moveTo(bx + tf.offX, by);
         ctx.lineTo(tipX, tipY);
         ctx.stroke();
 
-        // Biserial micro-leaflets
+        // Biserial feathery micro-leaflets
         for (let j = 0; j < tf.numMicroLeaves; j++) {
           const frac = (j + 1) / (tf.numMicroLeaves + 1);
           const lx = lerp(bx + tf.offX, tipX, frac);
           const ly = lerp(by, tipY, frac);
           const side = (j % 2 === 0 ? 1 : -1);
-          const leafLen = 4.5 * (1 - frac * 0.5);
+          const leafLen = 4.8 * (1 - frac * 0.45);
 
           ctx.beginPath();
           ctx.moveTo(lx, ly);
-          ctx.lineTo(lx + side * leafLen, ly - 2.5);
+          ctx.lineTo(lx + side * leafLen, ly - 2.8);
           ctx.stroke();
         }
       }
@@ -817,35 +895,43 @@
   }
 
   // -----------------------------------------------------------------
-  // 9. Mathematical Whorled Model: Archetype 6 (CABOMBA / FANWORT)
+  // 9. Mathematical Whorled & Fanwort: Archetype 6 (CABOMBA) [REDESIGNED]
+  //    - Supple sinusoidal jointed stem curving dynamically
+  //    - Multi-tiered radial fan whorls with dichotomous forked rays
+  //    - Fluid drag response: fan rays stream gracefully backward with current
   // -----------------------------------------------------------------
   class WhorledFanFlora {
     constructor(parent, config) {
       this.parent = parent;
       this.offsetX = config.offsetX || 0;
-      this.height = config.length || rndtri(280, 380, 480);
+      const lenVar = rndtri(0.75, 1.0, 1.35);
+      this.height = (config.length || rndtri(300, 400, 510)) * lenVar;
       this.phase = rnd(0, PI * 2);
-      this.waveSpeed = rndtri(1.1, 1.6, 2.2);
+      this.waveSpeed = rndtri(1.0, 1.5, 2.1);
 
-      // Nodal stem whorls
+      // Supple stem nodes
+      this.stemNodes = [];
+      const segs = 20;
+      const ds = this.height / (segs - 1);
+      for (let i = 0; i < segs; i++) {
+        this.stemNodes.push({ relX: 0, relY: -i * ds, velX: 0 });
+      }
+
+      // Radial fan whorls along stem nodes
       this.whorls = [];
-      const numWhorls = Math.floor(rnd(6, 11));
+      const numWhorls = Math.floor(rnd(7, 12));
       for (let i = 0; i < numWhorls; i++) {
-        const t = lerp(0.18, 0.95, i / (numWhorls - 1));
-        const fanRadius = rndtri(22, 38, 54) * (1.1 - t * 0.4);
+        const t = lerp(0.16, 0.96, i / (numWhorls - 1));
+        // Leaves are larger in mid-bottom, smaller and denser toward the budding tip
+        const fanRadius = rndtri(25, 42, 60) * (1.15 - t * 0.42);
         const fanRays = Math.floor(rnd(5, 8));
 
         this.whorls.push({
           t,
           fanRadius,
-          fanRays
+          fanRays,
+          swayLag: rnd(0.8, 1.4)
         });
-      }
-      this.stemNodes = [];
-      const segs = 18;
-      const ds = this.height / (segs - 1);
-      for (let i = 0; i < segs; i++) {
-        this.stemNodes.push({ relX: 0, relY: -i * ds, velX: 0 });
       }
     }
 
@@ -857,14 +943,14 @@
         const worldX = rootX + this.offsetX + node.relX;
         const worldY = rootY + node.relY;
 
-        const wave = Math.sin(time * this.waveSpeed + this.phase - frac * 3.0) * (50 * Math.pow(frac, 1.4));
-        const tidal = currentFlow * 75 * Math.pow(frac, 1.5);
+        const wave = Math.sin(time * this.waveSpeed + this.phase - frac * 3.1) * (52 * Math.pow(frac, 1.4));
+        const tidal = currentFlow * 78 * Math.pow(frac, 1.5);
         const targetX = wave + tidal;
 
         let repel = 0;
         if (fishX !== undefined && fishY !== undefined && fishX > -500) {
           const d = dist(worldX, worldY, fishX, fishY);
-          if (d < 120) repel = ((worldX >= fishX) ? 1 : -1) * (1.0 - d / 120) * 85 * frac;
+          if (d < 125) repel = ((worldX >= fishX) ? 1 : -1) * (1.0 - d / 125) * 90 * frac;
         }
         node.velX += ((targetX + repel - node.relX) * 7.5 - node.velX * 3.5) * dt;
         node.relX += node.velX * dt;
@@ -877,7 +963,7 @@
       ctx.strokeStyle = options.strokeColor || '#18141f';
       ctx.lineWidth = options.lineWidth || 1.1;
 
-      // Draw central jointed stem
+      // Draw graceful jointed sinusoidal stem
       ctx.beginPath();
       ctx.moveTo(rootX + this.offsetX + this.stemNodes[0].relX, rootY + this.stemNodes[0].relY);
       for (let i = 1; i < N; i++) {
@@ -885,33 +971,51 @@
       }
       ctx.stroke();
 
-      // Draw radial dissected fan whorls
+      // Draw multi-tiered radial fan whorls with dichotomous rays
       for (const wh of this.whorls) {
         const idx = Math.min(N - 2, Math.floor(wh.t * (N - 1)));
         const frac = (wh.t * (N - 1)) - idx;
         const wx = rootX + this.offsetX + lerp(this.stemNodes[idx].relX, this.stemNodes[idx + 1].relX, frac);
         const wy = rootY + lerp(this.stemNodes[idx].relY, this.stemNodes[idx + 1].relY, frac);
 
-        // Fan spokes on left and right
+        // Fluid drag tilt on fan leaves
+        const stemSlope = (this.stemNodes[idx + 1].relX - this.stemNodes[idx].relX) * 0.08;
+
         [-1, 1].forEach(side => {
           for (let r = 0; r < wh.fanRays; r++) {
-            const rayAngle = (r / (wh.fanRays - 1) - 0.5) * 1.35;
-            const rLen = wh.fanRadius * (1 - Math.abs(r / (wh.fanRays - 1) - 0.5) * 0.3);
+            const spreadNorm = (r / (wh.fanRays - 1) - 0.5);
+            const rayAngle = spreadNorm * 1.4 + stemSlope;
+            const rLen = wh.fanRadius * (1 - Math.abs(spreadNorm) * 0.28);
             const rTipX = wx + side * Math.cos(rayAngle) * rLen;
-            const rTipY = wy - Math.sin(rayAngle) * (rLen * 0.6) - 5;
+            const rTipY = wy - Math.sin(rayAngle) * (rLen * 0.6) - 6;
 
+            // Primary ray
             ctx.beginPath();
             ctx.moveTo(wx, wy);
             ctx.lineTo(rTipX, rTipY);
             ctx.stroke();
 
-            // Dichotomous fork at ray tip
-            const forkLen = rLen * 0.35;
+            // First-tier fork
+            const forkLen = rLen * 0.38;
+            const f1X = rTipX + side * forkLen * 0.85;
+            const f1Y = rTipY - forkLen * 0.55;
+            const f2X = rTipX + side * forkLen * 0.45;
+            const f2Y = rTipY + forkLen * 0.55;
+
             ctx.beginPath();
             ctx.moveTo(rTipX, rTipY);
-            ctx.lineTo(rTipX + side * forkLen * 0.8, rTipY - forkLen * 0.6);
+            ctx.lineTo(f1X, f1Y);
             ctx.moveTo(rTipX, rTipY);
-            ctx.lineTo(rTipX + side * forkLen * 0.4, rTipY + forkLen * 0.6);
+            ctx.lineTo(f2X, f2Y);
+            ctx.stroke();
+
+            // Second-tier fine lace tiplets
+            const tipletLen = forkLen * 0.45;
+            ctx.beginPath();
+            ctx.moveTo(f1X, f1Y);
+            ctx.lineTo(f1X + side * tipletLen * 0.7, f1Y - tipletLen * 0.6);
+            ctx.moveTo(f1X, f1Y);
+            ctx.lineTo(f1X + side * tipletLen * 0.5, f1Y + tipletLen * 0.4);
             ctx.stroke();
           }
         });
@@ -922,6 +1026,7 @@
 
   // -----------------------------------------------------------------
   // 10. Unified Botanical Plant Cluster (Rumpun Tanaman Air)
+  //     Deep organic randomization of width, height, density, and curvature
   // -----------------------------------------------------------------
   class PlantCluster {
     constructor(x, y, seed, options = {}) {
@@ -930,7 +1035,6 @@
       this.seed = seed || botanical_binomen();
       set_seed(this.seed);
 
-      // Determine species profile
       let profile = SPECIES_CATALOG.find(s => s.id === options.speciesId || s.binomen === this.seed || s.common === this.seed);
       if (!profile) {
         const parsedArch = options.archetype !== undefined ? options.archetype : choice([0, 1, 2, 3, 4, 5, 6]);
@@ -940,39 +1044,41 @@
       this.species = profile;
       this.speciesName = profile.binomen;
       this.archetype = profile.archetype;
-      this.scale = options.scale || rndtri(0.8, 1.0, 1.25);
+      // Cluster scale random variation
+      this.scale = (options.scale || rndtri(0.78, 1.0, 1.35)) * (options.scaleMult || 1.0);
 
       this.blades = [];
       this.structures = [];
 
-      // Construct structures according to morphological archetype
-      const count = options.bladeCount || profile.blades;
-      const spanW = rndtri(25, 50, 75);
+      // Density / blade count natural variation
+      const baseCount = options.bladeCount || profile.blades;
+      const count = Math.max(3, Math.floor(baseCount * rndtri(0.8, 1.0, 1.35)));
+      const spanW = rndtri(28, 55, 82) * this.scale;
 
       if (this.archetype === ARCHETYPES.SEAGRASS) {
         for (let i = 0; i < count; i++) {
           const offX = rndtri(-spanW * 0.5, 0, spanW * 0.5);
           this.blades.push(new SeagrassBlade(this, {
             offsetX: offX,
-            length: profile.height * this.scale * (1.0 - Math.abs(offX) / (spanW * 0.6) * 0.35),
+            length: profile.height * this.scale * (1.0 - Math.abs(offX) / (spanW * 0.6) * 0.32),
             baseWidth: profile.baseW * this.scale,
             tipWidth: profile.tipW,
-            curl: options.curl !== undefined ? options.curl : rndtri(-0.35, 0, 0.35)
+            curl: options.curl !== undefined ? options.curl : rndtri(-0.45, 0, 0.45)
           }));
         }
       } else if (this.archetype === ARCHETYPES.KELP) {
         for (let i = 0; i < count; i++) {
-          const offX = rndtri(-spanW * 0.4, 0, spanW * 0.4);
+          const offX = rndtri(-spanW * 0.42, 0, spanW * 0.42);
           this.blades.push(new KelpBlade(this, {
             offsetX: offX,
-            length: profile.height * this.scale * (1.0 - Math.abs(offX) / (spanW * 0.5) * 0.25),
+            length: profile.height * this.scale * (1.0 - Math.abs(offX) / (spanW * 0.5) * 0.22),
             baseWidth: profile.baseW * this.scale,
             tipWidth: profile.tipW
           }));
         }
       } else if (this.archetype === ARCHETYPES.BRANCHING) {
-        for (let i = 0; i < Math.max(2, Math.floor(count * 0.5)); i++) {
-          const offX = rndtri(-spanW * 0.4, 0, spanW * 0.4);
+        for (let i = 0; i < Math.max(2, Math.floor(count * 0.55)); i++) {
+          const offX = rndtri(-spanW * 0.42, 0, spanW * 0.42);
           this.structures.push(new BranchingFlora(this, {
             offsetX: offX,
             length: profile.height * this.scale,
@@ -980,8 +1086,8 @@
           }));
         }
       } else if (this.archetype === ARCHETYPES.SHEET) {
-        for (let i = 0; i < Math.max(2, Math.floor(count * 0.5)); i++) {
-          const offX = rndtri(-spanW * 0.3, 0, spanW * 0.3);
+        for (let i = 0; i < Math.max(2, Math.floor(count * 0.55)); i++) {
+          const offX = rndtri(-spanW * 0.35, 0, spanW * 0.35);
           this.structures.push(new SheetAlgaeFlora(this, {
             offsetX: offX,
             length: profile.height * this.scale,
@@ -994,11 +1100,12 @@
         }));
       } else if (this.archetype === ARCHETYPES.MOSS) {
         this.structures.push(new AquaticMossFlora(this, {
-          offsetX: 0
+          offsetX: 0,
+          length: profile.height * this.scale
         }));
       } else if (this.archetype === ARCHETYPES.WHORLED) {
-        for (let i = 0; i < Math.max(2, Math.floor(count * 0.6)); i++) {
-          const offX = rndtri(-spanW * 0.4, 0, spanW * 0.4);
+        for (let i = 0; i < Math.max(2, Math.floor(count * 0.65)); i++) {
+          const offX = rndtri(-spanW * 0.42, 0, spanW * 0.42);
           this.structures.push(new WhorledFanFlora(this, {
             offsetX: offX,
             length: profile.height * this.scale
@@ -1006,9 +1113,9 @@
         }
       }
 
-      // Root holdfast pebble / rock
-      this.rockRadiusX = rndtri(16, 26, 40) * this.scale;
-      this.rockRadiusY = rndtri(9, 15, 22) * this.scale;
+      // Root anchor pebble (holdfast rock)
+      this.rockRadiusX = rndtri(18, 28, 44) * this.scale;
+      this.rockRadiusY = rndtri(10, 16, 24) * this.scale;
     }
 
     update(dt, time, fishX, fishY, ripples, ambientCurrent = 0) {
@@ -1023,7 +1130,7 @@
     render(ctx, options = {}) {
       ctx.save();
 
-      // 1. Draw Anchor Pebble / Holdfast washi stone
+      // Holdfast anchor rock
       if (options.stoneWash !== 'transparent') {
         ctx.beginPath();
         ctx.ellipse(this.x, this.y, this.rockRadiusX, this.rockRadiusY, 0, 0, PI * 2);
@@ -1034,7 +1141,7 @@
         ctx.stroke();
       }
 
-      // 2. Render Blades & Botanical Structures
+      // Render all blades and botanical structures
       for (let i = 0; i < this.blades.length; i++) {
         this.blades[i].render(ctx, this.x, this.y, options);
       }
@@ -1048,6 +1155,7 @@
 
   // -----------------------------------------------------------------
   // 11. High-Level Flora Colony Ecosystem Manager
+  //     Organic spacing jitter and height/density diversity
   // -----------------------------------------------------------------
   class PlantColony {
     constructor(options = {}) {
@@ -1064,14 +1172,14 @@
       this.width = width;
       this.height = height;
 
-      // Distribute a rich diversity of archetypes across the seabed
       const margin = 80;
       const step = (width - margin * 2) / (count - 1);
       const archetypesPool = [0, 1, 2, 3, 4, 5, 6];
 
       for (let i = 0; i < count; i++) {
-        const baseX = margin + i * step + rndtri(-30, 0, 30);
-        const baseY = height + rndtri(-12, 4, 18);
+        // Natural spatial jitter along seabed
+        const baseX = margin + i * step + rndtri(-45, 0, 45);
+        const baseY = height + rndtri(-16, 2, 22);
         const clusterSeed = `${this.seed}_cluster_${i}`;
         const arch = archetypesPool[i % archetypesPool.length];
         const species = choice(SPECIES_CATALOG.filter(s => s.archetype === arch)) || SPECIES_CATALOG[0];
@@ -1079,7 +1187,7 @@
         const cluster = new PlantCluster(baseX, baseY, clusterSeed, {
           speciesId: species.id,
           archetype: arch,
-          scale: rndtri(0.75, 1.0, 1.25)
+          scale: rndtri(0.72, 1.0, 1.38)
         });
         this.clusters.push(cluster);
       }
