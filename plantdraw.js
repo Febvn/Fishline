@@ -96,7 +96,7 @@
     { id: 'ribbonleaf_pondweed', common: 'Ribbonleaf Pondweed', binomen: 'Potamogeton epihydrus', archetype: 0, height: 340, baseW: 16, tipW: 2.4, blades: 9, desc: 'Pondweed berdaun pita transparan dengan pola serat daun sejajar.' },
 
     // --- 2. Kelp (Rumput Laut Besar) [REDESIGNED] ---
-    { id: 'giant_kelp', common: 'Giant Kelp', binomen: 'Macrocystis pyrifera', archetype: 1, height: 530, baseW: 42, tipW: 7.0, blades: 5, desc: 'Kelp raksasa berpelepah tebal dengan bilah berombak kerut dinamis dan kantung gelembung apung.' },
+    { id: 'giant_kelp', common: 'Giant Kelp', binomen: 'Macrocystis pyrifera', archetype: 1, height: 530, baseW: 42, tipW: 7.0, blades: 5, desc: 'Kelp raksasa berpelepah tebal dengan bilah berombak kerut dinamis dan stipe lentur.' },
     { id: 'laminaria', common: 'Oarweed / Kelp Jepang', binomen: 'Laminaria japonica', archetype: 1, height: 450, baseW: 38, tipW: 5.5, blades: 6, desc: 'Kelp sumi-e berdaun lebar mengombak anggun mengikuti pasang surut air laut.' },
 
     // --- 3. Branching Algae (Alga / Ranting Bercabang) [FAVORITE] ---
@@ -312,8 +312,7 @@
   // 4. Mathematical Kelp: Archetype 1 (KELP) [REDESIGNED]
   //    - Supple basal stipe stalk
   //    - Broad billowing belly with high-frequency ruffled margins (crinkled frills)
-  //    - Multi-tiered pneumatocysts (tear-drop gas bladders)
-  //    - Textured rugae fluting lines
+  //    - Clean stipe midrib and textured rugae fluting lines
   // -----------------------------------------------------------------
   class KelpBlade {
     constructor(parent, config) {
@@ -358,12 +357,6 @@
           width: wProfile
         });
       }
-
-      // Gas bladders (pneumatocysts) with connection stems
-      this.bladders = [
-        { t: 0.11, r: rndtri(8, 11, 14), side: -1 },
-        { t: 0.19, r: rndtri(9, 13, 16), side: 1 }
-      ];
     }
 
     update(dt, time, rootX, rootY, currentFlow, fishX, fishY, ripples) {
@@ -485,25 +478,6 @@
         ctx.stroke();
       });
       ctx.restore();
-
-      // Pneumatocysts (teardrop gas bladders with holdfast stems)
-      for (const bl of this.bladders) {
-        const idx = Math.floor(bl.t * (N - 1));
-        const stalkX = centerLine[idx][0] + bl.side * (this.nodes[idx].width * 0.48);
-        const stalkY = centerLine[idx][1];
-
-        // Little connection stipe
-        ctx.beginPath();
-        ctx.moveTo(centerLine[idx][0], centerLine[idx][1]);
-        ctx.lineTo(stalkX, stalkY);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.ellipse(stalkX, stalkY, bl.r, bl.r * 1.45, bl.side * 0.35, 0, PI * 2);
-        ctx.fillStyle = options.washColor || 'rgba(38, 56, 44, 0.22)';
-        ctx.fill();
-        ctx.stroke();
-      }
 
       ctx.restore();
     }
