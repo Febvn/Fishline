@@ -64,6 +64,8 @@
       const genParams = (fd.generate_params || fishdraw.generate_params);
       const getStructured = (fd.fish_structured || fishdraw.fish_structured);
       const params = genParams();
+      // Use natural resting jaw aperture (neither gaping wide nor pursed flat/mingkem)
+      params.jaw_open = 0.25;
       this.model = getStructured(params);
       this.speciesName = this.seed;
 
@@ -193,8 +195,10 @@
       // Pectoral fin lazy flutter
       this.pecAngle = Math.sin(this.time * 2.2) * 0.16;
 
-      // Gentle respiration (mouth opening small amount)
-      this.targetJawAngle = Math.max(0, Math.sin(this.time * 2.0)) * 0.08;
+      // Natural "magap-magap" respiration: rhythmic breathing mouth motion
+      // Breathes comfortably between natural resting shape and gentle respiration opening
+      const breath = 0.5 + 0.5 * Math.sin(this.time * 2.8);
+      this.targetJawAngle = -0.04 + breath * 0.16;
 
       // Slow drift & dampening
       this.vx *= 0.96;
@@ -230,8 +234,8 @@
       // Pectoral fin active paddling
       this.pecAngle = Math.sin(this.time * 5.5) * 0.38;
 
-      // Mouth kept closed
-      this.targetJawAngle = 0.02;
+      // Streamlined natural mouth posture while swimming
+      this.targetJawAngle = -0.02 + Math.max(0, Math.sin(this.time * 4.0)) * 0.05;
 
       // Swim wandering / target picking
       if (!this.wanderTimer || this.stateTimer > this.wanderTimer) {
