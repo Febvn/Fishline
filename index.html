@@ -1612,6 +1612,7 @@
 
   <!-- Scripts -->
   <script src="fishdraw.js"></script>
+  <script src="plantdraw.js"></script>
   <script src="fish_animator.js"></script>
   <script>
     (function () {
@@ -1772,6 +1773,9 @@
         canvas.height = window.innerHeight * dpr;
         ctx.resetTransform();
         ctx.scale(dpr, dpr);
+        if (typeof plantColony !== 'undefined') {
+          plantColony.resize(window.innerWidth, window.innerHeight);
+        }
       }
       window.addEventListener('resize', resizeCanvas);
       resizeCanvas();
@@ -1781,6 +1785,13 @@
         x: window.innerWidth * 0.5,
         y: window.innerHeight * 0.5,
         scale: 0.85
+      });
+
+      // Procedural Aquatic Flora & Seaweed Engine (plantdraw.js)
+      const plantColony = plantdraw.createColony({
+        width: window.innerWidth,
+        height: window.innerHeight,
+        count: Math.max(4, Math.floor(window.innerWidth / 220))
       });
 
 
@@ -2430,6 +2441,15 @@
           ctx.stroke();
           ctx.restore();
         }
+
+        // 2.5 Update and Render Procedural Seaweed / Aquatic Flora (plantdraw.js)
+        plantColony.update(dt, animator.x, animator.y, ripples);
+        plantColony.render(ctx, {
+          strokeColor: inkColor,
+          lineWidth: 1.05,
+          washColor: currentTheme === 'midnight' ? 'rgba(80, 140, 115, 0.14)' : 'rgba(35, 52, 42, 0.08)',
+          stoneWash: currentTheme === 'midnight' ? 'rgba(30, 40, 56, 0.5)' : 'rgba(30, 26, 36, 0.08)'
+        });
 
         // 3. Render Animated Fish with Sumi-e Vector Linework
         animator.render(ctx, {
