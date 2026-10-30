@@ -525,15 +525,52 @@
           </div>
         </div>
 
-        <!-- 4. Parameter Geometri & Variasi Alami Daun -->
+        <!-- 4. Parameter Kerapatan, Jarak & Perubahan Derajat Daun -->
         <div class="control-group">
           <div class="group-label">
-            <span>Dimensi & Variasi Acak Alami</span>
+            <span>Kerapatan, Jarak & Derajat Daun</span>
           </div>
 
-          <button class="btn-action-sm btn-action-outline" id="btn-random-dimensions" style="width:100%; margin-bottom:4px;">
-            Acak Dimensi & Kerapatan Alami
-          </button>
+          <div style="display:flex; gap:6px; margin-bottom:4px;">
+            <button class="btn-action-sm btn-action-outline" id="btn-preset-tight" style="flex:1;">Rapat (6px, 18°)</button>
+            <button class="btn-action-sm btn-action-outline" id="btn-preset-natural" style="flex:1;">Alami (16px, 54°)</button>
+            <button class="btn-action-sm btn-action-outline" id="btn-preset-wide" style="flex:1;">Mekar (30px, 86°)</button>
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Jarak Antar Pangkal Daun (Spacing):</span>
+              <span class="slider-val" id="val-spacing">16 px</span>
+            </div>
+            <input type="range" id="slider-spacing" min="4" max="45" step="1" value="16">
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Rentang Perubahan Derajat Mekar:</span>
+              <span class="slider-val" id="val-angle">54°</span>
+            </div>
+            <input type="range" id="slider-angle" min="0" max="110" step="2" value="54">
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Pola Distribusi Derajat:</span>
+            </div>
+            <select id="select-angle-pattern" class="select-field" style="padding: 5px 8px; font-size: 11px;">
+              <option value="fan">Kipas Progresif (-θ → +θ)</option>
+              <option value="alternating">Berselang-seling Kiri-Kanan</option>
+              <option value="spiral">Filotaksis Spiral (Golden Ratio)</option>
+            </select>
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Jumlah Vegetasi per Rumpun (Kerapatan):</span>
+              <span class="slider-val" id="val-blades">8 helai</span>
+            </div>
+            <input type="range" id="slider-blades" min="2" max="28" step="1" value="8">
+          </div>
 
           <div class="slider-field">
             <div class="slider-header">
@@ -553,19 +590,15 @@
 
           <div class="slider-field">
             <div class="slider-header">
-              <span>Jumlah Vegetasi per Rumpun (Kerapatan):</span>
-              <span class="slider-val" id="val-blades">8 helai</span>
-            </div>
-            <input type="range" id="slider-blades" min="2" max="28" step="1" value="8">
-          </div>
-
-          <div class="slider-field">
-            <div class="slider-header">
               <span>Skala Variasi Acak Antar-Helai:</span>
               <span class="slider-val" id="val-variance">1.0x</span>
             </div>
             <input type="range" id="slider-variance" min="0.4" max="1.8" step="0.1" value="1.0">
           </div>
+
+          <button class="btn-action-sm btn-action-outline" id="btn-random-dimensions" style="width:100%; margin-top:4px;">
+            Acak Dimensi, Jarak & Derajat Alami
+          </button>
         </div>
 
         <!-- 5. Hidrodinamika Arus & Reaksi Fisika Fluida -->
@@ -638,6 +671,7 @@
       <div class="viewport-hud">
         <div>Spesies: <span id="hud-species-name">Posidonia oceanica</span></div>
         <div>Morfologi: <span id="hud-arch-name">Seagrass (Lamun)</span></div>
+        <div>Jarak: <span id="hud-spacing">16 px</span> • Derajat: <span id="hud-angle">54°</span></div>
         <div>Arus Ambien: <span id="hud-current">+0.38 m/s</span></div>
         <div>FPS: <span id="hud-fps">60</span></div>
       </div>
@@ -679,6 +713,9 @@
       let paramLength = activeSpecies.height;
       let paramWidth = activeSpecies.baseW;
       let paramBlades = activeSpecies.blades;
+      let paramSpacing = 16;
+      let paramAngle = 54;
+      let paramPattern = 'fan';
       let paramCurrent = 1.0;
       let paramWave = 1.0;
       let paramLineWidth = 1.1;
@@ -738,7 +775,13 @@
             speciesId: activeSpecies.id,
             archetype: activeArchetype,
             bladeCount: paramBlades,
-            scale: 1.0
+            bladeSpacing: paramSpacing,
+            spreadAngleDeg: paramAngle,
+            anglePattern: paramPattern,
+            length: paramLength,
+            baseWidth: paramWidth,
+            scale: 1.0,
+            exactCount: true
           }
         );
         syncInfoUI();
@@ -772,6 +815,19 @@
 
         document.getElementById('slider-blades').value = paramBlades;
         document.getElementById('val-blades').textContent = paramBlades + ' helai';
+
+        document.getElementById('slider-spacing').value = paramSpacing;
+        document.getElementById('val-spacing').textContent = paramSpacing + ' px';
+
+        document.getElementById('slider-angle').value = paramAngle;
+        document.getElementById('val-angle').textContent = paramAngle + '°';
+
+        document.getElementById('select-angle-pattern').value = paramPattern;
+
+        const hudSpacing = document.getElementById('hud-spacing');
+        if (hudSpacing) hudSpacing.textContent = paramSpacing + ' px';
+        const hudAngle = document.getElementById('hud-angle');
+        if (hudAngle) hudAngle.textContent = paramAngle + '°';
 
         // Sync active archetype button
         document.querySelectorAll('.btn-arch').forEach(b => {
@@ -854,13 +910,61 @@
       let paramVariance = 1.0;
 
       document.getElementById('btn-random-dimensions').addEventListener('click', () => {
-        // Naturally randomize length, width, and blade density based on active species baseline
+        // Naturally randomize length, width, blade count, spacing, and degree spread
         paramLength = Math.round(activeSpecies.height * (0.75 + Math.random() * 0.5));
         paramWidth = Math.round(activeSpecies.baseW * (0.75 + Math.random() * 0.5));
         paramBlades = Math.round(activeSpecies.blades * (0.8 + Math.random() * 0.5));
+        paramSpacing = Math.round(8 + Math.random() * 22);
+        paramAngle = Math.round(24 + Math.random() * 66);
+        paramPattern = ['fan', 'alternating', 'spiral'][Math.floor(Math.random() * 3)];
         syncInfoUI();
         if (viewMode === 'single') createCluster();
         else createColony();
+      });
+
+      document.getElementById('slider-spacing').addEventListener('input', (e) => {
+        paramSpacing = parseInt(e.target.value);
+        document.getElementById('val-spacing').textContent = paramSpacing + ' px';
+        const hudSpacing = document.getElementById('hud-spacing');
+        if (hudSpacing) hudSpacing.textContent = paramSpacing + ' px';
+        if (viewMode === 'single') createCluster();
+      });
+
+      document.getElementById('slider-angle').addEventListener('input', (e) => {
+        paramAngle = parseInt(e.target.value);
+        document.getElementById('val-angle').textContent = paramAngle + '°';
+        const hudAngle = document.getElementById('hud-angle');
+        if (hudAngle) hudAngle.textContent = paramAngle + '°';
+        if (viewMode === 'single') createCluster();
+      });
+
+      document.getElementById('select-angle-pattern').addEventListener('change', (e) => {
+        paramPattern = e.target.value;
+        if (viewMode === 'single') createCluster();
+      });
+
+      document.getElementById('btn-preset-tight').addEventListener('click', () => {
+        paramSpacing = 6;
+        paramAngle = 18;
+        paramPattern = 'fan';
+        syncInfoUI();
+        if (viewMode === 'single') createCluster();
+      });
+
+      document.getElementById('btn-preset-natural').addEventListener('click', () => {
+        paramSpacing = 16;
+        paramAngle = 54;
+        paramPattern = 'fan';
+        syncInfoUI();
+        if (viewMode === 'single') createCluster();
+      });
+
+      document.getElementById('btn-preset-wide').addEventListener('click', () => {
+        paramSpacing = 30;
+        paramAngle = 86;
+        paramPattern = 'fan';
+        syncInfoUI();
+        if (viewMode === 'single') createCluster();
       });
 
       document.getElementById('slider-variance').addEventListener('input', (e) => {

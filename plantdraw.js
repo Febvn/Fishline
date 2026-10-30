@@ -163,6 +163,10 @@
     constructor(parent, config) {
       this.parent = parent;
       this.offsetX = config.offsetX || 0;
+      this.baseAngle = (config.baseAngleDeg || 0) * (PI / 180);
+      const cosA = Math.cos(this.baseAngle);
+      const sinA = Math.sin(this.baseAngle);
+
       // Organic randomized length and width
       const lenVar = rndtri(0.72, 1.0, 1.38);
       const widthVar = rndtri(0.75, 1.0, 1.35);
@@ -179,9 +183,10 @@
       const ds = this.length / (this.segments - 1);
       for (let i = 0; i < this.segments; i++) {
         const frac = i / (this.segments - 1);
+        const distFromBase = i * ds;
         this.nodes.push({
-          relX: 0,
-          relY: -i * ds,
+          relX: sinA * distFromBase,
+          relY: -cosA * distFromBase,
           velX: 0,
           width: lerp(this.baseWidth, this.tipWidth, Math.pow(frac, 0.8))
         });
@@ -191,16 +196,20 @@
 
     update(dt, time, rootX, rootY, currentFlow, fishX, fishY, ripples) {
       const N = this.nodes.length;
+      const cosA = Math.cos(this.baseAngle);
+      const sinA = Math.sin(this.baseAngle);
+
       for (let i = 0; i < N; i++) {
         const frac = i / (N - 1);
         const node = this.nodes[i];
         const worldX = rootX + this.offsetX + node.relX;
         const worldY = rootY + node.relY;
 
+        const restAngledX = sinA * (this.length * frac);
         const wave = Math.sin(time * this.waveSpeed + this.phase - frac * 3.2) * (this.naturalSway * Math.pow(frac, 1.35));
         const tidal = currentFlow * 72 * Math.pow(frac, 1.5);
         const staticCurl = this.curl * this.length * frac * frac;
-        const targetX = wave + tidal + staticCurl;
+        const targetX = restAngledX + wave + tidal + staticCurl;
 
         let repelForce = 0;
         if (fishX !== undefined && fishY !== undefined && fishX > -500) {
@@ -240,8 +249,8 @@
         const ny = rootY + this.nodes[i].relY;
         centerLine.push([nx, ny]);
 
-        let tx = (i < N - 1) ? (this.nodes[i + 1].relX - this.nodes[i].relX) : 0;
-        let ty = (i < N - 1) ? (this.nodes[i + 1].relY - this.nodes[i].relY) : -10;
+        let tx = (i < N - 1) ? (this.nodes[i + 1].relX - this.nodes[i].relX) : (this.nodes[N - 1].relX - this.nodes[N - 2].relX);
+        let ty = (i < N - 1) ? (this.nodes[i + 1].relY - this.nodes[i].relY) : (this.nodes[N - 1].relY - this.nodes[N - 2].relY);
         const tLen = Math.hypot(tx, ty) || 1;
         const nxNorm = -ty / tLen;
         const nyNorm = tx / tLen;
@@ -310,6 +319,10 @@
     constructor(parent, config) {
       this.parent = parent;
       this.offsetX = config.offsetX || 0;
+      this.baseAngle = (config.baseAngleDeg || 0) * (PI / 180);
+      const cosA = Math.cos(this.baseAngle);
+      const sinA = Math.sin(this.baseAngle);
+
       const lenVar = rndtri(0.75, 1.0, 1.4);
       const widthVar = rndtri(0.75, 1.0, 1.4);
       this.length = (config.length || rndtri(360, 480, 580)) * lenVar;
@@ -327,6 +340,7 @@
       const ds = this.length / (this.segments - 1);
       for (let i = 0; i < this.segments; i++) {
         const frac = i / (this.segments - 1);
+        const distFromBase = i * ds;
         // Biological kelp width profile: slender stipe (frac < 0.15) -> broad frond belly (0.35-0.7) -> tapering tip
         let wProfile;
         if (frac < 0.14) {
@@ -338,8 +352,8 @@
         }
 
         this.nodes.push({
-          relX: 0,
-          relY: -i * ds,
+          relX: sinA * distFromBase,
+          relY: -cosA * distFromBase,
           velX: 0,
           width: wProfile
         });
@@ -354,15 +368,19 @@
 
     update(dt, time, rootX, rootY, currentFlow, fishX, fishY, ripples) {
       const N = this.nodes.length;
+      const cosA = Math.cos(this.baseAngle);
+      const sinA = Math.sin(this.baseAngle);
+
       for (let i = 0; i < N; i++) {
         const frac = i / (N - 1);
         const node = this.nodes[i];
         const worldX = rootX + this.offsetX + node.relX;
         const worldY = rootY + node.relY;
 
+        const restAngledX = sinA * (this.length * frac);
         const wave = Math.sin(time * this.waveSpeed + this.phase - frac * 2.8) * (this.naturalSway * Math.pow(frac, 1.4));
         const tidal = currentFlow * 90 * Math.pow(frac, 1.5);
-        const targetX = wave + tidal;
+        const targetX = restAngledX + wave + tidal;
 
         let repel = 0;
         if (fishX !== undefined && fishY !== undefined && fishX > -500) {
@@ -387,8 +405,8 @@
         const ny = rootY + this.nodes[i].relY;
         centerLine.push([nx, ny]);
 
-        let tx = (i < N - 1) ? (this.nodes[i + 1].relX - this.nodes[i].relX) : 0;
-        let ty = (i < N - 1) ? (this.nodes[i + 1].relY - this.nodes[i].relY) : -10;
+        let tx = (i < N - 1) ? (this.nodes[i + 1].relX - this.nodes[i].relX) : (this.nodes[N - 1].relX - this.nodes[N - 2].relX);
+        let ty = (i < N - 1) ? (this.nodes[i + 1].relY - this.nodes[i].relY) : (this.nodes[N - 1].relY - this.nodes[N - 2].relY);
         const tLen = Math.hypot(tx, ty) || 1;
         const nxNorm = -ty / tLen;
         const nyNorm = tx / tLen;
@@ -498,6 +516,7 @@
     constructor(parent, config) {
       this.parent = parent;
       this.offsetX = config.offsetX || 0;
+      this.baseAngle = (config.baseAngleDeg || 0) * (PI / 180);
       const lenVar = rndtri(0.75, 1.0, 1.35);
       this.height = (config.length || rndtri(210, 280, 360)) * lenVar;
       this.baseWidth = config.baseWidth || 11;
@@ -555,12 +574,14 @@
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
+      const cosA = Math.cos(this.baseAngle);
+      const sinA = Math.sin(this.baseAngle);
       const bx = rootX + this.offsetX;
       const by = rootY;
-      const tipX = bx + this.currentStemX;
-      const tipY = by - this.height;
-      const cpX = bx + this.currentStemX * 0.4;
-      const cpY = by - this.height * 0.55;
+      const tipX = bx + sinA * this.height + this.currentStemX;
+      const tipY = by - cosA * this.height;
+      const cpX = bx + sinA * this.height * 0.45 + this.currentStemX * 0.4;
+      const cpY = by - cosA * this.height * 0.55;
 
       // Draw main trunk
       ctx.beginPath();
@@ -575,8 +596,9 @@
         const nodeX = mt * mt * bx + 2 * mt * t * cpX + t * t * tipX;
         const nodeY = mt * mt * by + 2 * mt * t * cpY + t * t * tipY;
 
-        const bTipX = nodeX + Math.sin(b.angle) * b.bLen + b.swayOffset * b.side;
-        const bTipY = nodeY - Math.cos(b.angle) * b.bLen;
+        const totalAngle = this.baseAngle + b.angle;
+        const bTipX = nodeX + Math.sin(totalAngle) * b.bLen + b.swayOffset * b.side;
+        const bTipY = nodeY - Math.cos(totalAngle) * b.bLen;
 
         ctx.beginPath();
         ctx.moveTo(nodeX, nodeY);
@@ -586,8 +608,8 @@
         for (const tw of b.twigs) {
           const twNodeX = lerp(nodeX, bTipX, tw.t);
           const twNodeY = lerp(nodeY, bTipY, tw.t);
-          const twTipX = twNodeX + Math.sin(b.angle + tw.angle) * tw.len;
-          const twTipY = twNodeY - Math.cos(b.angle + tw.angle) * tw.len;
+          const twTipX = twNodeX + Math.sin(totalAngle + tw.angle) * tw.len;
+          const twTipY = twNodeY - Math.cos(totalAngle + tw.angle) * tw.len;
 
           ctx.beginPath();
           ctx.moveTo(twNodeX, twNodeY);
@@ -610,6 +632,7 @@
     constructor(parent, config) {
       this.parent = parent;
       this.offsetX = config.offsetX || 0;
+      this.baseAngle = (config.baseAngleDeg || 0) * (PI / 180);
       const lenVar = rndtri(0.75, 1.0, 1.35);
       const widthVar = rndtri(0.75, 1.0, 1.4);
       this.height = (config.length || rndtri(280, 380, 460)) * lenVar;
@@ -621,11 +644,11 @@
       this.lobes = [];
       const numLobes = Math.floor(rnd(3, 6));
       for (let i = 0; i < numLobes; i++) {
-        const spreadAngle = (i / (numLobes - 1) - 0.5) * 0.85;
+        const spreadAngle = (numLobes > 1 ? (i / (numLobes - 1) - 0.5) : 0) * 0.85;
         this.lobes.push({
           len: this.height * rndtri(0.7, 1.0, 1.25),
           width: this.width * rndtri(0.65, 1.0, 1.35),
-          angle: spreadAngle,
+          angle: this.baseAngle + spreadAngle,
           ruffleFreq: rndtri(6, 9, 13),
           ruffleAmp: rndtri(8, 14, 22),
           swayX: 0
@@ -653,8 +676,8 @@
 
       for (let k = 0; k < this.lobes.length; k++) {
         const lb = this.lobes[k];
-        const tipX = bx + lb.swayX + Math.sin(lb.angle) * (lb.len * 0.45);
-        const tipY = by - lb.len;
+        const tipX = bx + lb.swayX + Math.sin(lb.angle) * (lb.len * 0.55);
+        const tipY = by - Math.cos(lb.angle) * lb.len;
         const hw = lb.width * 0.5;
 
         // Billowing curved lettuce sheet contour
@@ -727,7 +750,7 @@
       // Clustered hierarchical pearls
       this.bubbles = [];
       const numBubbles = Math.floor(rnd(12, 22));
-      const spanW = rndtri(40, 70, 95);
+      const spanW = config.bladeSpacing ? Math.max(35, config.bladeSpacing * 4.5) : rndtri(40, 70, 95);
       for (let i = 0; i < numBubbles; i++) {
         const offX = rndtri(-spanW * 0.5, 0, spanW * 0.5);
         const distFromCenter = Math.abs(offX) / (spanW * 0.55);
@@ -827,7 +850,7 @@
       // Dense feathery velvet tufts
       this.tufts = [];
       const numTufts = Math.floor(rnd(22, 38));
-      const spanW = rndtri(45, 75, 105);
+      const spanW = config.bladeSpacing ? Math.max(45, config.bladeSpacing * (config.bladeCount || 10) * 0.42) : rndtri(45, 75, 105);
       for (let i = 0; i < numTufts; i++) {
         const offX = rndtri(-spanW * 0.5, 0, spanW * 0.5);
         const lenVar = rndtri(0.7, 1.0, 1.4);
@@ -904,6 +927,10 @@
     constructor(parent, config) {
       this.parent = parent;
       this.offsetX = config.offsetX || 0;
+      this.baseAngle = (config.baseAngleDeg || 0) * (PI / 180);
+      const cosA = Math.cos(this.baseAngle);
+      const sinA = Math.sin(this.baseAngle);
+
       const lenVar = rndtri(0.75, 1.0, 1.35);
       this.height = (config.length || rndtri(300, 400, 510)) * lenVar;
       this.phase = rnd(0, PI * 2);
@@ -914,12 +941,18 @@
       const segs = 20;
       const ds = this.height / (segs - 1);
       for (let i = 0; i < segs; i++) {
-        this.stemNodes.push({ relX: 0, relY: -i * ds, velX: 0 });
+        const distFromBase = i * ds;
+        this.stemNodes.push({
+          relX: sinA * distFromBase,
+          relY: -cosA * distFromBase,
+          velX: 0
+        });
       }
 
-      // Radial fan whorls along stem nodes
+      // Radial fan whorls along stem nodes with progressive degree rotation
       this.whorls = [];
       const numWhorls = Math.floor(rnd(7, 12));
+      const whorlRotationStep = (config.whorlRotationDeg !== undefined ? config.whorlRotationDeg : 48) * (PI / 180);
       for (let i = 0; i < numWhorls; i++) {
         const t = lerp(0.16, 0.96, i / (numWhorls - 1));
         // Leaves are larger in mid-bottom, smaller and denser toward the budding tip
@@ -930,6 +963,7 @@
           t,
           fanRadius,
           fanRays,
+          whorlAngle: i * whorlRotationStep,
           swayLag: rnd(0.8, 1.4)
         });
       }
@@ -937,15 +971,19 @@
 
     update(dt, time, rootX, rootY, currentFlow, fishX, fishY, ripples) {
       const N = this.stemNodes.length;
+      const cosA = Math.cos(this.baseAngle);
+      const sinA = Math.sin(this.baseAngle);
+
       for (let i = 0; i < N; i++) {
         const frac = i / (N - 1);
         const node = this.stemNodes[i];
         const worldX = rootX + this.offsetX + node.relX;
         const worldY = rootY + node.relY;
 
+        const restAngledX = sinA * (this.height * frac);
         const wave = Math.sin(time * this.waveSpeed + this.phase - frac * 3.1) * (52 * Math.pow(frac, 1.4));
         const tidal = currentFlow * 78 * Math.pow(frac, 1.5);
-        const targetX = wave + tidal;
+        const targetX = restAngledX + wave + tidal;
 
         let repel = 0;
         if (fishX !== undefined && fishY !== undefined && fishX > -500) {
@@ -984,7 +1022,7 @@
         [-1, 1].forEach(side => {
           for (let r = 0; r < wh.fanRays; r++) {
             const spreadNorm = (r / (wh.fanRays - 1) - 0.5);
-            const rayAngle = spreadNorm * 1.4 + stemSlope;
+            const rayAngle = this.baseAngle + wh.whorlAngle * 0.35 + spreadNorm * 1.4 + stemSlope;
             const rLen = wh.fanRadius * (1 - Math.abs(spreadNorm) * 0.28);
             const rTipX = wx + side * Math.cos(rayAngle) * rLen;
             const rTipY = wy - Math.sin(rayAngle) * (rLen * 0.6) - 6;
@@ -1026,7 +1064,7 @@
 
   // -----------------------------------------------------------------
   // 10. Unified Botanical Plant Cluster (Rumpun Tanaman Air)
-  //     Deep organic randomization of width, height, density, and curvature
+  //     Organic leaf spacing & angular degree spread (kerapatan & perubahan derajat)
   // -----------------------------------------------------------------
   class PlantCluster {
     constructor(x, y, seed, options = {}) {
@@ -1050,72 +1088,110 @@
       this.blades = [];
       this.structures = [];
 
-      // Density / blade count natural variation
-      const baseCount = options.bladeCount || profile.blades;
-      const count = Math.max(3, Math.floor(baseCount * rndtri(0.8, 1.0, 1.35)));
-      const spanW = rndtri(28, 55, 82) * this.scale;
+      // Spacing & Angular Degree settings
+      const bladeSpacing = options.bladeSpacing !== undefined ? options.bladeSpacing : 16;
+      const spreadAngleDeg = options.spreadAngleDeg !== undefined ? options.spreadAngleDeg : 54;
+      const anglePattern = options.anglePattern || 'fan'; // 'fan', 'alternating', 'spiral'
+
+      this.bladeSpacing = bladeSpacing;
+      this.spreadAngleDeg = spreadAngleDeg;
+      this.anglePattern = anglePattern;
+
+      // Base count / density
+      const baseCount = options.bladeCount !== undefined ? options.bladeCount : profile.blades;
+      const count = options.exactCount ? Math.max(2, baseCount) : Math.max(2, Math.floor(baseCount * rndtri(0.85, 1.0, 1.25)));
+
+      const getBladePlacement = (i, totalCount) => {
+        const u = (totalCount > 1) ? (i / (totalCount - 1) - 0.5) : 0;
+        const offX = u * (totalCount - 1) * bladeSpacing * this.scale + rndtri(-1.2, 0, 1.2);
+        let angleDeg = 0;
+        if (anglePattern === 'fan') {
+          angleDeg = (u * 2) * (spreadAngleDeg * 0.5);
+        } else if (anglePattern === 'alternating') {
+          const mag = ((i + 1) / totalCount) * (spreadAngleDeg * 0.5);
+          angleDeg = (i % 2 === 0 ? -1 : 1) * mag;
+        } else if (anglePattern === 'spiral') {
+          const normStep = ((i * 137.5) % 360) / 360 - 0.5;
+          angleDeg = normStep * spreadAngleDeg;
+        }
+        return { offX, angleDeg: angleDeg + rndtri(-2.0, 0, 2.0), u };
+      };
 
       if (this.archetype === ARCHETYPES.SEAGRASS) {
         for (let i = 0; i < count; i++) {
-          const offX = rndtri(-spanW * 0.5, 0, spanW * 0.5);
+          const { offX, angleDeg, u } = getBladePlacement(i, count);
           this.blades.push(new SeagrassBlade(this, {
             offsetX: offX,
-            length: profile.height * this.scale * (1.0 - Math.abs(offX) / (spanW * 0.6) * 0.32),
-            baseWidth: profile.baseW * this.scale,
+            baseAngleDeg: angleDeg,
+            length: (options.length || profile.height) * this.scale * (1.0 - Math.abs(u) * 0.28),
+            baseWidth: (options.baseWidth || profile.baseW) * this.scale,
             tipWidth: profile.tipW,
-            curl: options.curl !== undefined ? options.curl : rndtri(-0.45, 0, 0.45)
+            curl: options.curl !== undefined ? options.curl : rndtri(-0.35, 0, 0.35)
           }));
         }
       } else if (this.archetype === ARCHETYPES.KELP) {
         for (let i = 0; i < count; i++) {
-          const offX = rndtri(-spanW * 0.42, 0, spanW * 0.42);
+          const { offX, angleDeg, u } = getBladePlacement(i, count);
           this.blades.push(new KelpBlade(this, {
             offsetX: offX,
-            length: profile.height * this.scale * (1.0 - Math.abs(offX) / (spanW * 0.5) * 0.22),
-            baseWidth: profile.baseW * this.scale,
+            baseAngleDeg: angleDeg,
+            length: (options.length || profile.height) * this.scale * (1.0 - Math.abs(u) * 0.22),
+            baseWidth: (options.baseWidth || profile.baseW) * this.scale,
             tipWidth: profile.tipW
           }));
         }
       } else if (this.archetype === ARCHETYPES.BRANCHING) {
-        for (let i = 0; i < Math.max(2, Math.floor(count * 0.55)); i++) {
-          const offX = rndtri(-spanW * 0.42, 0, spanW * 0.42);
+        const bCount = Math.max(2, Math.floor(count * 0.6));
+        for (let i = 0; i < bCount; i++) {
+          const { offX, angleDeg } = getBladePlacement(i, bCount);
           this.structures.push(new BranchingFlora(this, {
             offsetX: offX,
-            length: profile.height * this.scale,
-            baseWidth: profile.baseW
+            baseAngleDeg: angleDeg * 0.75,
+            length: (options.length || profile.height) * this.scale,
+            baseWidth: options.baseWidth || profile.baseW
           }));
         }
       } else if (this.archetype === ARCHETYPES.SHEET) {
-        for (let i = 0; i < Math.max(2, Math.floor(count * 0.55)); i++) {
-          const offX = rndtri(-spanW * 0.35, 0, spanW * 0.35);
+        const sCount = Math.max(2, Math.floor(count * 0.6));
+        for (let i = 0; i < sCount; i++) {
+          const { offX, angleDeg } = getBladePlacement(i, sCount);
           this.structures.push(new SheetAlgaeFlora(this, {
             offsetX: offX,
-            length: profile.height * this.scale,
-            baseWidth: profile.baseW * this.scale
+            baseAngleDeg: angleDeg * 0.65,
+            length: (options.length || profile.height) * this.scale,
+            baseWidth: (options.baseWidth || profile.baseW) * this.scale
           }));
         }
       } else if (this.archetype === ARCHETYPES.BUBBLE) {
         this.structures.push(new BubbleAlgaeFlora(this, {
-          offsetX: 0
+          offsetX: 0,
+          bladeSpacing: bladeSpacing,
+          bladeCount: count
         }));
       } else if (this.archetype === ARCHETYPES.MOSS) {
         this.structures.push(new AquaticMossFlora(this, {
           offsetX: 0,
-          length: profile.height * this.scale
+          bladeSpacing: bladeSpacing,
+          bladeCount: count,
+          length: (options.length || profile.height) * this.scale
         }));
       } else if (this.archetype === ARCHETYPES.WHORLED) {
-        for (let i = 0; i < Math.max(2, Math.floor(count * 0.65)); i++) {
-          const offX = rndtri(-spanW * 0.42, 0, spanW * 0.42);
+        const wCount = Math.max(2, Math.floor(count * 0.65));
+        for (let i = 0; i < wCount; i++) {
+          const { offX, angleDeg } = getBladePlacement(i, wCount);
           this.structures.push(new WhorledFanFlora(this, {
             offsetX: offX,
-            length: profile.height * this.scale
+            baseAngleDeg: angleDeg * 0.7,
+            whorlRotationDeg: 45,
+            length: (options.length || profile.height) * this.scale
           }));
         }
       }
 
-      // Root anchor pebble (holdfast rock)
-      this.rockRadiusX = rndtri(18, 28, 44) * this.scale;
-      this.rockRadiusY = rndtri(10, 16, 24) * this.scale;
+      // Root anchor pebble (holdfast rock) - dynamically adapts to leaf spread width
+      const totalSpanX = Math.max(20, (count - 1) * bladeSpacing * this.scale);
+      this.rockRadiusX = Math.max(22, totalSpanX * 0.55 + 14) * this.scale;
+      this.rockRadiusY = Math.max(12, this.rockRadiusX * 0.42);
     }
 
     update(dt, time, fishX, fishY, ripples, ambientCurrent = 0) {
@@ -1187,7 +1263,10 @@
         const cluster = new PlantCluster(baseX, baseY, clusterSeed, {
           speciesId: species.id,
           archetype: arch,
-          scale: rndtri(0.72, 1.0, 1.38)
+          scale: rndtri(0.72, 1.0, 1.38),
+          bladeSpacing: rndtri(12, 16, 22),
+          spreadAngleDeg: rndtri(38, 55, 72),
+          anglePattern: choice(['fan', 'alternating'])
         });
         this.clusters.push(cluster);
       }
