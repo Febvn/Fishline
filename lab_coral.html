@@ -644,11 +644,6 @@
           </label>
 
           <label class="checkbox-row">
-            <input type="checkbox" id="chk-holdfast" checked>
-            <span>Kaki Jangkar Kalsit (Basal Holdfast Anchor)</span>
-          </label>
-
-          <label class="checkbox-row">
             <input type="checkbox" id="chk-shadow" checked>
             <span>Bayangan Dasar Air (Submerged Drop Shadow)</span>
           </label>
@@ -740,7 +735,7 @@
       let showPolyps = true;
       let showMeanders = true;
       let showStriations = true;
-      let showHoldfast = true;
+      let showHoldfast = false;
       let showShadow = true;
 
       const ripples = [];
@@ -1051,7 +1046,8 @@
       document.getElementById('chk-polyps').addEventListener('change', (e) => showPolyps = e.target.checked);
       document.getElementById('chk-meanders').addEventListener('change', (e) => showMeanders = e.target.checked);
       document.getElementById('chk-striations').addEventListener('change', (e) => showStriations = e.target.checked);
-      document.getElementById('chk-holdfast').addEventListener('change', (e) => showHoldfast = e.target.checked);
+      const chkHoldfast = document.getElementById('chk-holdfast');
+      if (chkHoldfast) chkHoldfast.addEventListener('change', (e) => showHoldfast = e.target.checked);
       document.getElementById('chk-shadow').addEventListener('change', (e) => showShadow = e.target.checked);
 
       // Theme toggle

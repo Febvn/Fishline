@@ -728,23 +728,6 @@
         ctx.restore();
       }
 
-      // 2. Basal Holdfast Anchor
-      if (this.holdfastPts.length > 2 && options.showHoldfast !== false) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(this.holdfastPts[0].x, this.holdfastPts[0].y);
-        for (let i = 1; i < this.holdfastPts.length; i++) {
-          ctx.lineTo(this.holdfastPts[i].x, this.holdfastPts[i].y);
-        }
-        ctx.closePath();
-        ctx.fillStyle = shadowWash;
-        ctx.fill();
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = lineWidth * 0.9;
-        ctx.stroke();
-        ctx.restore();
-      }
-
       // Hydrodynamic current sway transform
       ctx.save();
       const swayX = this.currentSwayX;
