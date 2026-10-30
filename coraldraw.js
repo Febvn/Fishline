@@ -187,6 +187,7 @@
       this.massiveDome = null;
       this.tablePlates = [];
       this.folioseRuffles = [];
+      this.folioseStalk = null;
       this.encrustingSlab = null;
       this.columns = [];
       this.holdfastPts = [];
@@ -483,40 +484,94 @@
       this.encrustingSlab = { topPts, botPts, calderas, thickness };
     }
 
-    // --- 3.5 Volumetric Foliose (Overlapping Ruffle Petals with Under-Shadows) ---
+    // --- 3.5 Volumetric Foliose (Layered Cabbage / Scroll Leaves with Organic Growth Folds & Veins) ---
     buildVolumetricFoliose() {
       this.folioseRuffles = [];
-      const numCups = this.morph === CORAL_MORPHS.DENSE_BUSH ? 5 : 4;
+      const numCups = this.morph === CORAL_MORPHS.DENSE_BUSH ? 6 : (this.morph === CORAL_MORPHS.SPREADING ? 4 : 5);
+
+      // Central stem / stalk column supporting the foliose tiers from holdfast
+      const stalkTopY = -this.height * 0.38;
+      const stalkBottomY = 0;
+      const stalkW = this.baseW * 0.85;
+      this.folioseStalk = {
+        topY: stalkTopY,
+        bottomY: stalkBottomY,
+        w: stalkW
+      };
 
       for (let c = 0; c < numCups; c++) {
-        const frac = c / numCups;
-        const cupCenterY = -this.height * (0.32 + frac * 0.58);
-        const cupRx = this.spread * (0.35 + (1 - frac) * 0.25);
-        const cupRy = cupRx * 0.42;
-        const thickness = 6;
-        const offX = rndtri(-16, 0, 16);
+        const frac = c / (numCups - 1 || 1);
+        const cupCenterY = -this.height * (0.26 + frac * 0.64);
+        const sizeFactor = this.morph === CORAL_MORPHS.TIERED_STEP
+          ? (1.0 - frac * 0.32)
+          : (0.82 + Math.sin(frac * PI) * 0.38);
+        const cupRx = this.spread * 0.44 * sizeFactor;
+        const cupRy = cupRx * 0.38; // 2.5D natural oblique view
+        const thickness = 5.0 + (1 - frac) * 2.5;
+        const offX = rndtri(-18, 0, 18) + (c % 2 === 0 ? -14 : 14) * (1 - frac * 0.45);
 
+        // 1. Outer ruffled margin contour
         const outerPts = [];
         const innerPts = [];
-        const numPts = 42;
+        const numPts = 64;
+        const ruffleFreq = 5.0 + (c % 2);
+        const rufflePhase = c * 1.7;
+
         for (let i = 0; i <= numPts; i++) {
           const th = (i / numPts) * TWO_PI;
-          const ruffle = 1.0 + Math.sin(th * 5.0 + c * 1.6) * 0.18 + Math.cos(th * 3.0) * 0.08;
+          const ruffle = 1.0 + Math.sin(th * ruffleFreq + rufflePhase) * 0.16 + Math.cos(th * 3.0) * 0.06;
           const ox = offX + Math.cos(th) * cupRx * ruffle;
           const oy = cupCenterY + Math.sin(th) * cupRy * ruffle;
           outerPts.push({ x: ox, y: oy });
           innerPts.push({ x: ox, y: oy + thickness });
         }
 
-        // Curved radial ridges
-        const septaRibs = [];
-        const numRibs = 18;
-        for (let s = 0; s < numRibs; s++) {
-          const a = (s / numRibs) * TWO_PI;
-          septaRibs.push({
-            x0: offX, y0: cupCenterY,
-            x1: offX + Math.cos(a) * cupRx * 0.88,
-            y1: cupCenterY + Math.sin(a) * cupRy * 0.88
+        // 2. Concentric Growth Folds (garis lipatan konsentris alami daun foliose)
+        const growthRings = [];
+        const ringFractions = [0.42, 0.68, 0.86];
+        for (const rf of ringFractions) {
+          const ringPts = [];
+          for (let i = 0; i <= 48; i++) {
+            const th = (i / 48) * TWO_PI;
+            const rRuffle = 1.0 + Math.sin(th * ruffleFreq + rufflePhase) * (0.16 * rf) + Math.cos(th * 3.0) * (0.05 * rf);
+            const rx = offX + Math.cos(th) * (cupRx * rf) * rRuffle;
+            const ry = cupCenterY + Math.sin(th) * (cupRy * rf) * rRuffle;
+            ringPts.push({ x: rx, y: ry });
+          }
+          growthRings.push(ringPts);
+        }
+
+        // 3. Natural Leaf Veins (urat daun / rusuk radial alami foliose)
+        const veins = [];
+        const numVeins = 14;
+        for (let v = 0; v < numVeins; v++) {
+          const th = (v / numVeins) * TWO_PI;
+          const ruffle = 1.0 + Math.sin(th * ruffleFreq + rufflePhase) * 0.16 + Math.cos(th * 3.0) * 0.06;
+          const startR = 0.20;
+          const endR = 0.94;
+          const x0 = offX + Math.cos(th) * cupRx * startR;
+          const y0 = cupCenterY + Math.sin(th) * cupRy * startR;
+          // Organic curve towards lobe crest
+          const curveAngle = th + 0.14 * Math.sin(v * 2.3);
+          const midR = (startR + endR) * 0.52;
+          const cx = offX + Math.cos(curveAngle) * cupRx * midR;
+          const cy = cupCenterY + Math.sin(curveAngle) * cupRy * midR;
+          const x1 = offX + Math.cos(th) * cupRx * endR * ruffle;
+          const y1 = cupCenterY + Math.sin(th) * cupRy * endR * ruffle;
+          veins.push({ x0, y0, cx, cy, x1, y1 });
+        }
+
+        // 4. Subtle Corallite Calice Dots on Leaf Blade
+        const pores = [];
+        const numPores = 12;
+        for (let p = 0; p < numPores; p++) {
+          const pTh = rnd(0, TWO_PI);
+          const pRad = rnd(0.32, 0.85);
+          const pRuffle = 1.0 + Math.sin(pTh * ruffleFreq + rufflePhase) * 0.12;
+          pores.push({
+            x: offX + Math.cos(pTh) * cupRx * pRad * pRuffle,
+            y: cupCenterY + Math.sin(pTh) * cupRy * pRad * pRuffle,
+            r: rnd(1.0, 1.6)
           });
         }
 
@@ -525,7 +580,9 @@
           offX,
           outerPts,
           innerPts,
-          septaRibs
+          growthRings,
+          veins,
+          pores
         });
       }
 
@@ -1011,12 +1068,28 @@
       ctx.restore();
     }
 
-    // --- Render Volumetric Foliose (Layered Petals with Overlapping Cast Shadows) ---
+    // --- Render Volumetric Foliose (Layered Petals with Natural Leaf Veins & Undulating Growth Folds) ---
     renderVolumetricFoliose(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options) {
       ctx.save();
 
+      // 1. Central supporting stalk column anchored to base
+      if (this.folioseStalk) {
+        const stk = this.folioseStalk;
+        ctx.beginPath();
+        ctx.moveTo(-stk.w * 0.5, stk.bottomY);
+        ctx.lineTo(-stk.w * 0.36, stk.topY);
+        ctx.lineTo(stk.w * 0.36, stk.topY);
+        ctx.lineTo(stk.w * 0.5, stk.bottomY);
+        ctx.closePath();
+        ctx.fillStyle = shadowWash;
+        ctx.fill();
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = lineWidth * 0.95;
+        ctx.stroke();
+      }
+
       for (const r of this.folioseRuffles) {
-        // Deep under-leaf cast shadow
+        // A. Deep under-leaf cast shadow
         ctx.beginPath();
         ctx.moveTo(r.innerPts[0].x, r.innerPts[0].y);
         for (let i = 1; i < r.innerPts.length; i++) ctx.lineTo(r.innerPts[i].x, r.innerPts[i].y);
@@ -1024,7 +1097,7 @@
         ctx.fillStyle = shadowWash;
         ctx.fill();
 
-        // 3D edge rim
+        // B. 3D edge rim bevel (thickness of the ruffled leaf)
         ctx.beginPath();
         ctx.moveTo(r.outerPts[0].x, r.outerPts[0].y);
         for (let i = 1; i < r.outerPts.length; i++) ctx.lineTo(r.outerPts[i].x, r.outerPts[i].y);
@@ -1033,31 +1106,66 @@
         ctx.fillStyle = shadowWash;
         ctx.fill();
 
-        // Top petal face
+        // Under-edge rim line (ordinary ink line)
+        ctx.beginPath();
+        ctx.moveTo(r.innerPts[0].x, r.innerPts[0].y);
+        for (let i = 1; i < r.innerPts.length; i++) ctx.lineTo(r.innerPts[i].x, r.innerPts[i].y);
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = Math.max(0.6, lineWidth * 0.85);
+        ctx.stroke();
+
+        // C. Top petal face fill (opaque wash occludes lower tiers behind it)
         ctx.beginPath();
         ctx.moveTo(r.outerPts[0].x, r.outerPts[0].y);
         for (let i = 1; i < r.outerPts.length; i++) ctx.lineTo(r.outerPts[i].x, r.outerPts[i].y);
         ctx.closePath();
+        ctx.fillStyle = options.theme === 'midnight' ? '#161616' : '#f7f4ed';
+        ctx.fill();
         ctx.fillStyle = baseWash;
         ctx.fill();
 
-        // Septa striation rays
-        if (r.septaRibs && options.showStriations !== false) {
-          ctx.save();
+        // D. Concentric growth folds (garis alur lipatan konsentris alami daun foliose)
+        if (r.growthRings && options.showStriations !== false) {
           ctx.strokeStyle = strokeColor;
-          ctx.lineWidth = Math.max(0.4, lineWidth * 0.5);
-          ctx.globalAlpha = 0.45;
-          for (const s of r.septaRibs) {
+          ctx.lineWidth = Math.max(0.5, lineWidth * 0.70);
+          for (const ring of r.growthRings) {
             ctx.beginPath();
-            ctx.moveTo(s.x0, s.y0);
-            ctx.lineTo(s.x1, s.y1);
+            ctx.moveTo(ring[0].x, ring[0].y);
+            for (let i = 1; i < ring.length; i++) ctx.lineTo(ring[i].x, ring[i].y);
+            ctx.closePath();
             ctx.stroke();
           }
-          ctx.restore();
         }
 
+        // E. Natural leaf veins (urat daun / rusuk radial alami foliose)
+        if (r.veins && options.showStriations !== false) {
+          ctx.strokeStyle = strokeColor;
+          ctx.lineWidth = Math.max(0.55, lineWidth * 0.75);
+          for (const v of r.veins) {
+            ctx.beginPath();
+            ctx.moveTo(v.x0, v.y0);
+            ctx.quadraticCurveTo(v.cx, v.cy, v.x1, v.y1);
+            ctx.stroke();
+          }
+        }
+
+        // F. Subtle corallite calice pores on leaf blade
+        if (r.pores && options.showPolyps !== false) {
+          ctx.fillStyle = strokeColor;
+          for (const p of r.pores) {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, TWO_PI);
+            ctx.fill();
+          }
+        }
+
+        // G. Clean outer rim contour stroke (garis luar daun foliose)
+        ctx.beginPath();
+        ctx.moveTo(r.outerPts[0].x, r.outerPts[0].y);
+        for (let i = 1; i < r.outerPts.length; i++) ctx.lineTo(r.outerPts[i].x, r.outerPts[i].y);
+        ctx.closePath();
         ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = lineWidth * 1.05;
+        ctx.lineWidth = lineWidth * 1.15;
         ctx.stroke();
       }
 

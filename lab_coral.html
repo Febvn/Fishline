@@ -514,7 +514,7 @@
           </div>
 
           <div class="archetype-grid">
-            <button class="btn-arch active" data-arch="0" id="arch-btn-0">
+            <button class="btn-arch" data-arch="0" id="arch-btn-0">
               <span class="arch-code">01</span>
               <span>Bercabang (ACB/CB)</span>
             </button>
@@ -888,7 +888,10 @@
         // Update active archetype buttons
         for (let a = 0; a < 7; a++) {
           const btn = document.getElementById(`arch-btn-${a}`);
-          if (btn) btn.classList.toggle('active', a === activeArchetype);
+          if (btn) {
+            if (a === activeArchetype) btn.classList.add('active');
+            else btn.classList.remove('active');
+          }
         }
       }
 
@@ -963,6 +966,20 @@
             const matching = catalog.find(c => c.archetype === a);
             if (matching) selectSpecies(matching);
           });
+        }
+      }
+
+      // URL Query Parameters support: ?arch=4 or ?species=montipora_capricornis
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('species')) {
+        const found = catalog.find(c => c.id === urlParams.get('species'));
+        if (found) selectSpecies(found);
+      } else if (urlParams.has('arch')) {
+        const a = parseInt(urlParams.get('arch'));
+        if (a >= 0 && a < 7) {
+          activeArchetype = a;
+          const matching = catalog.find(c => c.archetype === a);
+          if (matching) selectSpecies(matching);
         }
       }
 
