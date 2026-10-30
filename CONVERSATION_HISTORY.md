@@ -24,6 +24,7 @@ Dokumentasi ini merangkum seluruh alur percakapan, instruksi pengguna, dan imple
 | **13** | `b525cf8` | *kalau generate font yang milih jad ngak usah pakai img* | Eksperimen generator tipografi linocut prosedural murni berbasis kode JavaScript & HTML5 Canvas tanpa gambar eksternal. |
 | **14** | `6e01628` | *aneh bener jing* | Menghapus generator prosedural sintetis canvas yang kaku/aneh, mengembalikan tipografi otentik cukil kayu asli dari gambar referensi dengan isolasi piksel presisi (connected component analysis, border-free moat margin di setiap huruf F, I, S, H, L, I, N, E, zero neighbor leakage, dan proporsi cap-height serasi). |
 | **15** | `552996c` | *@[Alfabet Topografis Hitam Putih.png] pakai yang ini aaj coba untuk font nya* | Ekstraksi tipografi judul "FISH LINE" resolusi tinggi (2x retina) dari lembar 'Alfabet Topografis Hitam Putih.png' murni tanpa watermark. Setiap huruf (F, I, S, H, L, I, N, E) diisolasi dengan margin bersih 4 sisi tanpa kebocoran tetangga dan dirakit menjadi banner 1302x240 yang sangat tajam dan presisi. |
+| **16** | `144cef3` | *bikin landing page sebelah kiri itu menu nya sebelah kakan nya fish line tapi di spasi jadi fish di atas line nya di bawah* | Layout 2-kolom asimetris beranda game: kolom kiri memuat navigasi menu game lengkap beserta statistik telemetri, sedangkan kolom kanan menampilkan tipografi cukil kayu 'FISH LINE' bersusun vertikal ('FISH' di atas dan 'LINE' di bawah) dengan spasi vertikal proporsional, serta responsif terhadap desktop dan mobile. |
 
 ---
 

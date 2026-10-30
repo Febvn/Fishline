@@ -193,17 +193,60 @@
 
     .landing-content-card {
       width: 100%;
-      max-width: 780px;
+      max-width: 1100px;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      text-align: center;
+      justify-content: space-between;
+      gap: 52px;
       position: relative;
     }
 
-    /* Authentic Woodcut Title Typography */
+    .landing-col-menu {
+      flex: 1 1 480px;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      text-align: left;
+    }
+
+    .landing-col-hero {
+      flex: 1 1 480px;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    /* Menu Column Header */
+    .landing-menu-header {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border-bottom: 1.5px solid var(--paper-border);
+      padding-bottom: 8px;
+    }
+
+    .landing-menu-header .menu-label {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+    }
+
+    .landing-menu-header .menu-sub {
+      font-size: 11px;
+      color: var(--ink-faint);
+    }
+
+    /* Authentic Stacked Woodcut Title Typography (FISH on top, LINE below) */
     .woodcut-title-container {
-      margin-bottom: 24px;
+      margin-bottom: 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -222,18 +265,20 @@
       }
     }
 
-    .woodcut-banner-box {
+    .woodcut-stacked-box {
       width: 100%;
-      max-width: 720px;
+      max-width: 440px;
       display: flex;
-      justify-content: center;
-      margin-bottom: 14px;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px; /* Spasi tegas antara FISH dan LINE */
+      margin-bottom: 22px;
     }
 
-    .woodcut-banner-img {
+    .woodcut-word-img {
       width: 100%;
       height: auto;
-      max-height: 125px;
+      max-height: 140px;
       object-fit: contain;
       display: block;
       filter: drop-shadow(0 6px 14px rgba(24, 20, 31, 0.16));
@@ -241,11 +286,11 @@
       cursor: pointer;
     }
 
-    body.theme-midnight .woodcut-banner-img {
+    body.theme-midnight .woodcut-word-img {
       filter: invert(0.92) hue-rotate(180deg) drop-shadow(0 6px 18px rgba(0, 0, 0, 0.6));
     }
 
-    .woodcut-banner-img:hover {
+    .woodcut-word-img:hover {
       transform: translateY(-3px) scale(1.02);
       filter: drop-shadow(0 12px 24px rgba(186, 50, 34, 0.22));
     }
@@ -293,11 +338,9 @@
     /* Menu Navigation Grid */
     .game-menu-nav {
       width: 100%;
-      max-width: 520px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      margin-top: 10px;
+      gap: 9px;
     }
 
     .menu-item-btn {
@@ -734,6 +777,32 @@
     }
 
     /* Responsive Queries */
+    @media (max-width: 920px) {
+      .landing-screen {
+        padding: 30px 16px;
+        overflow-y: auto;
+        justify-content: flex-start;
+      }
+      .landing-content-card {
+        flex-direction: column-reverse;
+        gap: 28px;
+        align-items: center;
+      }
+      .landing-col-menu, .landing-col-hero {
+        max-width: 100%;
+        width: 100%;
+        flex: none;
+      }
+      .woodcut-stacked-box {
+        max-width: 320px;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .woodcut-word-img {
+        max-height: 95px;
+      }
+    }
+
     @media (max-width: 768px) {
       .dock-main-row {
         flex-direction: column;
@@ -741,9 +810,6 @@
       }
       .controls-mini-sliders {
         display: none;
-      }
-      .woodcut-banner-box {
-        max-width: 92vw;
       }
     }
   </style>
@@ -777,100 +843,109 @@
   </header>
 
   <!-- ========================================================
-       LANDING SCREEN & GAME MENU
+       LANDING SCREEN & GAME MENU (2-Column Layout)
        ======================================================== -->
   <div class="landing-screen" id="landing-screen">
     <div class="landing-content-card">
       
-      <!-- Authentic Woodcut Title Typography -->
-      <div class="woodcut-title-container">
-        <div class="woodcut-banner-box">
-          <img src="assets/title/title_banner.png" alt="FISH LINE" class="woodcut-banner-img" title="FISH LINE • Seni Cukil Kayu Linocut Otentik">
+      <!-- Sebelah Kiri: Menu Game Navigasi -->
+      <div class="landing-col-menu">
+        <div class="landing-menu-header">
+          <span class="menu-label">Menu Utama</span>
+          <span class="menu-sub">Pilih aksi atau tekan shortcut keyboard</span>
         </div>
 
-        <div class="title-sub-bar">
-          <span class="hanko-seal">墨魚図</span>
-          <span class="title-tagline">Living Procedural Sumi-e Aquarium</span>
-          <span class="version-pill">v2.0 • Cukil Kayu Otentik</span>
+        <nav class="game-menu-nav">
+          <button class="menu-item-btn primary" id="menu-btn-play">
+            <div class="menu-item-left">
+              <span class="menu-icon">▶</span>
+              <div class="menu-text-group">
+                <span class="menu-title">Mulai Menjelajah</span>
+                <span class="menu-desc">Masuk ke kolam akuarium & interaksi langsung</span>
+              </div>
+            </div>
+            <span class="menu-key-hint">ENTER</span>
+          </button>
+
+          <button class="menu-item-btn" id="menu-btn-bestiary">
+            <div class="menu-item-left">
+              <span class="menu-icon">📖</span>
+              <div class="menu-text-group">
+                <span class="menu-title">Ensiklopedia Spesies</span>
+                <span class="menu-desc">Katalog taksonomi ikan & arsip anatomi</span>
+              </div>
+            </div>
+            <span class="menu-key-hint">B</span>
+          </button>
+
+          <button class="menu-item-btn" id="menu-btn-zen">
+            <div class="menu-item-left">
+              <span class="menu-icon">☯</span>
+              <div class="menu-text-group">
+                <span class="menu-title">Mode Zen Kolam</span>
+                <span class="menu-desc">Ketenangan visual tanpa HUD & riak air</span>
+              </div>
+            </div>
+            <span class="menu-key-hint">Z</span>
+          </button>
+
+          <button class="menu-item-btn" id="menu-btn-reroll">
+            <div class="menu-item-left">
+              <span class="menu-icon">🎲</span>
+              <div class="menu-text-group">
+                <span class="menu-title">Acak Spesies Baru</span>
+                <span class="menu-desc">Generate spesimen ikan baru secara acak</span>
+              </div>
+            </div>
+            <span class="menu-key-hint">SPACE</span>
+          </button>
+
+          <button class="menu-item-btn" id="menu-btn-settings">
+            <div class="menu-item-left">
+              <span class="menu-icon">⚙</span>
+              <div class="menu-text-group">
+                <span class="menu-title">Pengaturan & Audio</span>
+                <span class="menu-desc">Suara tetesan air, tema washi/malam & kecepatan</span>
+              </div>
+            </div>
+            <span class="menu-key-hint">O</span>
+          </button>
+
+          <button class="menu-item-btn" id="menu-btn-help">
+            <div class="menu-item-left">
+              <span class="menu-icon">❓</span>
+              <div class="menu-text-group">
+                <span class="menu-title">Panduan Kontrol</span>
+                <span class="menu-desc">Cara memberi makan, interaksi riak & tombol shortcut</span>
+              </div>
+            </div>
+            <span class="menu-key-hint">?</span>
+          </button>
+        </nav>
+
+        <div class="landing-quick-stats">
+          <span>Kapasitas: <strong>~4,29 Miliar Spesies</strong></span>
+          <span>•</span>
+          <span>Mesin: <strong>Fishdraw Kinematics 2D</strong></span>
+          <span>•</span>
+          <span>Status: <strong>Magap-magap & Chomp</strong></span>
         </div>
       </div>
 
-      <!-- Game Menu Navigation -->
-      <nav class="game-menu-nav">
-        <button class="menu-item-btn primary" id="menu-btn-play">
-          <div class="menu-item-left">
-            <span class="menu-icon">▶</span>
-            <div class="menu-text-group">
-              <span class="menu-title">Mulai Menjelajah</span>
-              <span class="menu-desc">Masuk ke kolam akuarium & interaksi langsung</span>
-            </div>
+      <!-- Sebelah Kanan: Judul FISH di atas, LINE di bawah (Spasi Vertikal) -->
+      <div class="landing-col-hero">
+        <div class="woodcut-title-container">
+          <div class="woodcut-stacked-box">
+            <img src="assets/title/word_fish.png" alt="FISH" class="woodcut-word-img word-fish" title="FISH • Seni Cukil Kayu Linocut">
+            <img src="assets/title/word_line.png" alt="LINE" class="woodcut-word-img word-line" title="LINE • Seni Cukil Kayu Linocut">
           </div>
-          <span class="menu-key-hint">ENTER</span>
-        </button>
 
-        <button class="menu-item-btn" id="menu-btn-bestiary">
-          <div class="menu-item-left">
-            <span class="menu-icon">📖</span>
-            <div class="menu-text-group">
-              <span class="menu-title">Ensiklopedia Spesies</span>
-              <span class="menu-desc">Katalog taksonomi ikan & arsip anatomi</span>
-            </div>
+          <div class="title-sub-bar">
+            <span class="hanko-seal">墨魚図</span>
+            <span class="title-tagline">Living Procedural Sumi-e Aquarium</span>
+            <span class="version-pill">v2.0 • Cukil Kayu</span>
           </div>
-          <span class="menu-key-hint">B</span>
-        </button>
-
-        <button class="menu-item-btn" id="menu-btn-zen">
-          <div class="menu-item-left">
-            <span class="menu-icon">☯</span>
-            <div class="menu-text-group">
-              <span class="menu-title">Mode Zen Kolam</span>
-              <span class="menu-desc">Ketenangan visual tanpa HUD & riak air</span>
-            </div>
-          </div>
-          <span class="menu-key-hint">Z</span>
-        </button>
-
-        <button class="menu-item-btn" id="menu-btn-reroll">
-          <div class="menu-item-left">
-            <span class="menu-icon">🎲</span>
-            <div class="menu-text-group">
-              <span class="menu-title">Acak Spesies Baru</span>
-              <span class="menu-desc">Generate spesimen ikan baru secara acak</span>
-            </div>
-          </div>
-          <span class="menu-key-hint">SPACE</span>
-        </button>
-
-        <button class="menu-item-btn" id="menu-btn-settings">
-          <div class="menu-item-left">
-            <span class="menu-icon">⚙</span>
-            <div class="menu-text-group">
-              <span class="menu-title">Pengaturan & Audio</span>
-              <span class="menu-desc">Suara tetesan air, tema washi/malam & kecepatan</span>
-            </div>
-          </div>
-          <span class="menu-key-hint">O</span>
-        </button>
-
-        <button class="menu-item-btn" id="menu-btn-help">
-          <div class="menu-item-left">
-            <span class="menu-icon">❓</span>
-            <div class="menu-text-group">
-              <span class="menu-title">Panduan Kontrol</span>
-              <span class="menu-desc">Cara memberi makan, interaksi riak & tombol shortcut</span>
-            </div>
-          </div>
-          <span class="menu-key-hint">?</span>
-        </button>
-      </nav>
-
-      <!-- Quick stats summary -->
-      <div class="landing-quick-stats">
-        <span>Kapasitas Spesies: <strong>~4,29 Miliar</strong></span>
-        <span>•</span>
-        <span>Mesin: <strong>Fishdraw Kinematics 2D</strong></span>
-        <span>•</span>
-        <span>Status Mulut: <strong>Magap-magap & Chomp</strong></span>
+        </div>
       </div>
 
     </div>
