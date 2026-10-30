@@ -1,14 +1,20 @@
 /**
- * coraldraw.js - Procedural Aquatic Coral & Reef Engine
+ * coraldraw.js - Procedural Aquatic Coral & Reef Engine (Volumetric 3D Edition)
  *
- * Mathematically generates procedural marine & aquatic corals, sea fans,
- * brain corals, table plates, cup foliose ruffles, and pillar organ pipes
- * using recursive stochastic L-systems, reaction-diffusion meander curves,
- * harmonic conchoid whorls, reticulated fan lattices, and sumi-e ink washes.
+ * Implements standard marine biology coral growth forms (English et al., 1997):
+ * - Acropora: Branching (ACB), Tabulate (ACT), Digitate (ACD), Submassive (ACS), Encrusting (ACE)
+ * - Non-Acropora: Massive (CM), Mushroom (CMR - Fungia), Foliose (CF), Branching (CB),
+ *   Encrusting (CE), Tubipora (CTU), Millepora (CME)
+ *
+ * VOLUMETRIC 3D RENDERING:
+ * - 3D cylindrical hulls with lateral edge tapering
+ * - Cylindrical cross-section latitude contour ribs (wrapping arcs conveying round volume)
+ * - Directional chiaroscuro lighting (core shadow, reflected light, crest highlight)
+ * - Axial and radial corallite calices protruding in 3D perspective
+ * - Convex Fungia mushroom septa discs with central stomodaeum mouth
+ * - Tiered cantilevered plates with 3D rim bevels and deep under-plate shadows
  *
  * 100% STRICTLY MONOCHROME: Pure black ink, pure white, and neutral grays only.
- * Zero non-grayscale hues or pigments.
- *
  * UMD wrapper: CommonJS + Browser window.coraldraw
  */
 (function (root, factory) {
@@ -75,19 +81,20 @@
   }
 
   // -----------------------------------------------------------------
-  // 2. Coral Architectural Forms & 24 Species Catalog
+  // 2. Coral Growth Forms (English et al., 1997 & Marine Biology)
   // -----------------------------------------------------------------
   const CORAL_ARCHETYPES = {
-    BRANCHING: 0,   // Karang Rusa / Tanduk Bercabang (Staghorn / Acropora)
-    BRAIN: 1,       // Karang Otak Labirin (Brain / Meandrina Labyrinth)
-    TABLE: 2,       // Karang Meja Bertingkat (Table / Shelf Plate)
-    FAN: 3,         // Kipas Laut Renda Lentur (Sea Fan / Gorgonian Mesh)
-    FOLIOSE: 4,     // Karang Selada Cawan Kelopak (Cup / Foliose Lettuce)
-    PILLAR: 5       // Karang Tabung Pilar Pipa (Pillar / Organ Pipe)
+    BRANCHING: 0,   // Bercabang (Branching ACB / CB - Acropora formosa, Staghorn)
+    MASSIVE: 1,     // Masif / Bongkahan (Massive CM / ACS - Platygyra, Favia)
+    TABULAR: 2,     // Meja / Pinggan (Tabulate ACT - Acropora hyacinthus)
+    ENCRUSTING: 3,  // Berkerak Lapisan Substrat (Encrusting ACE / CE - Leptoseris)
+    FOLIOSE: 4,     // Berdaun Lembaran (Foliose CF - Montipora, Turbinaria)
+    MUSHROOM: 5,    // Jamur Soliter (Mushroom CMR - Fungia sp.)
+    DIGITATE: 6     // Menjari & Tabung Pipa (Digitate ACD / Pillar / CTU - Acropora humilis)
   };
 
   const CORAL_MORPHS = {
-    STANDARD: 0,    // Morfologi standar botani
+    STANDARD: 0,    // Standar botani
     SPREADING: 1,   // Melebar horizontal
     TALL_SPIRE: 2,  // Menjulang tinggi vertikal
     DENSE_BUSH: 3,  // Rumpun lebat rapat
@@ -97,41 +104,43 @@
   };
 
   const CORAL_CATALOG = [
-    // --- 1. Branching Corals (Karang Ranting & Tanduk) ---
-    { id: 'staghorn_acropora', common: 'Karang Tanduk Rusa', binomen: 'Acropora cervicornis', archetype: 0, height: 190, baseW: 14, spread: 130, roughness: 0.16, desc: 'Karang bercabang silindris anggun dengan corak kelopak cangkir polip runcing menghadap cahaya.' },
-    { id: 'elkhorn_coral', common: 'Karang Tanduk Rusa Pipih', binomen: 'Acropora palmata', archetype: 0, height: 180, baseW: 22, spread: 150, roughness: 0.22, desc: 'Percabangan kokoh menyerupai tanduk rusa kutub dengan lempengan lebar penahan hantaman arus.' },
-    { id: 'birdsnest_coral', common: 'Karang Sarang Burung', binomen: 'Seriatopora hystrix', archetype: 0, height: 150, baseW: 10, spread: 120, roughness: 0.14, desc: 'Jalinan ranting-ranting runcing rapat menyerupai sarang burung dengan ujung jarum tajam.' },
-    { id: 'stylophora_club', common: 'Karang Gada Berbuku', binomen: 'Stylophora pistillata', archetype: 0, height: 160, baseW: 16, spread: 110, roughness: 0.18, desc: 'Batang bercabang dengan ujung membulat seperti gada bertabur cincin koralit sumi-e.' },
+    // --- 1. Branching Corals (Acropora Branching ACB & Coral Branching CB) ---
+    { id: 'acropora_formosa', code: 'ACB', common: 'Karang Rusa Ranting', binomen: 'Acropora formosa', archetype: 0, height: 210, baseW: 24, spread: 160, roughness: 0.16, desc: 'Bercabang silindris anggun dengan koralit aksial di tiap ujung dan koralit radial timbul bervolume.' },
+    { id: 'acropora_cervicornis', code: 'ACB', common: 'Karang Tanduk Rusa Karibia', binomen: 'Acropora cervicornis', archetype: 0, height: 195, baseW: 22, spread: 150, roughness: 0.15, desc: 'Ranting silinder tegak dengan cincin kontur volumetrik melingkar dan percabangan dikotomi alami.' },
+    { id: 'seriatopora_hystrix', code: 'CB', common: 'Karang Sarang Burung', binomen: 'Seriatopora hystrix', archetype: 0, height: 160, baseW: 16, spread: 135, roughness: 0.14, desc: 'Ranting jarum ramping dengan kelopak koralit radial berderet rapi di sepanjang batang silindris.' },
+    { id: 'stylophora_pistillata', code: 'CB', common: 'Karang Gada Berbuku', binomen: 'Stylophora pistillata', archetype: 0, height: 175, baseW: 26, spread: 130, roughness: 0.18, desc: 'Cabang silindris tumpul berbobot masif dengan kontur lengkung melingkar tiga dimensi.' },
 
-    // --- 2. Brain Corals (Karang Otak Labirin) ---
-    { id: 'brain_diploria', common: 'Karang Otak Alur', binomen: 'Diploria labyrinthiformis', archetype: 1, height: 140, baseW: 160, spread: 160, roughness: 0.25, desc: 'Bongkahan kubah masif dengan lekukan meander labirin berliku mirip lipatan otak purba.' },
-    { id: 'maze_platygyra', common: 'Karang Labirin Karang', binomen: 'Platygyra lamellina', archetype: 1, height: 130, baseW: 150, spread: 150, roughness: 0.28, desc: 'Pola dinding meander tajam berselang-seling dengan lembah arsir kapak sumi-e yang dalam.' },
-    { id: 'boulder_brain', common: 'Karang Otak Bulat Masif', binomen: 'Colpophyllia natans', archetype: 1, height: 160, baseW: 170, spread: 170, roughness: 0.20, desc: 'Kubah batu terumbu danau kokoh berstruktur alur ganda dengan tekstur kontur elevasi cincin.' },
-    { id: 'honeycomb_favia', common: 'Karang Sarang Lebah', binomen: 'Favia speciosa', archetype: 1, height: 120, baseW: 140, spread: 140, roughness: 0.22, desc: 'Koloni heksagonal rapat bersusun beraturan dengan kaliks koralit mangkuk monokrom.' },
+    // --- 2. Massive Corals (Coral Massive CM & Acropora Submassive ACS) ---
+    { id: 'platygyra_lamellina', code: 'CM', common: 'Karang Otak Labirin Masif', binomen: 'Platygyra lamellina', archetype: 1, height: 150, baseW: 180, spread: 180, roughness: 0.28, desc: 'Bongkahan kubah masif kuat ombak dengan alur dinding labirin berlekuk dalam dan bayangan chiaroscuro tiga dimensi.' },
+    { id: 'diploria_labyrinth', code: 'CM', common: 'Karang Otak Lembah Ganda', binomen: 'Diploria labyrinthiformis', archetype: 1, height: 160, baseW: 190, spread: 190, roughness: 0.25, desc: 'Kubah batu terumbu danau berstruktur alur ganda dengan tekstur kontur elevasi cincin volumetrik.' },
+    { id: 'favia_speciosa', code: 'CM', common: 'Karang Bongkahan Sarang Lebah', binomen: 'Favia speciosa', archetype: 1, height: 135, baseW: 165, spread: 165, roughness: 0.22, desc: 'Koloni heksagonal rapat bersusun beraturan dengan kaliks koralit mangkuk timbul berkedalaman.' },
+    { id: 'acropora_palifera_sub', code: 'ACS', common: 'Karang Submasif Bilah', binomen: 'Acropora palifera', archetype: 1, height: 170, baseW: 160, spread: 170, roughness: 0.24, desc: 'Bentuk transisi antara bercabang dan masif membentuk kolom lempeng vertikal bervolume tebal.' },
 
-    // --- 3. Table Corals (Karang Meja Bertingkat) ---
-    { id: 'table_acropora', common: 'Karang Piring Meja', binomen: 'Acropora cytherea', archetype: 2, height: 175, baseW: 24, spread: 210, roughness: 0.15, desc: 'Piringan horizontal datar melebar horizontal bertingkat ditopang batang kayu tengah yang kokoh.' },
-    { id: 'tiered_montipora', common: 'Karang Piring Bertingkat', binomen: 'Montipora capricornis', archetype: 2, height: 165, baseW: 20, spread: 190, roughness: 0.18, desc: 'Lempeng kelopak melingkar berjenjang spiral ke atas dengan tepian bergelombang renda.' },
-    { id: 'bracket_shelf', common: 'Karang Rak Dinding', binomen: 'Pachyseris speciosa', archetype: 2, height: 140, baseW: 18, spread: 170, roughness: 0.20, desc: 'Lempeng rak bertrap dengan garis-garis punggungan konsentris sejajar yang halus.' },
-    { id: 'disk_turbinaria', common: 'Karang Cawan Piring', binomen: 'Turbinaria peltata', archetype: 2, height: 150, baseW: 22, spread: 180, roughness: 0.16, desc: 'Cawan datar lebar menyerupai piring saji dengan bintik-bintik koralit polip timbul.' },
+    // --- 3. Tabulate Corals (Acropora Tabulate ACT) ---
+    { id: 'acropora_hyacinthus', code: 'ACT', common: 'Karang Meja Piring Meja', binomen: 'Acropora hyacinthus', archetype: 2, height: 180, baseW: 28, spread: 230, roughness: 0.15, desc: 'Piringan horizontal datar bertingkat dengan tepian bibir berketebalan 3D dan penopang batang tengah berarsir gelap.' },
+    { id: 'acropora_cytherea', code: 'ACT', common: 'Karang Meja Kanopi Lebar', binomen: 'Acropora cytherea', archetype: 2, height: 190, baseW: 30, spread: 250, roughness: 0.14, desc: 'Lempeng kanopi lebar melebar horizontal dengan pola radial jala koralit di permukaan atas piringan.' },
+    { id: 'pachyseris_speciosa', code: 'ACT', common: 'Karang Meja Trap Berundak', binomen: 'Pachyseris speciosa', archetype: 2, height: 155, baseW: 24, spread: 200, roughness: 0.18, desc: 'Lempeng rak bertrap dengan garis-garis punggungan konsentris sejajar berdimensi tebal.' },
 
-    // --- 4. Sea Fans (Kipas Laut Renda Lentur) ---
-    { id: 'sea_fan_gorgonian', common: 'Kipas Laut Renda', binomen: 'Gorgonia ventalina', archetype: 3, height: 210, baseW: 12, spread: 180, roughness: 0.12, desc: 'Anyaman jala renda pipih berpori mikro yang meliuk anggun mengikuti tiupan arus air bawah.' },
-    { id: 'sea_whip_black', common: 'Kipas Cemeti Hitam', binomen: 'Antipathes dichotoma', archetype: 3, height: 230, baseW: 10, spread: 140, roughness: 0.15, desc: 'Jalinan cabang lentur menjulang tinggi dengan pola arsir jala sumi-e yang renggang.' },
-    { id: 'venus_sea_fan', common: 'Kipas Anyam Venus', binomen: 'Gorgonia flabellum', archetype: 3, height: 200, baseW: 14, spread: 190, roughness: 0.14, desc: 'Kipas jala segitiga terbalik melebar dengan kerangka anyaman mikro saling mengunci.' },
-    { id: 'lace_coral', common: 'Kipas Renda Halus', binomen: 'Stylaster roseus', archetype: 3, height: 170, baseW: 10, spread: 130, roughness: 0.10, desc: 'Struktur renda kalsit tipis dengan percabangan mikroskopis yang tembus pandang.' },
+    // --- 4. Encrusting Corals (Acropora Encrusting ACE & Coral Encrusting CE) ---
+    { id: 'leptoseris_incrustans', code: 'CE', common: 'Karang Kerak Lapisan Batu', binomen: 'Leptoseris incrustans', archetype: 3, height: 75, baseW: 200, spread: 210, roughness: 0.26, desc: 'Tumbuh melapisi substrat dasar kolam dengan tepi bevel berketebalan dan koralit timbul kaldera.' },
+    { id: 'acropora_palifera_enc', code: 'ACE', common: 'Karang Kerak Acropora Dasar', binomen: 'Acropora palifera f. crust', archetype: 3, height: 85, baseW: 220, spread: 230, roughness: 0.24, desc: 'Lapisan kerak kalsit tebal bervolume dengan bintil-bintil koralit aksial dan radial menonjol.' },
+    { id: 'montipora_crust', code: 'CE', common: 'Karang Kerak Beludru Pori', binomen: 'Montipora tuberculosa', archetype: 3, height: 80, baseW: 190, spread: 200, roughness: 0.28, desc: 'Lapisan koralit mikro berarsir padat dengan tepi mengalun mengikuti kontur bebatuan danau.' },
 
-    // --- 5. Foliose & Cup Corals (Karang Selada & Cawan) ---
-    { id: 'lettuce_coral', common: 'Karang Selada Renda', binomen: 'Turbinaria mesenterina', archetype: 4, height: 160, baseW: 30, spread: 170, roughness: 0.24, desc: 'Kelopak cawan bergelombang lipat-melipat menyerupai daun selada air atau bunga mawar mekar.' },
-    { id: 'carnation_coral', common: 'Karang Mawar Kelopak', binomen: 'Pectinia lactuca', archetype: 4, height: 150, baseW: 28, spread: 160, roughness: 0.26, desc: 'Piramida kelopak tipis berlekuk tegak dengan sayatan kontur chiaroscuro yang tajam.' },
-    { id: 'scroll_coral', common: 'Karang Gulungan Kertas', binomen: 'Turbinaria reniformis', archetype: 4, height: 145, baseW: 26, spread: 155, roughness: 0.20, desc: 'Lempeng berpilin melingkar mirip gulungan washi kuno yang terbuka di dasar kolam.' },
-    { id: 'ridge_coral', common: 'Karang Kelopak Karang', binomen: 'Echinopora lamellosa', archetype: 4, height: 155, baseW: 25, spread: 165, roughness: 0.22, desc: 'Cawan pipih berombak dengan tepian bergerigi halus dan alur septa memusat.' },
+    // --- 5. Foliose Corals (Coral Foliose CF) ---
+    { id: 'montipora_capricornis', code: 'CF', common: 'Karang Daun Selada Spiral', binomen: 'Montipora capricornis', archetype: 4, height: 170, baseW: 32, spread: 190, roughness: 0.20, desc: 'Lembaran kelopak melingkar berjenjang spiral ke atas dengan ketebalan pinggir daun dan bayangan tumpang-tindih.' },
+    { id: 'turbinaria_mesenterina', code: 'CF', common: 'Karang Daun Selada Renda', binomen: 'Turbinaria mesenterina', archetype: 4, height: 165, baseW: 35, spread: 185, roughness: 0.22, desc: 'Kelopak cawan bergelombang lipat-melipat berdimensi mangkuk dengan alur sekat septa memusat.' },
+    { id: 'pectinia_lactuca', code: 'CF', common: 'Karang Mawar Kelopak Berlekuk', binomen: 'Pectinia lactuca', archetype: 4, height: 155, baseW: 30, spread: 175, roughness: 0.25, desc: 'Piramida kelopak tipis berlekuk tegak dengan sayatan kontur chiaroscuro volumetrik tajam.' },
 
-    // --- 6. Pillar & Pipe Corals (Karang Tabung Pilar) ---
-    { id: 'pillar_dendrogyra', common: 'Karang Pilar Tiang', binomen: 'Dendrogyra cylindrus', archetype: 5, height: 220, baseW: 90, spread: 140, roughness: 0.20, desc: 'Kumpulan silinder pilar kokoh menjulang vertikal dengan permukaan berbulu polip halus.' },
-    { id: 'organ_pipe', common: 'Karang Pipa Organ', binomen: 'Tubipora musica', archetype: 5, height: 180, baseW: 80, spread: 130, roughness: 0.18, desc: 'Deretan tabung paralel berjenjang seperti pipa organ katedral dengan sekat pelat horizontal.' },
-    { id: 'finger_porites', common: 'Karang Tabung Jari', binomen: 'Porites compressa', archetype: 5, height: 190, baseW: 85, spread: 135, roughness: 0.22, desc: 'Gugusan silinder ramping tumpul mirip jari-jemari tangan yang mengarah ke permukaan air.' },
-    { id: 'clustered_tube', common: 'Karang Tabung Rumpun', binomen: 'Galaxea fascicularis', archetype: 5, height: 170, baseW: 75, spread: 125, roughness: 0.25, desc: 'Tabung koralit bersudut bintang tajam yang tumbuh memancar dari substrat dasar kolam.' }
+    // --- 6. Mushroom Corals (Coral Mushroom CMR - Soliter Fungia) ---
+    { id: 'fungia_scutaria', code: 'CMR', common: 'Karang Jamur Piringan Soliter', binomen: 'Fungia scutaria', archetype: 5, height: 95, baseW: 170, spread: 170, roughness: 0.18, desc: 'Polip soliter berbentuk piringan jamur kubah cembung dengan celah mulut stomodaeum tengah dan bilah septa radial melengkung 3D.' },
+    { id: 'fungia_fungites', code: 'CMR', common: 'Karang Jamur Gerigi Tajam', binomen: 'Fungia fungites', archetype: 5, height: 105, baseW: 185, spread: 185, roughness: 0.22, desc: 'Cawan jamur soliter dengan septa bilah bergerigi tajam memancar dari rongga mulut memanjang.' },
+    { id: 'cycloseris_costulata', code: 'CMR', common: 'Karang Jamur Cawan Mini', binomen: 'Cycloseris costulata', archetype: 5, height: 80, baseW: 140, spread: 140, roughness: 0.15, desc: 'Karang jamur bulat simetris dengan lengkungan cembung penuh dan punggung septa berarsir halus.' },
+
+    // --- 7. Digitate & Columnar Corals (Acropora Digitate ACD & Tubipora CTU) ---
+    { id: 'acropora_humilis', code: 'ACD', common: 'Karang Menjari Jari Tangan', binomen: 'Acropora humilis', archetype: 6, height: 185, baseW: 90, spread: 150, roughness: 0.20, desc: 'Cabang silindris gemuk tegak menjari seperti jari-jemari tangan dengan kubah koralit aksial bulat besar di puncak.' },
+    { id: 'dendrogyra_cylindrus', code: 'ACD', common: 'Karang Pilar Tiang Katedral', binomen: 'Dendrogyra cylindrus', archetype: 6, height: 230, baseW: 100, spread: 155, roughness: 0.22, desc: 'Pilar silinder tegak tebal bervolume penuh dengan alur vertikal dan cincin silinder melingkar.' },
+    { id: 'tubipora_musica', code: 'CTU', common: 'Karang Pipa Organ Berongga', binomen: 'Tubipora musica', archetype: 6, height: 190, baseW: 85, spread: 140, roughness: 0.18, desc: 'Deretan tabung silinder paralel berjenjang seperti pipa organ katedral dengan sekat pelat horizontal.' },
+    { id: 'millepora_alcicornis', code: 'CME', common: 'Karang Api Bilah Halus', binomen: 'Millepora alcicornis', archetype: 6, height: 180, baseW: 75, spread: 145, roughness: 0.16, desc: 'Lempeng bilah silindris vertikal berpori halus tempat keluarnya bulu penyengat halus.' }
   ];
 
   function getCoralById(id) {
@@ -143,7 +152,7 @@
   }
 
   // -----------------------------------------------------------------
-  // 3. Mathematical Single Coral Specimen
+  // 3. Volumetric Single Coral Specimen
   // -----------------------------------------------------------------
   class CoralSpecimen {
     constructor(x, y, seed, config = {}) {
@@ -158,9 +167,9 @@
         : (config.morphPreset !== undefined ? config.morphPreset : Math.floor(rand() * 7));
 
       this.scale = config.scale || 1.0;
-      this.height = (config.height || rndtri(140, 180, 220)) * this.scale;
-      this.baseW = (config.baseW || rndtri(14, 22, 32)) * this.scale;
-      this.spread = (config.spread || rndtri(120, 160, 200)) * this.scale;
+      this.height = (config.height || rndtri(140, 185, 230)) * this.scale;
+      this.baseW = (config.baseW || rndtri(18, 28, 42)) * this.scale;
+      this.spread = (config.spread || rndtri(130, 175, 220)) * this.scale;
       this.roughness = config.roughness !== undefined ? config.roughness : rndtri(0.12, 0.20, 0.32);
 
       // Light vector (top-left sumi-e ambient light)
@@ -169,17 +178,17 @@
 
       // Hydrodynamic current phase
       this.swayPhase = rnd(0, TWO_PI);
-      this.swayAmp = (this.archetype === CORAL_ARCHETYPES.FAN ? 14 : 4) * this.scale;
+      this.swayAmp = (this.archetype === CORAL_ARCHETYPES.BRANCHING ? 6 : 2) * this.scale;
       this.currentSwayX = 0;
 
       // Internal structures
-      this.branches = [];
-      this.plates = [];
-      this.meanders = [];
-      this.meshLattice = [];
-      this.ruffles = [];
-      this.pillars = [];
-      this.polyps = [];
+      this.volumetricLimbs = [];
+      this.mushroomDisc = null;
+      this.massiveDome = null;
+      this.tablePlates = [];
+      this.folioseRuffles = [];
+      this.encrustingSlab = null;
+      this.columns = [];
       this.holdfastPts = [];
 
       this.initHoldfast();
@@ -187,11 +196,10 @@
     }
 
     initHoldfast() {
-      // Basal calcified holdfast cementing coral to lakebed
       this.holdfastPts = [];
-      const footW = this.baseW * 1.8;
-      const footH = this.baseW * 0.55;
-      const numPts = 16;
+      const footW = this.baseW * (this.archetype === CORAL_ARCHETYPES.ENCRUSTING ? 1.2 : 1.6);
+      const footH = this.baseW * 0.45;
+      const numPts = 18;
       for (let i = 0; i <= numPts; i++) {
         const u = (i / numPts - 0.5) * 2;
         const px = u * footW;
@@ -203,38 +211,39 @@
     buildGeometry() {
       switch (this.archetype) {
         case CORAL_ARCHETYPES.BRANCHING:
-          this.buildBranching();
+          this.buildVolumetricBranching();
           break;
-        case CORAL_ARCHETYPES.BRAIN:
-          this.buildBrain();
+        case CORAL_ARCHETYPES.MASSIVE:
+          this.buildVolumetricMassive();
           break;
-        case CORAL_ARCHETYPES.TABLE:
-          this.buildTable();
+        case CORAL_ARCHETYPES.TABULAR:
+          this.buildVolumetricTable();
           break;
-        case CORAL_ARCHETYPES.FAN:
-          this.buildFan();
+        case CORAL_ARCHETYPES.ENCRUSTING:
+          this.buildVolumetricEncrusting();
           break;
         case CORAL_ARCHETYPES.FOLIOSE:
-          this.buildFoliose();
+          this.buildVolumetricFoliose();
           break;
-        case CORAL_ARCHETYPES.PILLAR:
-          this.buildPillar();
+        case CORAL_ARCHETYPES.MUSHROOM:
+          this.buildVolumetricMushroom();
+          break;
+        case CORAL_ARCHETYPES.DIGITATE:
+          this.buildVolumetricDigitate();
           break;
         default:
-          this.buildBranching();
+          this.buildVolumetricBranching();
       }
     }
 
-    // --- 3.1 Branching Acropora (L-system recursive tree) ---
-    buildBranching() {
-      this.branches = [];
-      this.polyps = [];
-
+    // --- 3.1 Volumetric Branching (Cylindrical limbs with cross-section rings) ---
+    buildVolumetricBranching() {
+      this.volumetricLimbs = [];
       const startW = this.baseW;
       const rootLen = this.height * 0.38;
 
       const queue = [
-        { x: 0, y: 0, angle: -HALF_PI, length: rootLen, width: startW, depth: 0 }
+        { x: 0, y: 0, angle: -HALF_PI, length: rootLen, width0: startW, width1: startW * 0.72, depth: 0 }
       ];
 
       const maxDepth = this.morph === CORAL_MORPHS.DENSE_BUSH ? 4 : 3;
@@ -244,49 +253,72 @@
         const endX = seg.x + Math.cos(seg.angle) * seg.length;
         const endY = seg.y + Math.sin(seg.angle) * seg.length;
 
-        // Curve control point with natural upward buoyancy
         const midX = (seg.x + endX) * 0.5 + rndtri(-6, 0, 6);
-        const midY = (seg.y + endY) * 0.5 - rndtri(2, 6, 12);
+        const midY = (seg.y + endY) * 0.5 - rndtri(2, 6, 10);
 
-        this.branches.push({
-          x0: seg.x, y0: seg.y,
-          cx: midX, cy: midY,
-          x1: endX, y1: endY,
-          width0: seg.width,
-          width1: Math.max(2.5, seg.width * 0.68),
-          depth: seg.depth
-        });
+        // Discretize limb into sample slices for true 3D cylinder contouring
+        const numSlices = 7;
+        const slices = [];
+        for (let s = 0; s <= numSlices; s++) {
+          const t = s / numSlices;
+          // Quadratic bezier interpolation
+          const it = 1 - t;
+          const px = it * it * seg.x + 2 * it * t * midX + t * t * endX;
+          const py = it * it * seg.y + 2 * it * t * midY + t * t * endY;
+          // Tangent angle
+          const tx = 2 * it * (midX - seg.x) + 2 * t * (endX - midX);
+          const ty = 2 * it * (midY - seg.y) + 2 * t * (endY - midY);
+          const normAngle = Math.atan2(ty, tx) + HALF_PI;
 
-        // Corallite calices (cups along branch edge)
-        const numCalices = Math.floor(rnd(3, 6));
-        for (let k = 1; k < numCalices; k++) {
-          const t = k / numCalices;
-          const bx = lerp(seg.x, endX, t);
-          const by = lerp(seg.y, endY, t);
-          const normA = seg.angle + (rand() < 0.5 ? HALF_PI : -HALF_PI);
-          this.polyps.push({
-            x: bx + Math.cos(normA) * (seg.width * 0.55),
-            y: by + Math.sin(normA) * (seg.width * 0.55),
-            r: rndtri(2.0, 3.2, 4.2),
-            angle: normA
-          });
+          const w = lerp(seg.width0, seg.width1, t) * 0.5;
+          const leftX = px + Math.cos(normAngle) * w;
+          const leftY = py + Math.sin(normAngle) * w;
+          const rightX = px - Math.cos(normAngle) * w;
+          const rightY = py - Math.sin(normAngle) * w;
+
+          slices.push({ px, py, leftX, leftY, rightX, rightY, w, normAngle, t });
         }
+
+        // Radial corallite calices along left and right flanks
+        const calices = [];
+        for (let i = 1; i < slices.length - 1; i++) {
+          if (rand() < 0.6) {
+            const sl = slices[i];
+            const isLeft = rand() < 0.5;
+            const cx = isLeft ? sl.leftX : sl.rightX;
+            const cy = isLeft ? sl.leftY : sl.rightY;
+            calices.push({
+              x: cx, y: cy,
+              r: rndtri(2.5, 3.8, 5.0),
+              angle: sl.normAngle + (isLeft ? 0 : PI)
+            });
+          }
+        }
+
+        this.volumetricLimbs.push({
+          slices,
+          calices,
+          depth: seg.depth,
+          isTip: seg.depth === maxDepth || rand() < 0.2
+        });
 
         if (seg.depth < maxDepth) {
           const numChildren = (seg.depth === 0 && this.morph === CORAL_MORPHS.CLEFT_SPLIT) ? 2 : (rand() < 0.45 ? 3 : 2);
-          const spreadAng = (this.morph === CORAL_MORPHS.SPREADING ? 0.65 : 0.42);
+          const spreadAng = (this.morph === CORAL_MORPHS.SPREADING ? 0.68 : 0.45);
 
           for (let c = 0; c < numChildren; c++) {
             const frac = numChildren === 1 ? 0 : (c / (numChildren - 1) - 0.5) * 2;
             const childAngle = seg.angle + frac * spreadAng + rndtri(-0.15, 0, 0.15);
-            const childLen = seg.length * rndtri(0.65, 0.78, 0.88);
-            const childW = seg.width * 0.68;
+            const childLen = seg.length * rndtri(0.65, 0.76, 0.86);
+            const childW0 = seg.width1;
+            const childW1 = Math.max(3.0, childW0 * 0.68);
 
             queue.push({
               x: endX, y: endY,
               angle: childAngle,
               length: childLen,
-              width: childW,
+              width0: childW0,
+              width1: childW1,
               depth: seg.depth + 1
             });
           }
@@ -294,211 +326,268 @@
       }
     }
 
-    // --- 3.2 Brain Coral (Labyrinthine Gyri & Sulci) ---
-    buildBrain() {
-      this.meanders = [];
-      this.polyps = [];
-
+    // --- 3.2 Volumetric Massive (Spherical boulder dome with relief crevices) ---
+    buildVolumetricMassive() {
       const domeRx = this.spread * 0.52;
-      const domeRy = this.height * 0.65;
-      const centerY = -domeRy * 0.85;
+      const domeRy = this.height * 0.70;
+      const centerY = -domeRy * 0.90;
 
-      // Outer dome silhouette points
-      this.domePts = [];
+      // 3D dome boundary
+      const boundaryPts = [];
       const numDome = 48;
       for (let i = 0; i <= numDome; i++) {
         const theta = PI + (i / numDome) * PI;
         const cosT = Math.cos(theta);
         const sinT = Math.sin(theta);
         const baseR = (domeRx * domeRy) / Math.hypot(domeRy * cosT, domeRx * sinT);
-        const perturb = 1.0 + rndtri(-0.06, 0, 0.06);
-        this.domePts.push({
+        const perturb = 1.0 + rndtri(-0.05, 0, 0.05);
+        boundaryPts.push({
           x: cosT * baseR * perturb,
           y: centerY + sinT * baseR * perturb
         });
       }
 
-      // Generate undulating meander ridge curves inside the dome
-      const numBands = 9;
-      for (let b = 1; b < numBands; b++) {
-        const frac = b / numBands;
-        const bandRy = domeRy * (1 - frac * 0.85);
-        const bandRx = domeRx * (1 - frac * 0.85);
-        const bandCenterY = centerY + frac * (domeRy * 0.35);
+      // Volumetric concentric latitude rings across dome
+      const latRings = [];
+      const numRings = 7;
+      for (let r = 1; r < numRings; r++) {
+        const frac = r / numRings;
+        const ringY = centerY + frac * domeRy * 0.85;
+        const ringRx = domeRx * Math.sqrt(Math.max(0.1, 1 - Math.pow((ringY - centerY) / domeRy, 2)));
+        const ringRy = ringRx * 0.32;
 
         const pts = [];
-        const steps = 36;
+        const steps = 32;
         for (let s = 0; s <= steps; s++) {
-          const theta = PI + (s / steps) * PI;
-          // Meander sinusoidal jitter (brain convolution)
-          const freq = 7.0 + (b % 3);
-          const amp = 6.0 * (1 - frac * 0.3);
-          const rOff = Math.sin(theta * freq + b * 1.4) * amp;
-
-          const baseR = (bandRx * bandRy) / Math.hypot(bandRy * Math.cos(theta), bandRx * Math.sin(theta));
-          const r = Math.max(10, baseR + rOff);
+          const a = PI + (s / steps) * PI;
           pts.push({
-            x: Math.cos(theta) * r,
-            y: bandCenterY + Math.sin(theta) * r
+            x: Math.cos(a) * ringRx,
+            y: ringY + Math.sin(a) * ringRy + rndtri(-2, 0, 2)
           });
         }
-        this.meanders.push(pts);
+        latRings.push(pts);
       }
+
+      // Deep convoluted meander trenches (brain/platygyra ridges)
+      const trenches = [];
+      const numTrenches = 12;
+      for (let t = 0; t < numTrenches; t++) {
+        const frac = (t + 1) / (numTrenches + 1);
+        const ty = centerY + lerp(-domeRy * 0.7, domeRy * 0.75, frac);
+        const spanX = domeRx * Math.sqrt(Math.max(0.05, 1 - Math.pow((ty - centerY) / domeRy, 2))) * 0.88;
+
+        const pts = [];
+        const steps = 24;
+        for (let s = 0; s <= steps; s++) {
+          const u = (s / steps - 0.5) * 2;
+          const x = u * spanX;
+          // Sinusoidal meander convolution
+          const meanderY = ty + Math.sin(u * PI * 4 + t * 1.5) * 6.5 + Math.cos(u * PI * 8) * 3;
+          pts.push({ x, y: meanderY });
+        }
+        trenches.push(pts);
+      }
+
+      this.massiveDome = {
+        boundaryPts,
+        latRings,
+        trenches,
+        centerY,
+        domeRx,
+        domeRy
+      };
     }
 
-    // --- 3.3 Table Coral (Cantilevered Horizontal Tiered Discs) ---
-    buildTable() {
-      this.plates = [];
-      this.polyps = [];
-
-      const numTiers = this.morph === CORAL_MORPHS.TIERED_STEP ? 4 : (this.morph === CORAL_MORPHS.TALL_SPIRE ? 2 : 3);
+    // --- 3.3 Volumetric Tabular (3D Cantilevered Plate with Thickness & Rim Bevel) ---
+    buildVolumetricTable() {
+      this.tablePlates = [];
+      const numTiers = this.morph === CORAL_MORPHS.TIERED_STEP ? 3 : 2;
       const topW = this.spread * 0.55;
 
       for (let t = 0; t < numTiers; t++) {
-        const frac = t / (numTiers);
-        const plateY = -this.height * (0.45 + frac * 0.50);
-        const plateRx = topW * (0.65 + frac * 0.45);
-        const plateRy = plateRx * 0.28; // 2.5D perspective flatten
-        const shiftX = rndtri(-12, 0, 12);
+        const frac = t / numTiers;
+        const plateY = -this.height * (0.50 + frac * 0.45);
+        const plateRx = topW * (0.70 + frac * 0.40);
+        const plateRy = plateRx * 0.30;
+        const thickness = rndtri(8, 12, 16);
+        const shiftX = rndtri(-10, 0, 10);
 
-        const rimPts = [];
+        // Top rim points
+        const topPts = [];
+        const botPts = [];
         const numRim = 36;
         for (let i = 0; i <= numRim; i++) {
           const th = (i / numRim) * TWO_PI;
-          const rMod = 1.0 + Math.sin(th * 12) * 0.04 + rndtri(-0.03, 0, 0.03);
-          rimPts.push({
-            x: shiftX + Math.cos(th) * plateRx * rMod,
-            y: plateY + Math.sin(th) * plateRy * rMod
+          const rMod = 1.0 + Math.sin(th * 14) * 0.035 + rndtri(-0.02, 0, 0.02);
+          const px = shiftX + Math.cos(th) * plateRx * rMod;
+          const py = plateY + Math.sin(th) * plateRy * rMod;
+          topPts.push({ x: px, y: py });
+          botPts.push({ x: px, y: py + thickness });
+        }
+
+        // Radial corallite septa rays across top plate
+        const radialRays = [];
+        const numRays = 20;
+        for (let r = 0; r < numRays; r++) {
+          const a = (r / numRays) * TWO_PI;
+          radialRays.push({
+            x0: shiftX, y0: plateY,
+            x1: shiftX + Math.cos(a) * plateRx * 0.88,
+            y1: plateY + Math.sin(a) * plateRy * 0.88
           });
         }
 
-        // Under-plate support struts
-        const struts = [];
-        const numStruts = 6;
-        for (let s = 0; s < numStruts; s++) {
-          const a = (s / numStruts) * PI;
-          struts.push({
-            x0: 0, y0: plateY + plateRy * 0.6,
-            x1: shiftX + Math.cos(a) * plateRx * 0.85,
-            y1: plateY + Math.sin(a) * plateRy * 0.85
-          });
-        }
-
-        this.plates.push({
-          y: plateY,
-          rx: plateRx,
-          ry: plateRy,
+        this.tablePlates.push({
+          plateY,
+          thickness,
           shiftX,
-          rimPts,
-          struts
+          topPts,
+          botPts,
+          radialRays
         });
       }
 
-      // Sort plates from top to bottom
-      this.plates.sort((a, b) => a.y - b.y);
+      this.tablePlates.sort((a, b) => a.plateY - b.plateY);
     }
 
-    // --- 3.4 Sea Fan (Anastomosing Reticular Lattice) ---
-    buildFan() {
-      this.meshLattice = [];
-      this.polyps = [];
+    // --- 3.4 Volumetric Encrusting (3D Relief Slab on substrate) ---
+    buildVolumetricEncrusting() {
+      const slabW = this.spread * 0.55;
+      const slabH = this.height * 0.40;
+      const thickness = rndtri(14, 20, 26);
 
-      const fanH = this.height * 0.95;
-      const fanW = this.spread * 0.55;
-
-      // Primary radial ribs
-      const numRibs = 14;
-      const ribs = [];
-      for (let r = 0; r < numRibs; r++) {
-        const u = (r / (numRibs - 1) - 0.5) * 2;
-        const targetAng = -HALF_PI + u * (PI * 0.38);
-        const len = fanH * (0.85 + (1 - Math.abs(u)) * 0.25);
-
-        const pts = [];
-        const steps = 8;
-        for (let s = 0; s <= steps; s++) {
-          const t = s / steps;
-          const curAng = lerp(-HALF_PI, targetAng, t);
-          const curLen = len * t;
-          pts.push({
-            x: Math.cos(curAng) * curLen + rndtri(-2, 0, 2),
-            y: Math.sin(curAng) * curLen
-          });
-        }
-        ribs.push(pts);
+      const topPts = [];
+      const botPts = [];
+      const numPts = 32;
+      for (let i = 0; i <= numPts; i++) {
+        const u = (i / numPts - 0.5) * 2;
+        const x = u * slabW;
+        const humpY = -slabH * (1 - Math.pow(u, 2) * 0.85) + rndtri(-3, 0, 3);
+        topPts.push({ x, y: humpY });
+        botPts.push({ x, y: humpY + thickness });
       }
 
-      // Horizontal cross-connecting lattice rungs
-      const rungs = [];
-      const numRungs = 12;
-      for (let l = 1; l < numRungs; l++) {
-        const t = l / numRungs;
-        const rungPts = [];
-        for (let r = 0; r < numRibs; r++) {
-          const stepIdx = Math.min(ribs[r].length - 1, Math.floor(t * (ribs[r].length - 1)));
-          rungPts.push(ribs[r][stepIdx]);
-        }
-        rungs.push(rungPts);
+      // Raised caldera corallite mounds
+      const calderas = [];
+      const numCalderas = 10;
+      for (let c = 0; c < numCalderas; c++) {
+        const cx = rndtri(-slabW * 0.75, 0, slabW * 0.75);
+        const cy = -slabH * rndtri(0.2, 0.5, 0.85);
+        calderas.push({
+          x: cx, y: cy,
+          rx: rndtri(6, 9, 13),
+          ry: rndtri(3, 5, 7)
+        });
       }
 
-      this.meshLattice = { ribs, rungs };
+      this.encrustingSlab = { topPts, botPts, calderas, thickness };
     }
 
-    // --- 3.5 Foliose / Cup Coral (Conchoid Petaloid Whorls) ---
-    buildFoliose() {
-      this.ruffles = [];
-      this.polyps = [];
+    // --- 3.5 Volumetric Foliose (Overlapping Ruffle Petals with Under-Shadows) ---
+    buildVolumetricFoliose() {
+      this.folioseRuffles = [];
+      const numCups = this.morph === CORAL_MORPHS.DENSE_BUSH ? 5 : 4;
 
-      const numCups = this.morph === CORAL_MORPHS.DENSE_BUSH ? 5 : 3;
       for (let c = 0; c < numCups; c++) {
         const frac = c / numCups;
-        const cupCenterY = -this.height * (0.35 + frac * 0.55);
+        const cupCenterY = -this.height * (0.32 + frac * 0.58);
         const cupRx = this.spread * (0.35 + (1 - frac) * 0.25);
-        const cupRy = cupRx * 0.45;
-        const offX = rndtri(-18, 0, 18);
+        const cupRy = cupRx * 0.42;
+        const thickness = 6;
+        const offX = rndtri(-16, 0, 16);
 
-        const petalPts = [];
+        const outerPts = [];
+        const innerPts = [];
         const numPts = 42;
         for (let i = 0; i <= numPts; i++) {
           const th = (i / numPts) * TWO_PI;
-          // Harmonic wavy ruffle edge
-          const ruffle = 1.0 + Math.sin(th * 6.0 + c * 1.8) * 0.16 + Math.cos(th * 3.0) * 0.08;
-          petalPts.push({
-            x: offX + Math.cos(th) * cupRx * ruffle,
-            y: cupCenterY + Math.sin(th) * cupRy * ruffle
-          });
+          const ruffle = 1.0 + Math.sin(th * 5.0 + c * 1.6) * 0.18 + Math.cos(th * 3.0) * 0.08;
+          const ox = offX + Math.cos(th) * cupRx * ruffle;
+          const oy = cupCenterY + Math.sin(th) * cupRy * ruffle;
+          outerPts.push({ x: ox, y: oy });
+          innerPts.push({ x: ox, y: oy + thickness });
         }
 
-        // Internal radial septa striations
-        const striations = [];
-        const numStriae = 16;
-        for (let s = 0; s < numStriae; s++) {
-          const a = (s / numStriae) * TWO_PI;
-          striations.push({
+        // Curved radial ridges
+        const septaRibs = [];
+        const numRibs = 18;
+        for (let s = 0; s < numRibs; s++) {
+          const a = (s / numRibs) * TWO_PI;
+          septaRibs.push({
             x0: offX, y0: cupCenterY,
-            x1: offX + Math.cos(a) * cupRx * 0.85,
-            y1: cupCenterY + Math.sin(a) * cupRy * 0.85
+            x1: offX + Math.cos(a) * cupRx * 0.88,
+            y1: cupCenterY + Math.sin(a) * cupRy * 0.88
           });
         }
 
-        this.ruffles.push({
+        this.folioseRuffles.push({
           y: cupCenterY,
           offX,
-          rx: cupRx,
-          ry: cupRy,
-          petalPts,
-          striations
+          outerPts,
+          innerPts,
+          septaRibs
         });
       }
 
-      this.ruffles.sort((a, b) => a.y - b.y);
+      this.folioseRuffles.sort((a, b) => a.y - b.y);
     }
 
-    // --- 3.6 Pillar & Pipe Coral (Vertical Clustered Cylinders) ---
-    buildPillar() {
-      this.pillars = [];
-      this.polyps = [];
+    // --- 3.6 Volumetric Mushroom (Convex Fungia Disc with Stomodaeum & Curved Septa) ---
+    buildVolumetricMushroom() {
+      const discRx = this.spread * 0.52;
+      const discRy = discRx * 0.45; // 2.5D perspective ellipse
+      const domeHeight = this.height * 0.45;
+      const centerY = -domeHeight;
 
+      // Outer rim points of mushroom disc
+      const rimPts = [];
+      const numPts = 64;
+      for (let i = 0; i <= numPts; i++) {
+        const th = (i / numPts) * TWO_PI;
+        // Scalloped undulating margin
+        const scallop = 1.0 + Math.sin(th * 24) * 0.03 + rndtri(-0.015, 0, 0.015);
+        rimPts.push({
+          x: Math.cos(th) * discRx * scallop,
+          y: centerY + Math.sin(th) * discRy * scallop
+        });
+      }
+
+      // Central stomodaeum (elongated mouth slit)
+      const mouthW = discRx * 0.28;
+      const mouthH = discRy * 0.18;
+
+      // Radial septa blades radiating from stomodaeum to rim
+      const septaBlades = [];
+      const numBlades = 44;
+      for (let b = 0; b < numBlades; b++) {
+        const a = (b / numBlades) * TWO_PI;
+        // Arched curve rising from mouth over the convex crown to the rim
+        const startX = Math.cos(a) * mouthW;
+        const startY = centerY + Math.sin(a) * mouthH;
+        const endX = Math.cos(a) * discRx;
+        const endY = centerY + Math.sin(a) * discRy;
+
+        // Arch crest point
+        const midX = (startX + endX) * 0.5;
+        const midY = (startY + endY) * 0.5 - domeHeight * 0.35 * Math.sin((b / numBlades) * PI);
+
+        septaBlades.push({ startX, startY, midX, midY, endX, endY });
+      }
+
+      this.mushroomDisc = {
+        centerY,
+        discRx,
+        discRy,
+        rimPts,
+        mouthW,
+        mouthH,
+        septaBlades
+      };
+    }
+
+    // --- 3.7 Volumetric Digitate & Columnar (Acropora digitate ACD & Tubipora) ---
+    buildVolumetricDigitate() {
+      this.columns = [];
       const numCols = Math.floor(rnd(4, 7));
       const colWidth = this.baseW * 0.95;
       const spanW = this.spread * 0.65;
@@ -506,8 +595,16 @@
       for (let i = 0; i < numCols; i++) {
         const u = (i / (numCols - 1) - 0.5) * 2;
         const colX = u * spanW * 0.5 + rndtri(-6, 0, 6);
-        const colH = this.height * (0.65 + (1 - Math.abs(u) * 0.45) * 0.35 + rndtri(-0.1, 0, 0.1));
-        const w = colWidth * rndtri(0.75, 1.0, 1.25);
+        const colH = this.height * (0.65 + (1 - Math.abs(u) * 0.45) * 0.38 + rndtri(-0.08, 0, 0.08));
+        const w = colWidth * rndtri(0.80, 1.05, 1.30);
+
+        // Vertical cylindrical slice rings (latitude arcs)
+        const rings = [];
+        const numR = 6;
+        for (let r = 1; r < numR; r++) {
+          const ry = -(colH * (r / numR));
+          rings.push({ y: ry, rx: w * 0.5, ry: w * 0.22 });
+        }
 
         // Fluted vertical grooves
         const grooves = [];
@@ -517,20 +614,21 @@
           grooves.push({ x0: gx, y0: 0, x1: gx, y1: -colH });
         }
 
-        this.pillars.push({
+        this.columns.push({
           x: colX,
           height: colH,
           width: w,
+          rings,
           grooves
         });
       }
 
-      this.pillars.sort((a, b) => Math.abs(a.x) - Math.abs(b.x));
+      this.columns.sort((a, b) => Math.abs(a.x) - Math.abs(b.x));
     }
 
     update(dt, waterFlow = 0) {
       this.swayPhase += dt * 1.4;
-      this.currentSwayX = Math.sin(this.swayPhase) * this.swayAmp + waterFlow * 8;
+      this.currentSwayX = Math.sin(this.swayPhase) * this.swayAmp + waterFlow * 6;
     }
 
     render(ctx, options = {}) {
@@ -544,24 +642,24 @@
 
       // 100% STRICTLY MONOCHROME PALETTE
       const baseWash = isMidnight
-        ? (options.coralWash || 'rgba(255, 255, 255, 0.08)')
-        : (options.coralWash || 'rgba(35, 35, 35, 0.08)');
+        ? (options.coralWash || 'rgba(255, 255, 255, 0.09)')
+        : (options.coralWash || 'rgba(35, 35, 35, 0.09)');
 
       const shadowWash = isMidnight
-        ? 'rgba(0, 0, 0, 0.60)'
-        : 'rgba(20, 20, 20, 0.24)';
+        ? 'rgba(0, 0, 0, 0.65)'
+        : 'rgba(20, 20, 20, 0.25)';
 
       const highlightWash = isMidnight
-        ? 'rgba(255, 255, 255, 0.18)'
-        : 'rgba(255, 255, 255, 0.55)';
+        ? 'rgba(255, 255, 255, 0.20)'
+        : 'rgba(255, 255, 255, 0.60)';
 
       const polypInk = isMidnight
-        ? 'rgba(240, 240, 240, 0.75)'
-        : 'rgba(15, 15, 15, 0.80)';
+        ? 'rgba(240, 240, 240, 0.80)'
+        : 'rgba(15, 15, 15, 0.85)';
 
       const dropShadowColor = isMidnight
-        ? 'rgba(0, 0, 0, 0.45)'
-        : 'rgba(0, 0, 0, 0.14)';
+        ? 'rgba(0, 0, 0, 0.50)'
+        : 'rgba(0, 0, 0, 0.16)';
 
       // 1. Soft underwater ground drop shadow
       if (options.showShadow !== false) {
@@ -582,7 +680,7 @@
           ctx.lineTo(this.holdfastPts[i].x, this.holdfastPts[i].y);
         }
         ctx.closePath();
-        ctx.fillStyle = baseWash;
+        ctx.fillStyle = shadowWash;
         ctx.fill();
         ctx.strokeStyle = strokeColor;
         ctx.lineWidth = lineWidth * 0.9;
@@ -590,142 +688,221 @@
         ctx.restore();
       }
 
-      // Dynamic subtle hydrodynamic sway transform
+      // Hydrodynamic current sway transform
       ctx.save();
       const swayX = this.currentSwayX;
       ctx.transform(1, 0, swayX / 600, 1, 0, 0);
 
-      // 3. Render According to Archetype
+      // 3. Render According to Volumetric Archetype
       switch (this.archetype) {
         case CORAL_ARCHETYPES.BRANCHING:
-          this.renderBranching(ctx, strokeColor, lineWidth, baseWash, shadowWash, polypInk, options);
+          this.renderVolumetricBranching(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, polypInk, options);
           break;
-        case CORAL_ARCHETYPES.BRAIN:
-          this.renderBrain(ctx, strokeColor, lineWidth, baseWash, shadowWash, options);
+        case CORAL_ARCHETYPES.MASSIVE:
+          this.renderVolumetricMassive(ctx, strokeColor, lineWidth, baseWash, shadowWash, options);
           break;
-        case CORAL_ARCHETYPES.TABLE:
-          this.renderTable(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options);
+        case CORAL_ARCHETYPES.TABULAR:
+          this.renderVolumetricTable(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options);
           break;
-        case CORAL_ARCHETYPES.FAN:
-          this.renderFan(ctx, strokeColor, lineWidth, baseWash, shadowWash, options);
+        case CORAL_ARCHETYPES.ENCRUSTING:
+          this.renderVolumetricEncrusting(ctx, strokeColor, lineWidth, baseWash, shadowWash, options);
           break;
         case CORAL_ARCHETYPES.FOLIOSE:
-          this.renderFoliose(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options);
+          this.renderVolumetricFoliose(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options);
           break;
-        case CORAL_ARCHETYPES.PILLAR:
-          this.renderPillar(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options);
+        case CORAL_ARCHETYPES.MUSHROOM:
+          this.renderVolumetricMushroom(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options);
           break;
-      }
-
-      // 4. Corallite Polyps (Cups / Dots)
-      if (this.polyps.length > 0 && options.showPolyps !== false) {
-        ctx.save();
-        ctx.fillStyle = polypInk;
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = lineWidth * 0.6;
-        for (const p of this.polyps) {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, TWO_PI);
-          ctx.fill();
-          ctx.stroke();
-        }
-        ctx.restore();
+        case CORAL_ARCHETYPES.DIGITATE:
+          this.renderVolumetricDigitate(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, polypInk, options);
+          break;
       }
 
       ctx.restore(); // Exit sway transform
       ctx.restore(); // Exit root translate
     }
 
-    renderBranching(ctx, strokeColor, lineWidth, baseWash, shadowWash, polypInk, options) {
+    // --- Render Volumetric Branching (3D cylinder hull + latitude wrapping rings) ---
+    renderVolumetricBranching(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, polypInk, options) {
       ctx.save();
-      ctx.strokeStyle = strokeColor;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
 
-      for (const b of this.branches) {
-        // Shaded branch stroke
+      for (const b of this.volumetricLimbs) {
+        const S = b.slices;
+        if (S.length < 2) continue;
+
+        // 1. Fill 3D solid cylinder hull
         ctx.beginPath();
-        ctx.moveTo(b.x0, b.y0);
-        ctx.quadraticCurveTo(b.cx, b.cy, b.x1, b.y1);
+        ctx.moveTo(S[0].leftX, S[0].leftY);
+        for (let i = 1; i < S.length; i++) ctx.lineTo(S[i].leftX, S[i].leftY);
+        // Hemispherical tip
+        const last = S[S.length - 1];
+        ctx.arc(last.px, last.py, last.w, last.normAngle, last.normAngle + PI);
+        for (let i = S.length - 1; i >= 0; i--) ctx.lineTo(S[i].rightX, S[i].rightY);
+        ctx.closePath();
 
-        ctx.lineWidth = b.width0;
-        ctx.strokeStyle = baseWash;
+        ctx.fillStyle = baseWash;
+        ctx.fill();
+
+        // 2. Chiaroscuro core shadow on right flank
+        ctx.save();
+        ctx.clip();
+        ctx.beginPath();
+        for (let i = 0; i < S.length; i++) ctx.lineTo(S[i].px, S[i].py);
+        for (let i = S.length - 1; i >= 0; i--) ctx.lineTo(S[i].rightX, S[i].rightY);
+        ctx.closePath();
+        ctx.fillStyle = shadowWash;
+        ctx.fill();
+
+        // Highlight stripe along left/top crest
+        ctx.beginPath();
+        for (let i = 0; i < S.length; i++) {
+          const hx = lerp(S[i].px, S[i].leftX, 0.45);
+          const hy = lerp(S[i].py, S[i].leftY, 0.45);
+          if (i === 0) ctx.moveTo(hx, hy);
+          else ctx.lineTo(hx, hy);
+        }
+        ctx.lineWidth = S[0].w * 0.35;
+        ctx.strokeStyle = highlightWash;
         ctx.stroke();
 
-        // Outline contour
-        ctx.lineWidth = Math.max(0.8, lineWidth * (1 - b.depth * 0.18));
+        ctx.restore(); // Exit clip
+
+        // 3. Volumetric Cross-Section Latitude Contours (Wrapping Arcs)
+        if (options.showVolumeRings !== false) {
+          ctx.save();
+          ctx.strokeStyle = strokeColor;
+          ctx.lineWidth = Math.max(0.45, lineWidth * 0.55);
+          ctx.globalAlpha = 0.50;
+
+          for (let i = 1; i < S.length - 1; i++) {
+            const sl = S[i];
+            ctx.beginPath();
+            // Curved arc bowed toward tip to show cylinder roundness
+            const midBowX = sl.px - Math.sin(sl.normAngle) * (sl.w * 0.35);
+            const midBowY = sl.py + Math.cos(sl.normAngle) * (sl.w * 0.35);
+            ctx.moveTo(sl.leftX, sl.leftY);
+            ctx.quadraticCurveTo(midBowX, midBowY, sl.rightX, sl.rightY);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // 4. Boundary Outlines
         ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = Math.max(0.75, lineWidth * (1 - b.depth * 0.15));
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(S[0].leftX, S[0].leftY);
+        for (let i = 1; i < S.length; i++) ctx.lineTo(S[i].leftX, S[i].leftY);
+        ctx.arc(last.px, last.py, last.w, last.normAngle, last.normAngle + PI);
+        for (let i = S.length - 1; i >= 0; i--) ctx.lineTo(S[i].rightX, S[i].rightY);
         ctx.stroke();
+
+        // 5. Axial corallite at the tip + radial corallite cones
+        if (b.isTip && options.showPolyps !== false) {
+          ctx.beginPath();
+          ctx.arc(last.px, last.py, last.w * 0.65, 0, TWO_PI);
+          ctx.fillStyle = polypInk;
+          ctx.fill();
+          ctx.stroke();
+        }
+
+        if (b.calices && options.showPolyps !== false) {
+          for (const c of b.calices) {
+            ctx.beginPath();
+            ctx.arc(c.x, c.y, c.r, 0, TWO_PI);
+            ctx.fillStyle = polypInk;
+            ctx.fill();
+            ctx.stroke();
+          }
+        }
       }
+
       ctx.restore();
     }
 
-    renderBrain(ctx, strokeColor, lineWidth, baseWash, shadowWash, options) {
-      if (!this.domePts || this.domePts.length < 3) return;
+    // --- Render Volumetric Massive (Spherical dome + relief crevices) ---
+    renderVolumetricMassive(ctx, strokeColor, lineWidth, baseWash, shadowWash, options) {
+      const D = this.massiveDome;
+      if (!D || !D.boundaryPts) return;
 
-      // 1. Dome Silhouette & Base Wash
       ctx.save();
+
+      // 1. Solid dome fill
       ctx.beginPath();
-      ctx.moveTo(this.domePts[0].x, this.domePts[0].y);
-      for (let i = 1; i < this.domePts.length; i++) {
-        ctx.lineTo(this.domePts[i].x, this.domePts[i].y);
-      }
+      ctx.moveTo(D.boundaryPts[0].x, D.boundaryPts[0].y);
+      for (let i = 1; i < D.boundaryPts.length; i++) ctx.lineTo(D.boundaryPts[i].x, D.boundaryPts[i].y);
       ctx.closePath();
       ctx.fillStyle = baseWash;
       ctx.fill();
 
-      // Clip to dome for internal meander valleys
+      // Clip for spherical chiaroscuro & crevices
       ctx.save();
       ctx.clip();
 
-      // Shadow on lower-right
+      // 2. Spherical crescent shadow
       ctx.beginPath();
-      ctx.ellipse(this.spread * 0.15, -this.height * 0.25, this.spread * 0.45, this.height * 0.35, 0.2, 0, TWO_PI);
+      ctx.ellipse(D.domeRx * 0.22, D.centerY + D.domeRy * 0.35, D.domeRx * 0.75, D.domeRy * 0.55, 0.25, 0, TWO_PI);
       ctx.fillStyle = shadowWash;
       ctx.fill();
 
-      // 2. Meandering Gyri / Sulci lines
-      if (options.showMeanders !== false) {
+      // 3. Volumetric latitude contours
+      if (options.showVolumeRings !== false && D.latRings) {
+        ctx.save();
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = Math.max(0.4, lineWidth * 0.5);
+        ctx.globalAlpha = 0.45;
+        for (const ring of D.latRings) {
+          ctx.beginPath();
+          ctx.moveTo(ring[0].x, ring[0].y);
+          for (let i = 1; i < ring.length; i++) ctx.lineTo(ring[i].x, ring[i].y);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // 4. Meandering brain sulci ridges
+      if (options.showMeanders !== false && D.trenches) {
+        ctx.save();
         ctx.strokeStyle = strokeColor;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-
-        for (const line of this.meanders) {
+        for (const t of D.trenches) {
           ctx.beginPath();
-          ctx.lineWidth = Math.max(0.6, lineWidth * 0.85);
-          ctx.moveTo(line[0].x, line[0].y);
-          for (let i = 1; i < line.length; i++) {
-            ctx.lineTo(line[i].x, line[i].y);
-          }
+          ctx.lineWidth = Math.max(0.65, lineWidth * 0.85);
+          ctx.moveTo(t[0].x, t[0].y);
+          for (let i = 1; i < t.length; i++) ctx.lineTo(t[i].x, t[i].y);
           ctx.stroke();
         }
+        ctx.restore();
       }
 
       ctx.restore(); // Exit clip
 
       // Outer boundary stroke
       ctx.beginPath();
-      ctx.moveTo(this.domePts[0].x, this.domePts[0].y);
-      for (let i = 1; i < this.domePts.length; i++) {
-        ctx.lineTo(this.domePts[i].x, this.domePts[i].y);
-      }
+      ctx.moveTo(D.boundaryPts[0].x, D.boundaryPts[0].y);
+      for (let i = 1; i < D.boundaryPts.length; i++) ctx.lineTo(D.boundaryPts[i].x, D.boundaryPts[i].y);
       ctx.closePath();
       ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = lineWidth * 1.1;
+      ctx.lineWidth = lineWidth * 1.15;
       ctx.stroke();
 
       ctx.restore();
     }
 
-    renderTable(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options) {
+    // --- Render Volumetric Tabular (3D Cantilevered Plate with Bevel Rim) ---
+    renderVolumetricTable(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options) {
       ctx.save();
 
-      // 1. Main Trunk Holdfast
+      // 1. Sturdy central trunk
       ctx.beginPath();
-      ctx.moveTo(-this.baseW * 0.6, 0);
-      ctx.lineTo(-this.baseW * 0.35, -this.height * 0.75);
-      ctx.lineTo(this.baseW * 0.35, -this.height * 0.75);
-      ctx.lineTo(this.baseW * 0.6, 0);
+      ctx.moveTo(-this.baseW * 0.7, 0);
+      ctx.lineTo(-this.baseW * 0.4, -this.height * 0.75);
+      ctx.lineTo(this.baseW * 0.4, -this.height * 0.75);
+      ctx.lineTo(this.baseW * 0.7, 0);
       ctx.closePath();
       ctx.fillStyle = shadowWash;
       ctx.fill();
@@ -733,34 +910,54 @@
       ctx.lineWidth = lineWidth;
       ctx.stroke();
 
-      // 2. Tiered Horizontal Plates
-      for (const p of this.plates) {
-        // Struts beneath plate
-        if (p.struts) {
-          ctx.save();
+      // 2. Volumetric Plates (Back-to-front layering)
+      for (const p of this.tablePlates) {
+        // Under-plate deep shadow
+        ctx.beginPath();
+        ctx.moveTo(p.botPts[0].x, p.botPts[0].y);
+        for (let i = 1; i < p.botPts.length; i++) ctx.lineTo(p.botPts[i].x, p.botPts[i].y);
+        ctx.closePath();
+        ctx.fillStyle = shadowWash;
+        ctx.fill();
+
+        // 3D vertical bevel rim band
+        for (let i = 0; i < p.topPts.length - 1; i++) {
+          ctx.beginPath();
+          ctx.moveTo(p.topPts[i].x, p.topPts[i].y);
+          ctx.lineTo(p.topPts[i + 1].x, p.topPts[i + 1].y);
+          ctx.lineTo(p.botPts[i + 1].x, p.botPts[i + 1].y);
+          ctx.lineTo(p.botPts[i].x, p.botPts[i].y);
+          ctx.closePath();
+          ctx.fillStyle = shadowWash;
+          ctx.fill();
           ctx.strokeStyle = strokeColor;
           ctx.lineWidth = lineWidth * 0.75;
-          ctx.globalAlpha = 0.55;
-          for (const s of p.struts) {
+          ctx.stroke();
+        }
+
+        // Top horizontal plate disc
+        ctx.beginPath();
+        ctx.moveTo(p.topPts[0].x, p.topPts[0].y);
+        for (let i = 1; i < p.topPts.length; i++) ctx.lineTo(p.topPts[i].x, p.topPts[i].y);
+        ctx.closePath();
+        ctx.fillStyle = baseWash;
+        ctx.fill();
+
+        // Radial corallite septa rays
+        if (p.radialRays && options.showStriations !== false) {
+          ctx.save();
+          ctx.strokeStyle = strokeColor;
+          ctx.lineWidth = Math.max(0.4, lineWidth * 0.5);
+          ctx.globalAlpha = 0.45;
+          for (const r of p.radialRays) {
             ctx.beginPath();
-            ctx.moveTo(s.x0, s.y0);
-            ctx.lineTo(s.x1, s.y1);
+            ctx.moveTo(r.x0, r.y0);
+            ctx.lineTo(r.x1, r.y1);
             ctx.stroke();
           }
           ctx.restore();
         }
 
-        // Plate disc fill
-        ctx.beginPath();
-        ctx.moveTo(p.rimPts[0].x, p.rimPts[0].y);
-        for (let i = 1; i < p.rimPts.length; i++) {
-          ctx.lineTo(p.rimPts[i].x, p.rimPts[i].y);
-        }
-        ctx.closePath();
-        ctx.fillStyle = baseWash;
-        ctx.fill();
-
-        // Rim highlight & contour
         ctx.strokeStyle = strokeColor;
         ctx.lineWidth = lineWidth;
         ctx.stroke();
@@ -769,69 +966,88 @@
       ctx.restore();
     }
 
-    renderFan(ctx, strokeColor, lineWidth, baseWash, shadowWash, options) {
-      if (!this.meshLattice || !this.meshLattice.ribs) return;
+    // --- Render Volumetric Encrusting (3D Relief Slab on Substrate) ---
+    renderVolumetricEncrusting(ctx, strokeColor, lineWidth, baseWash, shadowWash, options) {
+      const S = this.encrustingSlab;
+      if (!S) return;
+
       ctx.save();
 
-      // Stem
+      // 1. 3D vertical edge rim
       ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(0, -this.height * 0.22);
-      ctx.lineWidth = this.baseW * 0.65;
+      ctx.moveTo(S.topPts[0].x, S.topPts[0].y);
+      for (let i = 1; i < S.topPts.length; i++) ctx.lineTo(S.topPts[i].x, S.topPts[i].y);
+      for (let i = S.botPts.length - 1; i >= 0; i--) ctx.lineTo(S.botPts[i].x, S.botPts[i].y);
+      ctx.closePath();
+      ctx.fillStyle = shadowWash;
+      ctx.fill();
       ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = lineWidth;
       ctx.stroke();
 
-      // Reticulated Ribs
-      ctx.strokeStyle = strokeColor;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+      // 2. Top relief surface
+      ctx.beginPath();
+      ctx.moveTo(S.topPts[0].x, S.topPts[0].y);
+      for (let i = 1; i < S.topPts.length; i++) ctx.lineTo(S.topPts[i].x, S.topPts[i].y);
+      ctx.lineTo(S.topPts[S.topPts.length - 1].x, 0);
+      ctx.lineTo(S.topPts[0].x, 0);
+      ctx.closePath();
+      ctx.fillStyle = baseWash;
+      ctx.fill();
 
-      for (const rib of this.meshLattice.ribs) {
-        ctx.beginPath();
-        ctx.lineWidth = Math.max(0.6, lineWidth * 0.75);
-        ctx.moveTo(rib[0].x, rib[0].y);
-        for (let i = 1; i < rib.length; i++) {
-          ctx.lineTo(rib[i].x, rib[i].y);
+      // 3. Caldera corallite mounds
+      if (S.calderas && options.showPolyps !== false) {
+        for (const cal of S.calderas) {
+          ctx.beginPath();
+          ctx.ellipse(cal.x, cal.y, cal.rx, cal.ry, 0, 0, TWO_PI);
+          ctx.fillStyle = shadowWash;
+          ctx.fill();
+          ctx.strokeStyle = strokeColor;
+          ctx.lineWidth = lineWidth * 0.8;
+          ctx.stroke();
         }
-        ctx.stroke();
-      }
-
-      // Horizontal Lattice Rungs
-      for (const rung of this.meshLattice.rungs) {
-        ctx.beginPath();
-        ctx.lineWidth = Math.max(0.4, lineWidth * 0.5);
-        ctx.globalAlpha = 0.65;
-        ctx.moveTo(rung[0].x, rung[0].y);
-        for (let i = 1; i < rung.length; i++) {
-          ctx.lineTo(rung[i].x, rung[i].y);
-        }
-        ctx.stroke();
       }
 
       ctx.restore();
     }
 
-    renderFoliose(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options) {
+    // --- Render Volumetric Foliose (Layered Petals with Overlapping Cast Shadows) ---
+    renderVolumetricFoliose(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options) {
       ctx.save();
 
-      for (const r of this.ruffles) {
-        // Ruffle Petal Plate
+      for (const r of this.folioseRuffles) {
+        // Deep under-leaf cast shadow
         ctx.beginPath();
-        ctx.moveTo(r.petalPts[0].x, r.petalPts[0].y);
-        for (let i = 1; i < r.petalPts.length; i++) {
-          ctx.lineTo(r.petalPts[i].x, r.petalPts[i].y);
-        }
+        ctx.moveTo(r.innerPts[0].x, r.innerPts[0].y);
+        for (let i = 1; i < r.innerPts.length; i++) ctx.lineTo(r.innerPts[i].x, r.innerPts[i].y);
+        ctx.closePath();
+        ctx.fillStyle = shadowWash;
+        ctx.fill();
+
+        // 3D edge rim
+        ctx.beginPath();
+        ctx.moveTo(r.outerPts[0].x, r.outerPts[0].y);
+        for (let i = 1; i < r.outerPts.length; i++) ctx.lineTo(r.outerPts[i].x, r.outerPts[i].y);
+        for (let i = r.innerPts.length - 1; i >= 0; i--) ctx.lineTo(r.innerPts[i].x, r.innerPts[i].y);
+        ctx.closePath();
+        ctx.fillStyle = shadowWash;
+        ctx.fill();
+
+        // Top petal face
+        ctx.beginPath();
+        ctx.moveTo(r.outerPts[0].x, r.outerPts[0].y);
+        for (let i = 1; i < r.outerPts.length; i++) ctx.lineTo(r.outerPts[i].x, r.outerPts[i].y);
         ctx.closePath();
         ctx.fillStyle = baseWash;
         ctx.fill();
 
-        // Septa striations radiating outward
-        if (r.striations && options.showStriations !== false) {
+        // Septa striation rays
+        if (r.septaRibs && options.showStriations !== false) {
           ctx.save();
           ctx.strokeStyle = strokeColor;
           ctx.lineWidth = Math.max(0.4, lineWidth * 0.5);
           ctx.globalAlpha = 0.45;
-          for (const s of r.striations) {
+          for (const s of r.septaRibs) {
             ctx.beginPath();
             ctx.moveTo(s.x0, s.y0);
             ctx.lineTo(s.x1, s.y1);
@@ -848,14 +1064,74 @@
       ctx.restore();
     }
 
-    renderPillar(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options) {
+    // --- Render Volumetric Mushroom (Convex 3D Disc + Central Stomodaeum Mouth) ---
+    renderVolumetricMushroom(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options) {
+      const M = this.mushroomDisc;
+      if (!M) return;
+
       ctx.save();
 
-      for (const p of this.pillars) {
+      // 1. Disc solid base wash
+      ctx.beginPath();
+      ctx.moveTo(M.rimPts[0].x, M.rimPts[0].y);
+      for (let i = 1; i < M.rimPts.length; i++) ctx.lineTo(M.rimPts[i].x, M.rimPts[i].y);
+      ctx.closePath();
+      ctx.fillStyle = baseWash;
+      ctx.fill();
+
+      // 2. Chiaroscuro convex shadow
+      ctx.save();
+      ctx.clip();
+      ctx.beginPath();
+      ctx.ellipse(M.discRx * 0.25, M.centerY + M.discRy * 0.35, M.discRx * 0.75, M.discRy * 0.55, 0.2, 0, TWO_PI);
+      ctx.fillStyle = shadowWash;
+      ctx.fill();
+
+      // 3. Arched 3D Septa Blades
+      if (options.showStriations !== false && M.septaBlades) {
+        ctx.strokeStyle = strokeColor;
+        ctx.lineCap = 'round';
+        for (const b of M.septaBlades) {
+          ctx.beginPath();
+          ctx.lineWidth = Math.max(0.45, lineWidth * 0.65);
+          ctx.moveTo(b.startX, b.startY);
+          ctx.quadraticCurveTo(b.midX, b.midY, b.endX, b.endY);
+          ctx.stroke();
+        }
+      }
+
+      ctx.restore(); // Exit clip
+
+      // 4. Central Stomodaeum (Mouth slit)
+      ctx.beginPath();
+      ctx.ellipse(0, M.centerY, M.mouthW, M.mouthH, 0, 0, TWO_PI);
+      ctx.fillStyle = shadowWash;
+      ctx.fill();
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = lineWidth * 1.1;
+      ctx.stroke();
+
+      // 5. Outer scalloped boundary rim
+      ctx.beginPath();
+      ctx.moveTo(M.rimPts[0].x, M.rimPts[0].y);
+      for (let i = 1; i < M.rimPts.length; i++) ctx.lineTo(M.rimPts[i].x, M.rimPts[i].y);
+      ctx.closePath();
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = lineWidth * 1.1;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // --- Render Volumetric Digitate (Thick cylindrical columns + latitude rings) ---
+    renderVolumetricDigitate(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, polypInk, options) {
+      ctx.save();
+
+      for (const p of this.columns) {
         const topY = -p.height;
         const rad = p.width * 0.5;
 
-        // Pillar column body
+        // 1. Column body cylinder
         ctx.beginPath();
         ctx.moveTo(p.x - rad, 0);
         ctx.lineTo(p.x - rad, topY + rad);
@@ -866,21 +1142,43 @@
         ctx.fillStyle = baseWash;
         ctx.fill();
 
-        // Grooves
-        if (p.grooves && options.showGrooves !== false) {
-          ctx.save();
+        // 2. Chiaroscuro right-side core shadow
+        ctx.save();
+        ctx.clip();
+        ctx.beginPath();
+        ctx.rect(p.x, topY, rad, p.height);
+        ctx.fillStyle = shadowWash;
+        ctx.fill();
+
+        // 3. Volumetric latitude contour rings
+        if (p.rings && options.showVolumeRings !== false) {
           ctx.strokeStyle = strokeColor;
-          ctx.lineWidth = Math.max(0.5, lineWidth * 0.65);
-          ctx.globalAlpha = 0.5;
-          for (const g of p.grooves) {
+          ctx.lineWidth = Math.max(0.45, lineWidth * 0.55);
+          ctx.globalAlpha = 0.55;
+          for (const rng of p.rings) {
             ctx.beginPath();
-            ctx.moveTo(g.x0, g.y0);
-            ctx.lineTo(g.x1, g.y1);
+            ctx.ellipse(p.x, rng.y, rng.rx, rng.ry, 0, 0, PI);
             ctx.stroke();
           }
-          ctx.restore();
         }
 
+        ctx.restore(); // Exit clip
+
+        // 4. Dome top calice
+        ctx.beginPath();
+        ctx.arc(p.x, topY + rad, rad * 0.65, 0, TWO_PI);
+        ctx.fillStyle = polypInk;
+        ctx.fill();
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+
+        // 5. Outer cylinder boundary
+        ctx.beginPath();
+        ctx.moveTo(p.x - rad, 0);
+        ctx.lineTo(p.x - rad, topY + rad);
+        ctx.arc(p.x, topY + rad, rad, PI, 0);
+        ctx.lineTo(p.x + rad, 0);
         ctx.strokeStyle = strokeColor;
         ctx.lineWidth = lineWidth;
         ctx.stroke();
@@ -902,7 +1200,7 @@
 
       let profile = CORAL_CATALOG.find(c => c.id === options.coralId || c.binomen === this.seed || c.common === this.seed);
       if (!profile) {
-        const parsedArch = options.archetype !== undefined ? options.archetype : choice([0, 1, 2, 3, 4, 5]);
+        const parsedArch = options.archetype !== undefined ? options.archetype : choice([0, 1, 2, 3, 4, 5, 6]);
         profile = choice(CORAL_CATALOG.filter(c => c.archetype === parsedArch)) || CORAL_CATALOG[0];
       }
 
@@ -924,7 +1222,7 @@
           roughness: options.roughness !== undefined ? options.roughness : profile.roughness
         }));
       } else {
-        // Natural clustered colony
+        // Clustered colony
         const mainH = (options.height || profile.height) * this.scale;
         const mainW = (options.spread || profile.spread) * this.scale;
 
@@ -939,7 +1237,7 @@
 
         for (let i = 1; i < numCorals; i++) {
           const u = (i / (numCorals - 1) - 0.5) * 2;
-          const satScale = rndtri(0.48, 0.70, 0.88);
+          const satScale = rndtri(0.50, 0.72, 0.88);
           const offX = u * mainW * 0.42 + rndtri(-10, 0, 10);
           const offY = rndtri(-8, 0, 8);
 
@@ -974,7 +1272,7 @@
   }
 
   // -----------------------------------------------------------------
-  // 5. Coral Reef Ecosystem Manager (Barrier / Lakebed Reef)
+  // 5. Coral Reef Ecosystem Manager
   // -----------------------------------------------------------------
   class CoralReef {
     constructor(options = {}) {
@@ -991,7 +1289,7 @@
 
       const margin = 80;
       const step = (width - margin * 2) / Math.max(1, count - 1);
-      const archetypesPool = [0, 1, 2, 3, 4, 5];
+      const archetypesPool = [0, 1, 2, 3, 4, 5, 6];
 
       for (let i = 0; i < count; i++) {
         const baseX = margin + i * step + rndtri(-40, 0, 40);
@@ -1004,7 +1302,7 @@
           coralId: species.id,
           archetype: arch,
           scale: rndtri(0.65, 0.90, 1.2),
-          count: arch === CORAL_ARCHETYPES.BRANCHING || arch === CORAL_ARCHETYPES.PILLAR ? Math.floor(rnd(2, 4)) : 1
+          count: arch === CORAL_ARCHETYPES.BRANCHING || arch === CORAL_ARCHETYPES.DIGITATE ? Math.floor(rnd(2, 4)) : 1
         });
         this.colonies.push(colony);
       }
