@@ -1828,6 +1828,7 @@
       const canvas = document.getElementById('aquarium');
       const ctx = canvas.getContext('2d');
       let currentTheme = 'washi'; // 'washi' or 'midnight'
+      let plantColony = null;
 
       function resizeCanvas() {
         const dpr = window.devicePixelRatio || 1;
@@ -1835,7 +1836,7 @@
         canvas.height = window.innerHeight * dpr;
         ctx.resetTransform();
         ctx.scale(dpr, dpr);
-        if (typeof plantColony !== 'undefined') {
+        if (plantColony) {
           plantColony.resize(window.innerWidth, window.innerHeight);
         }
       }
@@ -1850,7 +1851,7 @@
       });
 
       // Procedural Aquatic Flora & Seaweed Engine (plantdraw.js)
-      const plantColony = plantdraw.createColony({
+      plantColony = plantdraw.createColony({
         width: window.innerWidth,
         height: window.innerHeight,
         count: Math.max(4, Math.floor(window.innerWidth / 220))
@@ -1880,11 +1881,18 @@
         landingScreen.classList.remove('hidden');
         document.body.classList.remove('mode-zen');
         AudioFX.playClick();
+        setTimeout(() => {
+          const playBtn = document.getElementById('menu-btn-play');
+          if (playBtn) playBtn.focus();
+        }, 50);
       }
 
       function closeMenu() {
         landingScreen.classList.add('hidden');
         AudioFX.playClick();
+        if (document.activeElement && document.activeElement.blur) {
+          document.activeElement.blur();
+        }
       }
 
       btnToggleMenu.addEventListener('click', () => {
@@ -2363,22 +2371,59 @@
         document.getElementById('val-scale').textContent = animator.scale.toFixed(2) + 'x';
       });
 
-      // Keyboard Shortcuts
+      // Keyboard Shortcuts & Menu Navigation
       window.addEventListener('keydown', (e) => {
-        // If typing in input, ignore
-        if (e.target.tagName === 'INPUT') return;
+        if (e.target && e.target.tagName === 'INPUT') return;
 
-        const key = e.key.toLowerCase();
+        const key = (e.key || '').toLowerCase();
+        const isEnter = key === 'enter' || e.code === 'Enter' || e.code === 'NumpadEnter' || e.keyCode === 13;
+
         if (key === 'escape' || key === 'm') {
           if (!document.querySelectorAll('.modal-backdrop.active').length) {
             landingScreen.classList.toggle('hidden');
             AudioFX.playClick();
+            if (!landingScreen.classList.contains('hidden')) {
+              setTimeout(() => {
+                const playBtn = document.getElementById('menu-btn-play');
+                if (playBtn) playBtn.focus();
+              }, 50);
+            }
           } else {
             closeModal();
           }
-        } else if (key === 'enter') {
+        } else if (isEnter) {
           if (!landingScreen.classList.contains('hidden')) {
-            closeMenu();
+            e.preventDefault();
+            // If focused on another menu button, click that button; otherwise start exploring
+            if (document.activeElement && document.activeElement.classList.contains('menu-item-btn') && document.activeElement.id !== 'menu-btn-play') {
+              document.activeElement.click();
+            } else {
+              closeMenu();
+            }
+          } else {
+            const activeModal = document.querySelector('.modal-backdrop.active');
+            if (activeModal) {
+              e.preventDefault();
+              if (activeModal.id === 'modal-gacha-reveal') {
+                const btnEnterPond = document.getElementById('btn-reveal-enter-pond');
+                if (btnEnterPond) btnEnterPond.click();
+              } else {
+                closeModal();
+              }
+            }
+          }
+        } else if (key === 'arrowdown' || key === 'arrowup') {
+          if (!landingScreen.classList.contains('hidden')) {
+            e.preventDefault();
+            const menuBtns = Array.from(document.querySelectorAll('.game-menu-nav .menu-item-btn'));
+            const activeIdx = menuBtns.indexOf(document.activeElement);
+            if (key === 'arrowdown') {
+              const nextIdx = (activeIdx + 1) % menuBtns.length;
+              menuBtns[nextIdx].focus();
+            } else {
+              const prevIdx = (activeIdx - 1 + menuBtns.length) % menuBtns.length;
+              menuBtns[prevIdx].focus();
+            }
           }
         } else if (key === ' ' || key === 'g') {
           e.preventDefault();
@@ -2404,6 +2449,12 @@
           openModal('modal-help');
         }
       });
+
+      // Autofocus play button on initial load
+      setTimeout(() => {
+        const playBtn = document.getElementById('menu-btn-play');
+        if (playBtn) playBtn.focus();
+      }, 80);
 
       // -------------------------------------------------------------
       // 5. Main Canvas Animation Loop
