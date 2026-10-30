@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fishline • Laboratorium Biomekanik Ikan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-wash: #fbf9f4;
+      --paper-card: #f5f2e9;
+      --paper-border: #ded8c7;
+      --ink: #18141f;
+      --ink-muted: #575260;
+      --ink-faint: #8e8899;
+      --seal-red: #ba3222;
+      --seal-red-bg: #faeae7;
+      --water-tint: #eaf1f4;
+      --water-bubble: #6d8999;
+      --accent-gold: #c49a45;
+      --sidebar-width: 380px;
+      --transition-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body.theme-midnight {
+      --bg-wash: #12151c;
+      --paper-card: #191e28;
+      --paper-border: #283142;
+      --ink: #f0ede6;
+      --ink-muted: #9aa3b5;
+      --ink-faint: #5d677a;
+      --seal-red: #e04a36;
+      --seal-red-bg: #2d1816;
+      --water-tint: #1b2331;
+      --water-bubble: #86a5bd;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-wash);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Serif", Georgia, serif;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Top Navigation Header */
+    .lab-header {
+      height: 52px;
+      background: var(--paper-card);
+      border-bottom: 1.5px solid var(--paper-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      z-index: 20;
+      flex-shrink: 0;
+    }
+
+    .lab-branding {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lab-seal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border: 1.5px solid var(--seal-red);
+      color: var(--seal-red);
+      font-weight: 800;
+      font-size: 13px;
+      border-radius: 4px;
+      background: var(--seal-red-bg);
+      font-family: serif;
+    }
+
+    .lab-title-text {
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .lab-sub-badge {
+      font-family: monospace;
+      font-size: 11px;
+      padding: 2px 7px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+      color: var(--ink-muted);
+    }
+
+    body.theme-midnight .lab-sub-badge {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .lab-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+      background: var(--bg-wash);
+      border: 1px solid var(--paper-border);
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      border-color: var(--ink);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn.active {
+      background: var(--ink);
+      color: var(--bg-wash);
+      border-color: var(--ink);
+    }
+
+    /* Main Workbench Workspace */
+    .lab-workspace {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Left Parameter Sidebar */
+    .lab-sidebar {
+      width: var(--sidebar-width);
+      background: var(--paper-card);
+      border-right: 1.5px solid var(--paper-border);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      height: calc(100vh - 52px);
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed var(--paper-border);
+    }
+
+    .control-group:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .group-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Custom Seed & Action Bar */
+    .seed-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .seed-input {
+      flex: 1;
+      padding: 8px 10px;
+      background: var(--bg-wash);
+      border: 1px solid var(--paper-border);
+      border-radius: 6px;
+      color: var(--ink);
+      font-family: monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .seed-input:focus {
+      border-color: var(--seal-red);
+    }
+
+    .btn-action-sm {
+      padding: 8px 12px;
+      background: var(--ink);
+      color: var(--bg-wash);
+      border: 1px solid var(--ink);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-action-sm:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .btn-action-sm:active {
+      transform: translateY(1px);
+    }
+
+    .btn-action-outline {
+      background: var(--bg-wash);
+      color: var(--ink);
+      border-color: var(--paper-border);
+    }
+
+    .btn-action-outline:hover {
+      border-color: var(--ink);
+    }
+
+    /* Latin Display Card */
+    .species-info-card {
+      padding: 10px 12px;
+      background: var(--bg-wash);
+      border: 1px solid var(--paper-border);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .species-latin-name {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 15px;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--ink);
+    }
+
+    .species-meta-text {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--ink-faint);
+    }
+
+    /* State Pills */
+    .pill-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .btn-pill {
+      padding: 7px 4px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid var(--paper-border);
+      border-radius: 6px;
+      background: var(--bg-wash);
+      color: var(--ink-muted);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.18s ease;
+    }
+
+    .btn-pill:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    .btn-pill.active {
+      background: var(--seal-red);
+      color: #ffffff;
+      border-color: var(--seal-red);
+    }
+
+    /* Sliders */
+    .slider-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--ink-muted);
+    }
+
+    .slider-val {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 5px;
+      background: var(--paper-border);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      background: var(--ink);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Checkbox list */
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .checkbox-row input {
+      accent-color: var(--seal-red);
+      cursor: pointer;
+    }
+
+    /* Right Canvas Viewport */
+    .lab-viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: crosshair;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas#canvas-fish {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Telemetry HUD Badge */
+    .viewport-hud {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 14px;
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--ink-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      pointer-events: none;
+    }
+
+    .viewport-hint {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      font-size: 12px;
+      color: var(--ink-faint);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="lab-header">
+    <div class="lab-branding">
+      <span class="lab-seal">魚</span>
+      <span class="lab-title-text">Fishline • Lab Ikan</span>
+      <span class="lab-sub-badge">Anatomi & Kinematika Biomekanik</span>
+    </div>
+
+    <nav class="lab-nav-links">
+      <a href="index.html" class="nav-btn">← Kembali ke Kolam Utama</a>
+      <a href="lab_plant.html" class="nav-btn">Buka Lab Tanaman →</a>
+      <button class="nav-btn" id="btn-toggle-theme">Tema Tinta Malam</button>
+    </nav>
+  </header>
+
+  <!-- Main Workbench Workspace -->
+  <main class="lab-workspace">
+    
+    <!-- Left Sidebar: Controls Cockpit -->
+    <aside class="lab-sidebar">
+      <div class="sidebar-scroll">
+
+        <!-- 1. Seed & Identitas Spesimen -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Seed Genetik & Taksonomi</span>
+            <span class="lab-sub-badge" id="lbl-rarity">BIASA</span>
+          </div>
+          
+          <div class="seed-input-row">
+            <input type="text" id="input-seed" class="seed-input" placeholder="Ketik seed genetik...">
+            <button class="btn-action-sm" id="btn-apply-seed">Terapkan</button>
+          </div>
+
+          <div style="display:flex; gap:6px;">
+            <button class="btn-action-sm btn-action-outline" id="btn-random-seed" style="flex:1;">Acak Seed Ikan</button>
+            <button class="btn-action-sm btn-action-outline" id="btn-copy-seed">Salin Seed</button>
+          </div>
+
+          <div class="species-info-card">
+            <div class="species-latin-name" id="display-latin-name">Cyprinus sumiensis</div>
+            <div class="species-meta-text" id="display-seed-meta">Seed: 849201</div>
+          </div>
+        </div>
+
+        <!-- 2. State & Siklus Hidup Animasi -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Siklus Animasi (State Machine)</span>
+          </div>
+
+          <div class="pill-grid">
+            <button class="btn-pill active" data-state="idle" id="btn-st-idle">Napas (Idle)</button>
+            <button class="btn-pill" data-state="swim" id="btn-st-swim">Berenang</button>
+            <button class="btn-pill" data-state="eat" id="btn-st-eat">Makan</button>
+            <button class="btn-pill" data-state="die" id="btn-st-die">Pingsan</button>
+            <button class="btn-pill" data-state="revive" id="btn-st-revive">Pulihkan</button>
+          </div>
+        </div>
+
+        <!-- 3. Parameter Kinematika Biomekanik -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Parameter Biomekanik Tulang Belakang</span>
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Skala Ukuran Ikan:</span>
+              <span class="slider-val" id="val-scale">0.90x</span>
+            </div>
+            <input type="range" id="slider-scale" min="0.4" max="1.8" step="0.05" value="0.90">
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Kecepatan Renang (Speed):</span>
+              <span class="slider-val" id="val-speed">1.0x</span>
+            </div>
+            <input type="range" id="slider-speed" min="0.2" max="3.0" step="0.1" value="1.0">
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Amplitudo Liukan Tulang (Wave):</span>
+              <span class="slider-val" id="val-wave">1.0x</span>
+            </div>
+            <input type="range" id="slider-wave" min="0.2" max="2.5" step="0.1" value="1.0">
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Bukaan Rahang Bawah (Jaw Gap):</span>
+              <span class="slider-val" id="val-jaw">0.25 rad</span>
+            </div>
+            <input type="range" id="slider-jaw" min="0.0" max="0.6" step="0.02" value="0.25">
+          </div>
+        </div>
+
+        <!-- 4. Inspeksi Lapisan Anatomi (X-Ray / Debug) -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Inspeksi Lapisan Anatomi</span>
+          </div>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-spine" checked>
+            <span>Tampilkan Garis Rangka Tulang Belakang (Spine Nodes)</span>
+          </label>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-mouth-point" checked>
+            <span>Tampilkan Titik Engsel & Target Moncong Mulut</span>
+          </label>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-fins" checked>
+            <span>Tampilkan Sirip Lengkap (Dorsal, Pectoral, Anal, Caudal)</span>
+          </label>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-scales" checked>
+            <span>Tampilkan Pola Sisik & Arsir Shading Sumi-e</span>
+          </label>
+        </div>
+
+        <!-- 5. Umpan & Pelet Interaktif -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Umpan Pelet Pakan</span>
+          </div>
+
+          <div style="display:flex; gap:6px;">
+            <button class="btn-action-sm" id="btn-drop-pellet-mouth" style="flex:1;">Pelet di Depan Moncong</button>
+            <button class="btn-action-sm btn-action-outline" id="btn-clear-pellets">Bersihkan Pelet</button>
+          </div>
+        </div>
+
+        <!-- 6. Ekspor Gambar Snapshot -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Ekspor & Dokumentasi</span>
+          </div>
+
+          <button class="btn-action-sm btn-action-outline" id="btn-export-png" style="width:100%;">Unduh Snapshot PNG Kanvas</button>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Right Viewport: Interactive Aquarium Canvas -->
+    <section class="lab-viewport" id="viewport-container">
+      <canvas id="canvas-fish"></canvas>
+      
+      <div class="viewport-hint">
+        Klik di mana saja pada kanvas untuk menjatuhkan pelet umpan • Drag kursor untuk riak air
+      </div>
+
+      <div class="viewport-hud">
+        <div>Posisi: <span id="hud-pos">0, 0</span></div>
+        <div>Arah / Hadap: <span id="hud-facing">+1</span></div>
+        <div>Simpul Tulang: <span id="hud-joints">12 nodes</span></div>
+        <div>FPS: <span id="hud-fps">60</span></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Load Core Script Engines -->
+  <script src="fishdraw.js"></script>
+  <script src="fish_animator.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      // 1. Setup Fullscreen High-DPI Canvas
+      const canvas = document.getElementById('canvas-fish');
+      const ctx = canvas.getContext('2d');
+      const viewport = document.getElementById('viewport-container');
+
+      function resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = viewport.clientWidth * dpr;
+        canvas.height = viewport.clientHeight * dpr;
+        ctx.resetTransform();
+        ctx.scale(dpr, dpr);
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      // 2. Instantiate FishAnimator
+      let animator = new FishAnimator({
+        x: viewport.clientWidth * 0.5,
+        y: viewport.clientHeight * 0.5,
+        scale: 0.90
+      });
+
+      // Simulation parameters
+      let speedMult = 1.0;
+      let waveMult = 1.0;
+      let customJaw = 0.25;
+      let currentTheme = 'washi';
+
+      // Debug Layers
+      let showSpine = true;
+      let showMouthPoint = true;
+      let showFins = true;
+      let showScales = true;
+
+      // Food pellets & ripples
+      const pellets = [];
+      const ripples = [];
+
+      // 3. UI Sync Helpers
+      function syncFishUI() {
+        document.getElementById('input-seed').value = animator.seed;
+        document.getElementById('display-latin-name').textContent = animator.speciesName;
+        document.getElementById('display-seed-meta').textContent = 'Seed Genetik: ' + animator.seed;
+
+        // Calculate deterministic rarity
+        let hash = 0;
+        const s = animator.seed;
+        for (let i = 0; i < s.length; i++) hash = (hash * 31 + s.charCodeAt(i)) >>> 0;
+        const pct = hash % 100;
+        const rarityBadge = document.getElementById('lbl-rarity');
+        if (pct < 7) {
+          rarityBadge.textContent = 'LEGENDARIS';
+          rarityBadge.style.color = 'var(--seal-red)';
+        } else if (pct < 32) {
+          rarityBadge.textContent = 'LANGKA';
+          rarityBadge.style.color = '#c49a45';
+        } else {
+          rarityBadge.textContent = 'BIASA';
+          rarityBadge.style.color = 'var(--ink-muted)';
+        }
+      }
+      syncFishUI();
+
+      // 4. Input & Control Listeners
+      document.getElementById('btn-apply-seed').addEventListener('click', () => {
+        const seedVal = document.getElementById('input-seed').value.trim();
+        if (seedVal) {
+          animator.generate(seedVal);
+          syncFishUI();
+        }
+      });
+
+      document.getElementById('input-seed').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          document.getElementById('btn-apply-seed').click();
+        }
+      });
+
+      document.getElementById('btn-random-seed').addEventListener('click', () => {
+        animator.generate();
+        syncFishUI();
+      });
+
+      document.getElementById('btn-copy-seed').addEventListener('click', () => {
+        navigator.clipboard.writeText(animator.seed);
+        const originalText = document.getElementById('btn-copy-seed').textContent;
+        document.getElementById('btn-copy-seed').textContent = 'Tersalin!';
+        setTimeout(() => document.getElementById('btn-copy-seed').textContent = originalText, 1200);
+      });
+
+      // State Buttons
+      document.querySelectorAll('.btn-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const st = btn.dataset.state;
+          document.querySelectorAll('.btn-pill').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+
+          if (st === 'eat') {
+            const mouth = animator.getMouthWorldPosition();
+            dropPellet(mouth.x + animator.facing * 80, mouth.y);
+          } else {
+            animator.setState(st);
+          }
+        });
+      });
+
+      // Sliders
+      document.getElementById('slider-scale').addEventListener('input', (e) => {
+        animator.scale = parseFloat(e.target.value);
+        document.getElementById('val-scale').textContent = animator.scale.toFixed(2) + 'x';
+      });
+
+      document.getElementById('slider-speed').addEventListener('input', (e) => {
+        speedMult = parseFloat(e.target.value);
+        document.getElementById('val-speed').textContent = speedMult.toFixed(1) + 'x';
+      });
+
+      document.getElementById('slider-wave').addEventListener('input', (e) => {
+        waveMult = parseFloat(e.target.value);
+        document.getElementById('val-wave').textContent = waveMult.toFixed(1) + 'x';
+      });
+
+      document.getElementById('slider-jaw').addEventListener('input', (e) => {
+        customJaw = parseFloat(e.target.value);
+        document.getElementById('val-jaw').textContent = customJaw.toFixed(2) + ' rad';
+        if (animator.structured && animator.structured.params) {
+          animator.structured.params.jaw_open = customJaw;
+        }
+      });
+
+      // Checkbox layers
+      document.getElementById('chk-spine').addEventListener('change', (e) => showSpine = e.target.checked);
+      document.getElementById('chk-mouth-point').addEventListener('change', (e) => showMouthPoint = e.target.checked);
+      document.getElementById('chk-fins').addEventListener('change', (e) => showFins = e.target.checked);
+      document.getElementById('chk-scales').addEventListener('change', (e) => showScales = e.target.checked);
+
+      // Feeding
+      function dropPellet(x, y) {
+        const p = {
+          x: x,
+          y: y,
+          vy: 24 + Math.random() * 18,
+          radius: 3.5,
+          alpha: 1.0,
+          eaten: false
+        };
+        pellets.push(p);
+        animator.feed(p);
+
+        ripples.push({
+          x: x,
+          y: y,
+          r: 6,
+          maxR: 42,
+          alpha: 0.8
+        });
+      }
+
+      document.getElementById('btn-drop-pellet-mouth').addEventListener('click', () => {
+        const mouth = animator.getMouthWorldPosition();
+        dropPellet(mouth.x + animator.facing * 75, mouth.y - 15);
+      });
+
+      document.getElementById('btn-clear-pellets').addEventListener('click', () => {
+        pellets.length = 0;
+        animator.targetFood = null;
+      });
+
+      // Canvas click / drag
+      canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        dropPellet(e.clientX - rect.left, e.clientY - rect.top);
+      });
+
+      canvas.addEventListener('mousemove', (e) => {
+        if (Math.random() < 0.15) {
+          const rect = canvas.getBoundingClientRect();
+          ripples.push({
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top,
+            r: 3,
+            maxR: 24,
+            alpha: 0.35
+          });
+        }
+      });
+
+      // Theme toggle
+      document.getElementById('btn-toggle-theme').addEventListener('click', () => {
+        if (currentTheme === 'washi') {
+          currentTheme = 'midnight';
+          document.body.classList.add('theme-midnight');
+          document.getElementById('btn-toggle-theme').textContent = 'Tema Washi Krem';
+        } else {
+          currentTheme = 'washi';
+          document.body.classList.remove('theme-midnight');
+          document.getElementById('btn-toggle-theme').textContent = 'Tema Tinta Malam';
+        }
+      });
+
+      // Export snapshot
+      document.getElementById('btn-export-png').addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.download = `fish_${animator.seed}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+
+      // 5. Main Render Loop
+      let lastTime = performance.now();
+      let frameCount = 0;
+      let lastFpsTime = lastTime;
+
+      function renderLoop(now) {
+        const dt = Math.min(0.05, (now - lastTime) / 1000) * speedMult;
+        lastTime = now;
+
+        // Calculate FPS
+        frameCount++;
+        if (now - lastFpsTime >= 500) {
+          const fps = Math.round((frameCount * 1000) / (now - lastFpsTime));
+          document.getElementById('hud-fps').textContent = fps;
+          frameCount = 0;
+          lastFpsTime = now;
+        }
+
+        const w = viewport.clientWidth;
+        const h = viewport.clientHeight;
+        const bounds = { width: w, height: h };
+
+        // Update food pellets
+        for (let i = pellets.length - 1; i >= 0; i--) {
+          const p = pellets[i];
+          p.y += p.vy * dt;
+          if (p.y > bounds.height - 25) {
+            p.y = bounds.height - 25;
+            p.alpha -= dt * 0.45;
+          }
+          if (p.alpha <= 0 || p.eaten) {
+            pellets.splice(i, 1);
+          }
+        }
+
+        // Steer to closest pellet
+        if (!animator.isDead && pellets.length > 0) {
+          if (!animator.targetFood || animator.targetFood.eaten) {
+            let closest = null;
+            let minDist = Infinity;
+            const mouth = animator.getMouthWorldPosition();
+            for (let i = 0; i < pellets.length; i++) {
+              const p = pellets[i];
+              if (!p.eaten && p.alpha > 0.3) {
+                const d = Math.hypot(p.x - mouth.x, p.y - mouth.y);
+                if (d < minDist) {
+                  minDist = d;
+                  closest = p;
+                }
+              }
+            }
+            if (closest) animator.feed(closest);
+          }
+        }
+
+        // Update fish animator
+        animator.update(dt, bounds);
+        if (animator.currentWaveAmp) {
+          animator.currentWaveAmp *= waveMult;
+        }
+
+        // Clear canvas
+        ctx.clearRect(0, 0, w, h);
+
+        const paperColor = currentTheme === 'midnight' ? '#141822' : '#fbf9f4';
+        const inkColor = currentTheme === 'midnight' ? '#f0ede6' : '#18141f';
+        const rippleColor = currentTheme === 'midnight' ? 'rgba(134, 165, 189, ' : 'rgba(109, 137, 153, ';
+
+        // 1. Water Ripples
+        for (let i = ripples.length - 1; i >= 0; i--) {
+          const r = ripples[i];
+          r.r += dt * 32;
+          r.alpha -= dt * 0.5;
+          if (r.alpha <= 0) {
+            ripples.splice(i, 1);
+            continue;
+          }
+          ctx.save();
+          ctx.strokeStyle = rippleColor + r.alpha + ')';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 2. Draw Food Pellets
+        for (let i = 0; i < pellets.length; i++) {
+          const p = pellets[i];
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = currentTheme === 'midnight' ? '#d4784a' : '#7a3e21';
+          ctx.strokeStyle = currentTheme === 'midnight' ? '#ffaa7b' : '#3e1d0f';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 3. Render Animated Fish
+        animator.render(ctx, {
+          strokeColor: inkColor,
+          lineWidth: 1.15,
+          paperColor: paperColor,
+          hideFins: !showFins,
+          hideScales: !showScales
+        });
+
+        // 4. Debug Overlays (Spine & Mouth Target Point)
+        if (showSpine && animator.spine && animator.spine.length > 0) {
+          ctx.save();
+          ctx.strokeStyle = '#ba3222';
+          ctx.fillStyle = '#ba3222';
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 4]);
+
+          ctx.beginPath();
+          ctx.moveTo(animator.spine[0].x, animator.spine[0].y);
+          for (let i = 1; i < animator.spine.length; i++) {
+            ctx.lineTo(animator.spine[i].x, animator.spine[i].y);
+          }
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          for (let i = 0; i < animator.spine.length; i++) {
+            const pt = animator.spine[i];
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        if (showMouthPoint) {
+          const mouth = animator.getMouthWorldPosition();
+          ctx.save();
+          ctx.strokeStyle = '#1e7e48';
+          ctx.fillStyle = '#1e7e48';
+          ctx.lineWidth = 2;
+
+          ctx.beginPath();
+          ctx.arc(mouth.x, mouth.y, 5, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Crosshair lines
+          ctx.beginPath();
+          ctx.moveTo(mouth.x - 8, mouth.y);
+          ctx.lineTo(mouth.x + 8, mouth.y);
+          ctx.moveTo(mouth.x, mouth.y - 8);
+          ctx.lineTo(mouth.x, mouth.y + 8);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Update HUD
+        document.getElementById('hud-pos').textContent = `${Math.round(animator.x)}, ${Math.round(animator.y)}`;
+        document.getElementById('hud-facing').textContent = animator.facing > 0 ? '+1 (Kanan)' : '-1 (Kiri)';
+        document.getElementById('hud-joints').textContent = (animator.spine ? animator.spine.length : 0) + ' simpul';
+
+        requestAnimationFrame(renderLoop);
+      }
+
+      requestAnimationFrame(renderLoop);
+    })();
+  </script>
+</body>
+</html>

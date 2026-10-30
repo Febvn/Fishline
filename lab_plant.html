@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fishline • Laboratorium Botani Tanaman Air & Rumput Laut</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-wash: #fbf9f4;
+      --paper-card: #f5f2e9;
+      --paper-border: #ded8c7;
+      --ink: #18141f;
+      --ink-muted: #575260;
+      --ink-faint: #8e8899;
+      --seal-red: #ba3222;
+      --seal-red-bg: #faeae7;
+      --water-tint: #eaf1f4;
+      --water-bubble: #6d8999;
+      --accent-gold: #c49a45;
+      --sidebar-width: 380px;
+      --transition-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body.theme-midnight {
+      --bg-wash: #12151c;
+      --paper-card: #191e28;
+      --paper-border: #283142;
+      --ink: #f0ede6;
+      --ink-muted: #9aa3b5;
+      --ink-faint: #5d677a;
+      --seal-red: #e04a36;
+      --seal-red-bg: #2d1816;
+      --water-tint: #1b2331;
+      --water-bubble: #86a5bd;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-wash);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Serif", Georgia, serif;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Top Navigation Header */
+    .lab-header {
+      height: 52px;
+      background: var(--paper-card);
+      border-bottom: 1.5px solid var(--paper-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      z-index: 20;
+      flex-shrink: 0;
+    }
+
+    .lab-branding {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lab-seal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border: 1.5px solid var(--seal-red);
+      color: var(--seal-red);
+      font-weight: 800;
+      font-size: 13px;
+      border-radius: 4px;
+      background: var(--seal-red-bg);
+      font-family: serif;
+    }
+
+    .lab-title-text {
+      font-family: 'Cinzel', serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .lab-sub-badge {
+      font-family: monospace;
+      font-size: 11px;
+      padding: 2px 7px;
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+      color: var(--ink-muted);
+    }
+
+    body.theme-midnight .lab-sub-badge {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .lab-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+      background: var(--bg-wash);
+      border: 1px solid var(--paper-border);
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      border-color: var(--ink);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn.active {
+      background: var(--ink);
+      color: var(--bg-wash);
+      border-color: var(--ink);
+    }
+
+    /* Main Workbench Workspace */
+    .lab-workspace {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Left Parameter Sidebar */
+    .lab-sidebar {
+      width: var(--sidebar-width);
+      background: var(--paper-card);
+      border-right: 1.5px solid var(--paper-border);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      height: calc(100vh - 52px);
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed var(--paper-border);
+    }
+
+    .control-group:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .group-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Seed & Action Bar */
+    .seed-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .seed-input {
+      flex: 1;
+      padding: 8px 10px;
+      background: var(--bg-wash);
+      border: 1px solid var(--paper-border);
+      border-radius: 6px;
+      color: var(--ink);
+      font-family: monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .seed-input:focus {
+      border-color: var(--seal-red);
+    }
+
+    .btn-action-sm {
+      padding: 8px 12px;
+      background: var(--ink);
+      color: var(--bg-wash);
+      border: 1px solid var(--ink);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-action-sm:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .btn-action-sm:active {
+      transform: translateY(1px);
+    }
+
+    .btn-action-outline {
+      background: var(--bg-wash);
+      color: var(--ink);
+      border-color: var(--paper-border);
+    }
+
+    .btn-action-outline:hover {
+      border-color: var(--ink);
+    }
+
+    /* Botanical Info Card */
+    .botanical-info-card {
+      padding: 10px 12px;
+      background: var(--bg-wash);
+      border: 1px solid var(--paper-border);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .botanical-binomen {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 15px;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--ink);
+    }
+
+    .botanical-meta {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--ink-faint);
+    }
+
+    /* Mode & Morphology Switchers */
+    .pill-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .pill-grid.grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .btn-pill {
+      padding: 7px 4px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid var(--paper-border);
+      border-radius: 6px;
+      background: var(--bg-wash);
+      color: var(--ink-muted);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.18s ease;
+    }
+
+    .btn-pill:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    .btn-pill.active {
+      background: var(--seal-red);
+      color: #ffffff;
+      border-color: var(--seal-red);
+    }
+
+    /* Sliders */
+    .slider-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--ink-muted);
+    }
+
+    .slider-val {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 5px;
+      background: var(--paper-border);
+      border-radius: 3px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      background: var(--ink);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* Checkbox list */
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .checkbox-row input {
+      accent-color: var(--seal-red);
+      cursor: pointer;
+    }
+
+    /* Right Canvas Viewport */
+    .lab-viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      cursor: crosshair;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas#canvas-plant {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Telemetry HUD Badge */
+    .viewport-hud {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 14px;
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--ink-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      pointer-events: none;
+    }
+
+    .viewport-hint {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      font-size: 12px;
+      color: var(--ink-faint);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="lab-header">
+    <div class="lab-branding">
+      <span class="lab-seal">草</span>
+      <span class="lab-title-text">Fishline • Lab Tanaman</span>
+      <span class="lab-sub-badge">Flora Air Prosedural & Fisika Hidrodinamika</span>
+    </div>
+
+    <nav class="lab-nav-links">
+      <a href="index.html" class="nav-btn">← Kembali ke Kolam Utama</a>
+      <a href="lab_fish.html" class="nav-btn">Buka Lab Ikan →</a>
+      <button class="nav-btn" id="btn-toggle-theme">Tema Tinta Malam</button>
+    </nav>
+  </header>
+
+  <!-- Main Workbench Workspace -->
+  <main class="lab-workspace">
+    
+    <!-- Left Sidebar: Controls Cockpit -->
+    <aside class="lab-sidebar">
+      <div class="sidebar-scroll">
+
+        <!-- 1. Mode Tampilan Spesimen -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Mode Tampilan Spesimen</span>
+          </div>
+
+          <div class="pill-grid">
+            <button class="btn-pill active" id="btn-mode-single">Rumpun Tunggal</button>
+            <button class="btn-pill" id="btn-mode-colony">Koloni Dasar Kolam</button>
+          </div>
+        </div>
+
+        <!-- 2. Seed & Taksonomi Botani -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Seed & Taksonomi Botani</span>
+            <span class="lab-sub-badge">BINOMIAL</span>
+          </div>
+          
+          <div class="seed-input-row">
+            <input type="text" id="input-plant-seed" class="seed-input" placeholder="Ketik seed botani...">
+            <button class="btn-action-sm" id="btn-apply-plant-seed">Terapkan</button>
+          </div>
+
+          <div style="display:flex; gap:6px;">
+            <button class="btn-action-sm btn-action-outline" id="btn-random-plant" style="flex:1;">Acak Spesies Botani</button>
+            <button class="btn-action-sm btn-action-outline" id="btn-copy-plant-seed">Salin Seed</button>
+          </div>
+
+          <div class="botanical-info-card">
+            <div class="botanical-binomen" id="display-plant-name">Vallisneria sumiensis</div>
+            <div class="botanical-meta" id="display-plant-meta">Morfologi: Ribbon Grass • 8 Bilah</div>
+          </div>
+        </div>
+
+        <!-- 3. Morfologi & Tipe Daun -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Arsitektur Morfologi Daun</span>
+          </div>
+
+          <div class="pill-grid grid-3">
+            <button class="btn-pill active" data-type="0" id="btn-morph-0">Pita (Ribbon)</button>
+            <button class="btn-pill" data-type="1" id="btn-morph-1">Kelp Bersirip</button>
+            <button class="btn-pill" data-type="-1" id="btn-morph-mixed">Campuran</button>
+          </div>
+        </div>
+
+        <!-- 4. Parameter Geometri Bilah (Bézier & Nodes) -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Geometri Bilah Daun (Matematika)</span>
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Jumlah Bilah per Rumpun:</span>
+              <span class="slider-val" id="val-blades">8 helai</span>
+            </div>
+            <input type="range" id="slider-blades" min="1" max="22" step="1" value="8">
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Ketinggian / Panjang Bilah:</span>
+              <span class="slider-val" id="val-length">340 px</span>
+            </div>
+            <input type="range" id="slider-length" min="120" max="620" step="10" value="340">
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Lebar Pangkal Daun (Base):</span>
+              <span class="slider-val" id="val-base-width">16 px</span>
+            </div>
+            <input type="range" id="slider-base-width" min="6" max="32" step="1" value="16">
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Ketajaman Ujung (Tip):</span>
+              <span class="slider-val" id="val-tip-width">2.0 px</span>
+            </div>
+            <input type="range" id="slider-tip-width" min="0.8" max="5.0" step="0.2" value="2.0">
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Kurvatur Lengkung Alami (Curl):</span>
+              <span class="slider-val" id="val-curl">0.00</span>
+            </div>
+            <input type="range" id="slider-curl" min="-0.6" max="0.6" step="0.05" value="0.0">
+          </div>
+        </div>
+
+        <!-- 5. Hidrodinamika & Simulasi Arus Air -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Hidrodinamika Arus & Gelombang Air</span>
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Kekuatan Arus Ambien Pasang-Surut:</span>
+              <span class="slider-val" id="val-current">1.0x</span>
+            </div>
+            <input type="range" id="slider-current" min="0.0" max="2.5" step="0.1" value="1.0">
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Kecepatan Ayunan Gelombang:</span>
+              <span class="slider-val" id="val-wavespeed">1.0x</span>
+            </div>
+            <input type="range" id="slider-wavespeed" min="0.2" max="2.8" step="0.1" value="1.0">
+          </div>
+
+          <div style="display:flex; gap:6px; margin-top:4px;">
+            <button class="btn-action-sm btn-action-outline" id="btn-virtual-fish-sweep" style="width:100%;">
+              Uji Sentuhan Ikan Virtual (Sapu Rumput)
+            </button>
+          </div>
+        </div>
+
+        <!-- 6. Inspeksi Lapisan Visual & Tinta -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Gaya Garis & Cuci Tinta Sumi-e</span>
+          </div>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-veins" checked>
+            <span>Tampilkan Alur Serat Venasi Bagian Dalam</span>
+          </label>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-anchor-rock" checked>
+            <span>Tampilkan Batu Jangkar Dasar Kolam (Anchor Stone)</span>
+          </label>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-nodes-debug">
+            <span>Tampilkan Simpul Rangka Fisika (Nodes X-Ray)</span>
+          </label>
+
+          <div class="slider-field" style="margin-top:6px;">
+            <div class="slider-header">
+              <span>Ketebalan Garis Kuas Tinta:</span>
+              <span class="slider-val" id="val-line-width">1.1 px</span>
+            </div>
+            <input type="range" id="slider-line-width" min="0.6" max="2.6" step="0.1" value="1.1">
+          </div>
+        </div>
+
+        <!-- 7. Ekspor Gambar Snapshot -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Ekspor & Dokumentasi</span>
+          </div>
+
+          <button class="btn-action-sm btn-action-outline" id="btn-export-plant-png" style="width:100%;">Unduh Snapshot Botani PNG</button>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Right Viewport: Interactive Canvas -->
+    <section class="lab-viewport" id="viewport-plant-container">
+      <canvas id="canvas-plant"></canvas>
+      
+      <div class="viewport-hint">
+        Arahkan kursor di antara helai rumput untuk melihat fisika penyibakan hidrodinamika • Klik untuk riak air
+      </div>
+
+      <div class="viewport-hud">
+        <div>Spesies: <span id="hud-plant-species">Vallisneria sumiensis</span></div>
+        <div>Total Bilah: <span id="hud-total-blades">8 helai</span></div>
+        <div>Simpul Fisika: <span id="hud-total-nodes">176 nodes</span></div>
+        <div>Arus Ambien: <span id="hud-current-val">+0.42 m/s</span></div>
+        <div>FPS: <span id="hud-plant-fps">60</span></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Load Botanical Plantdraw Engine -->
+  <script src="plantdraw.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      // 1. Setup Canvas
+      const canvas = document.getElementById('canvas-plant');
+      const ctx = canvas.getContext('2d');
+      const viewport = document.getElementById('viewport-plant-container');
+
+      function resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = viewport.clientWidth * dpr;
+        canvas.height = viewport.clientHeight * dpr;
+        ctx.resetTransform();
+        ctx.scale(dpr, dpr);
+        if (viewMode === 'colony' && plantColony) {
+          plantColony.resize(viewport.clientWidth, viewport.clientHeight);
+        } else if (singleCluster) {
+          singleCluster.x = viewport.clientWidth * 0.5;
+          singleCluster.y = viewport.clientHeight * 0.88;
+        }
+      }
+      window.addEventListener('resize', resizeCanvas);
+
+      // State & Controls
+      let viewMode = 'single'; // 'single' or 'colony'
+      let currentTheme = 'washi';
+      let selectedMorphType = 0; // 0: Ribbon, 1: Feather, -1: Mixed
+      let plantSeed = 'Vallisneria sumiensis';
+
+      let customBladeCount = 8;
+      let customLength = 340;
+      let customBaseWidth = 16;
+      let customTipWidth = 2.0;
+      let customCurl = 0.0;
+      let currentMult = 1.0;
+      let waveSpeedMult = 1.0;
+      let lineWidthVal = 1.1;
+
+      // Debug flags
+      let showVeins = true;
+      let showAnchorRock = true;
+      let showNodesDebug = false;
+
+      // Ripples and virtual fish probe
+      const ripples = [];
+      let virtualFish = {
+        active: false,
+        x: -100,
+        y: 0,
+        vx: 320,
+        facing: 1
+      };
+
+      // Mouse probe
+      let mousePos = { x: -999, y: -999, active: false };
+
+      canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mousePos.x = e.clientX - rect.left;
+        mousePos.y = e.clientY - rect.top;
+        mousePos.active = true;
+
+        if (Math.random() < 0.12) {
+          ripples.push({
+            x: mousePos.x,
+            y: mousePos.y,
+            r: 4,
+            maxR: 28,
+            alpha: 0.45
+          });
+        }
+      });
+
+      canvas.addEventListener('mouseleave', () => {
+        mousePos.active = false;
+        mousePos.x = -999;
+        mousePos.y = -999;
+      });
+
+      canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        ripples.push({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+          r: 6,
+          maxR: 45,
+          alpha: 0.8
+        });
+      });
+
+      // 2. Initialize Models
+      let singleCluster = null;
+      let plantColony = null;
+
+      function createSingleCluster() {
+        plantdraw.set_seed(plantSeed);
+        singleCluster = new plantdraw.PlantCluster(
+          viewport.clientWidth * 0.5,
+          viewport.clientHeight * 0.88,
+          plantSeed,
+          {
+            type: selectedMorphType === -1 ? 0 : selectedMorphType,
+            bladeCount: customBladeCount,
+            scale: 1.0
+          }
+        );
+
+        // Override custom geometry for detailed testing
+        singleCluster.blades.forEach((blade, idx) => {
+          blade.length = customLength * (0.85 + Math.random() * 0.3);
+          blade.baseWidth = customBaseWidth;
+          blade.tipWidth = customTipWidth;
+          blade.curl = customCurl + (Math.random() - 0.5) * 0.15;
+          blade.waveSpeed *= waveSpeedMult;
+        });
+
+        updateHUD();
+      }
+
+      function createColony() {
+        plantColony = plantdraw.createColony({
+          width: viewport.clientWidth,
+          height: viewport.clientHeight,
+          count: Math.max(5, Math.floor(viewport.clientWidth / 180)),
+          seed: plantSeed
+        });
+        updateHUD();
+      }
+
+      function updateHUD() {
+        document.getElementById('input-plant-seed').value = plantSeed;
+        document.getElementById('display-plant-name').textContent = plantSeed;
+        document.getElementById('hud-plant-species').textContent = plantSeed;
+
+        let morphName = selectedMorphType === 0 ? 'Rumput Pita (Ribbon)' : (selectedMorphType === 1 ? 'Kelp Bersirip (Pinnate)' : 'Campuran (Mixed)');
+        document.getElementById('display-plant-meta').textContent = `Morfologi: ${morphName} • ${customBladeCount} Bilah`;
+
+        let totalBlades = 0;
+        let totalNodes = 0;
+        if (viewMode === 'single' && singleCluster) {
+          totalBlades = singleCluster.blades.length;
+          singleCluster.blades.forEach(b => totalNodes += b.nodes.length);
+        } else if (plantColony) {
+          plantColony.clusters.forEach(c => {
+            totalBlades += c.blades.length;
+            c.blades.forEach(b => totalNodes += b.nodes.length);
+          });
+        }
+        document.getElementById('hud-total-blades').textContent = totalBlades + ' helai';
+        document.getElementById('hud-total-nodes').textContent = totalNodes + ' nodes';
+      }
+
+      resizeCanvas();
+      createSingleCluster();
+      createColony();
+
+      // 3. UI Controls Event Listeners
+      document.getElementById('btn-mode-single').addEventListener('click', () => {
+        viewMode = 'single';
+        document.getElementById('btn-mode-single').classList.add('active');
+        document.getElementById('btn-mode-colony').classList.remove('active');
+        createSingleCluster();
+      });
+
+      document.getElementById('btn-mode-colony').addEventListener('click', () => {
+        viewMode = 'colony';
+        document.getElementById('btn-mode-colony').classList.add('active');
+        document.getElementById('btn-mode-single').classList.remove('active');
+        createColony();
+      });
+
+      document.getElementById('btn-apply-plant-seed').addEventListener('click', () => {
+        const val = document.getElementById('input-plant-seed').value.trim();
+        if (val) {
+          plantSeed = val;
+          if (viewMode === 'single') createSingleCluster();
+          else createColony();
+        }
+      });
+
+      document.getElementById('input-plant-seed').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('btn-apply-plant-seed').click();
+      });
+
+      document.getElementById('btn-random-plant').addEventListener('click', () => {
+        plantSeed = plantdraw.botanical_binomen();
+        if (viewMode === 'single') createSingleCluster();
+        else createColony();
+      });
+
+      document.getElementById('btn-copy-plant-seed').addEventListener('click', () => {
+        navigator.clipboard.writeText(plantSeed);
+        const originalText = document.getElementById('btn-copy-plant-seed').textContent;
+        document.getElementById('btn-copy-plant-seed').textContent = 'Tersalin!';
+        setTimeout(() => document.getElementById('btn-copy-plant-seed').textContent = originalText, 1200);
+      });
+
+      // Morphology Buttons
+      [
+        { id: 'btn-morph-0', type: 0 },
+        { id: 'btn-morph-1', type: 1 },
+        { id: 'btn-morph-mixed', type: -1 }
+      ].forEach(item => {
+        document.getElementById(item.id).addEventListener('click', () => {
+          document.querySelectorAll('.pill-grid.grid-3 .btn-pill').forEach(b => b.classList.remove('active'));
+          document.getElementById(item.id).classList.add('active');
+          selectedMorphType = item.type;
+          if (viewMode === 'single') createSingleCluster();
+          else createColony();
+        });
+      });
+
+      // Sliders
+      document.getElementById('slider-blades').addEventListener('input', (e) => {
+        customBladeCount = parseInt(e.target.value);
+        document.getElementById('val-blades').textContent = customBladeCount + ' helai';
+        if (viewMode === 'single') createSingleCluster();
+      });
+
+      document.getElementById('slider-length').addEventListener('input', (e) => {
+        customLength = parseFloat(e.target.value);
+        document.getElementById('val-length').textContent = customLength + ' px';
+        if (viewMode === 'single') createSingleCluster();
+      });
+
+      document.getElementById('slider-base-width').addEventListener('input', (e) => {
+        customBaseWidth = parseFloat(e.target.value);
+        document.getElementById('val-base-width').textContent = customBaseWidth + ' px';
+        if (viewMode === 'single') createSingleCluster();
+      });
+
+      document.getElementById('slider-tip-width').addEventListener('input', (e) => {
+        customTipWidth = parseFloat(e.target.value);
+        document.getElementById('val-tip-width').textContent = customTipWidth.toFixed(1) + ' px';
+        if (viewMode === 'single') createSingleCluster();
+      });
+
+      document.getElementById('slider-curl').addEventListener('input', (e) => {
+        customCurl = parseFloat(e.target.value);
+        document.getElementById('val-curl').textContent = customCurl.toFixed(2);
+        if (viewMode === 'single') createSingleCluster();
+      });
+
+      document.getElementById('slider-current').addEventListener('input', (e) => {
+        currentMult = parseFloat(e.target.value);
+        document.getElementById('val-current').textContent = currentMult.toFixed(1) + 'x';
+      });
+
+      document.getElementById('slider-wavespeed').addEventListener('input', (e) => {
+        waveSpeedMult = parseFloat(e.target.value);
+        document.getElementById('val-wavespeed').textContent = waveSpeedMult.toFixed(1) + 'x';
+        if (viewMode === 'single') createSingleCluster();
+      });
+
+      document.getElementById('slider-line-width').addEventListener('input', (e) => {
+        lineWidthVal = parseFloat(e.target.value);
+        document.getElementById('val-line-width').textContent = lineWidthVal.toFixed(1) + ' px';
+      });
+
+      // Checkboxes
+      document.getElementById('chk-veins').addEventListener('change', (e) => showVeins = e.target.checked);
+      document.getElementById('chk-anchor-rock').addEventListener('change', (e) => showAnchorRock = e.target.checked);
+      document.getElementById('chk-nodes-debug').addEventListener('change', (e) => showNodesDebug = e.target.checked);
+
+      // Virtual fish sweep probe
+      document.getElementById('btn-virtual-fish-sweep').addEventListener('click', () => {
+        virtualFish.active = true;
+        virtualFish.facing = Math.random() > 0.5 ? 1 : -1;
+        virtualFish.x = virtualFish.facing > 0 ? -60 : viewport.clientWidth + 60;
+        virtualFish.y = viewport.clientHeight * 0.72 + (Math.random() - 0.5) * 80;
+      });
+
+      // Theme toggle
+      document.getElementById('btn-toggle-theme').addEventListener('click', () => {
+        if (currentTheme === 'washi') {
+          currentTheme = 'midnight';
+          document.body.classList.add('theme-midnight');
+          document.getElementById('btn-toggle-theme').textContent = 'Tema Washi Krem';
+        } else {
+          currentTheme = 'washi';
+          document.body.classList.remove('theme-midnight');
+          document.getElementById('btn-toggle-theme').textContent = 'Tema Tinta Malam';
+        }
+      });
+
+      // Export snapshot
+      document.getElementById('btn-export-plant-png').addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.download = `plant_${plantSeed.replace(/\s+/g, '_')}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+
+      // 4. Main Animation Loop
+      let lastTime = performance.now();
+      let frameCount = 0;
+      let lastFpsTime = lastTime;
+      let simTime = 0;
+
+      function renderLoop(now) {
+        const dt = Math.min(0.05, (now - lastTime) / 1000);
+        lastTime = now;
+        simTime += dt * waveSpeedMult;
+
+        // Calculate FPS
+        frameCount++;
+        if (now - lastFpsTime >= 500) {
+          const fps = Math.round((frameCount * 1000) / (now - lastFpsTime));
+          document.getElementById('hud-plant-fps').textContent = fps;
+          frameCount = 0;
+          lastFpsTime = now;
+        }
+
+        const w = viewport.clientWidth;
+        const h = viewport.clientHeight;
+
+        // Update virtual fish probe
+        if (virtualFish.active) {
+          virtualFish.x += virtualFish.facing * virtualFish.vx * dt;
+          if ((virtualFish.facing > 0 && virtualFish.x > w + 120) || (virtualFish.facing < 0 && virtualFish.x < -120)) {
+            virtualFish.active = false;
+          }
+        }
+
+        // Determine effective disturbance coordinate (either mouse or virtual fish)
+        let probeX = -999, probeY = -999;
+        if (mousePos.active) {
+          probeX = mousePos.x;
+          probeY = mousePos.y;
+        } else if (virtualFish.active) {
+          probeX = virtualFish.x;
+          probeY = virtualFish.y;
+        }
+
+        // Calculate ambient current
+        const ambientCurrent = (Math.sin(simTime * 0.45) * 0.65 + Math.cos(simTime * 0.2) * 0.35) * currentMult;
+        document.getElementById('hud-current-val').textContent = (ambientCurrent > 0 ? '+' : '') + ambientCurrent.toFixed(2) + ' m/s';
+
+        // Update Ripples
+        for (let i = ripples.length - 1; i >= 0; i--) {
+          const r = ripples[i];
+          r.r += dt * 32;
+          r.alpha -= dt * 0.5;
+          if (r.alpha <= 0) {
+            ripples.splice(i, 1);
+          }
+        }
+
+        // Update Models
+        if (viewMode === 'single' && singleCluster) {
+          singleCluster.update(dt, simTime, probeX, probeY, ripples, ambientCurrent);
+        } else if (plantColony) {
+          plantColony.time = simTime;
+          plantColony.ambientCurrent = ambientCurrent;
+          for (let i = 0; i < plantColony.clusters.length; i++) {
+            plantColony.clusters[i].update(dt, simTime, probeX, probeY, ripples, ambientCurrent);
+          }
+        }
+
+        // Clear canvas
+        ctx.clearRect(0, 0, w, h);
+
+        const inkColor = currentTheme === 'midnight' ? '#f0ede6' : '#18141f';
+        const washColor = currentTheme === 'midnight' ? 'rgba(80, 140, 115, 0.16)' : 'rgba(35, 52, 42, 0.08)';
+        const stoneWash = currentTheme === 'midnight' ? 'rgba(30, 40, 56, 0.5)' : 'rgba(30, 26, 36, 0.08)';
+        const rippleColor = currentTheme === 'midnight' ? 'rgba(134, 165, 189, ' : 'rgba(109, 137, 153, ';
+
+        // 1. Water Ripples
+        for (let i = ripples.length - 1; i >= 0; i--) {
+          const r = ripples[i];
+          ctx.save();
+          ctx.strokeStyle = rippleColor + r.alpha + ')';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 2. Render Plants
+        const renderOpts = {
+          strokeColor: inkColor,
+          lineWidth: lineWidthVal,
+          washColor: washColor,
+          stoneWash: showAnchorRock ? stoneWash : 'transparent'
+        };
+
+        if (viewMode === 'single' && singleCluster) {
+          singleCluster.render(ctx, renderOpts);
+        } else if (plantColony) {
+          plantColony.render(ctx, renderOpts);
+        }
+
+        // 3. Render Debug Nodes if enabled
+        if (showNodesDebug) {
+          ctx.save();
+          ctx.fillStyle = '#ba3222';
+          ctx.strokeStyle = '#ba3222';
+          ctx.lineWidth = 1;
+
+          const clustersToDraw = viewMode === 'single' ? [singleCluster] : plantColony.clusters;
+          clustersToDraw.forEach(cl => {
+            cl.blades.forEach(b => {
+              for (let i = 0; i < b.nodes.length; i++) {
+                const nx = cl.x + b.offsetX + b.nodes[i].relX;
+                const ny = cl.y + b.nodes[i].relY;
+                ctx.beginPath();
+                ctx.arc(nx, ny, 2.2, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            });
+          });
+          ctx.restore();
+        }
+
+        // 4. Draw Virtual Fish probe if active
+        if (virtualFish.active) {
+          ctx.save();
+          ctx.fillStyle = currentTheme === 'midnight' ? 'rgba(224, 74, 54, 0.85)' : 'rgba(186, 50, 34, 0.85)';
+          ctx.beginPath();
+          ctx.arc(virtualFish.x, virtualFish.y, 16, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Heading cone
+          ctx.beginPath();
+          ctx.moveTo(virtualFish.x + virtualFish.facing * 22, virtualFish.y);
+          ctx.lineTo(virtualFish.x - virtualFish.facing * 10, virtualFish.y - 10);
+          ctx.lineTo(virtualFish.x - virtualFish.facing * 10, virtualFish.y + 10);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+
+        requestAnimationFrame(renderLoop);
+      }
+
+      requestAnimationFrame(renderLoop);
+    })();
+  </script>
+</body>
+</html>
