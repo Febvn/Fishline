@@ -1,13 +1,13 @@
 /**
- * coraldraw.js - Procedural Aquatic Coral Engine (20 Hand-Drawn Doodle Styles)
+ * coraldraw.js - Procedural Aquatic Coral & Reef Engine
  *
- * Implements the 20 hand-drawn vector doodle styles directly matching the user's
- * 5x4 reference grid illustration:
- * - Bold organic line-art (lineWidth ~ 2.4px, round caps & joins)
- * - Pure white opaque fills blocking background layers
- * - Double-rim open elliptical mouths, wrapping cylindrical bands, stipple pores,
- *   circular polyp rings, daisy flower sunbursts, and smooth riverbed pebbles.
- * - 100% strictly monochrome: ink black, white, and grayscale without colored pigment.
+ * Mathematically generates procedural marine & aquatic corals, sea fans,
+ * brain corals, table plates, cup foliose ruffles, and pillar organ pipes
+ * using recursive stochastic L-systems, reaction-diffusion meander curves,
+ * harmonic conchoid whorls, reticulated fan lattices, and sumi-e ink washes.
+ *
+ * 100% STRICTLY MONOCHROME: Pure black ink, pure white, and neutral grays only.
+ * Zero non-grayscale hues or pigments.
  *
  * UMD wrapper: CommonJS + Browser window.coraldraw
  */
@@ -22,6 +22,9 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
+  // -----------------------------------------------------------------
+  // 1. Deterministic PRNG & Numerical Utilities
+  // -----------------------------------------------------------------
   let jsr = 0xC08A1;
   const PI = Math.PI;
   const TWO_PI = PI * 2;
@@ -63,887 +66,84 @@
     return max - Math.sqrt((1 - u) * (max - min) * (max - peak));
   }
 
+  function choice(arr) {
+    return arr[Math.floor(rand() * arr.length)];
+  }
+
   function lerp(a, b, t) {
     return a + (b - a) * t;
   }
 
-  // --- Helper: Smooth Riverbed Pebble ---
-  function drawPebble(ctx, x, y, rx, ry, rot = 0, strokeColor, fillColor, lineWidth) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(rot);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, rx, ry, 0, 0, TWO_PI);
-    ctx.fillStyle = fillColor;
-    ctx.fill();
-    ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = lineWidth;
-    ctx.stroke();
-    ctx.restore();
+  // -----------------------------------------------------------------
+  // 2. Coral Architectural Forms & 24 Species Catalog
+  // -----------------------------------------------------------------
+  const CORAL_ARCHETYPES = {
+    BRANCHING: 0,   // Karang Rusa / Tanduk Bercabang (Staghorn / Acropora)
+    BRAIN: 1,       // Karang Otak Labirin (Brain / Meandrina Labyrinth)
+    TABLE: 2,       // Karang Meja Bertingkat (Table / Shelf Plate)
+    FAN: 3,         // Kipas Laut Renda Lentur (Sea Fan / Gorgonian Mesh)
+    FOLIOSE: 4,     // Karang Selada Cawan Kelopak (Cup / Foliose Lettuce)
+    PILLAR: 5       // Karang Tabung Pilar Pipa (Pillar / Organ Pipe)
+  };
+
+  const CORAL_MORPHS = {
+    STANDARD: 0,    // Morfologi standar botani
+    SPREADING: 1,   // Melebar horizontal
+    TALL_SPIRE: 2,  // Menjulang tinggi vertikal
+    DENSE_BUSH: 3,  // Rumpun lebat rapat
+    CURVED_FLOW: 4, // Melengkung mengikuti arus
+    TIERED_STEP: 5, // Bertingkat tangga trap
+    CLEFT_SPLIT: 6  // Patahan terbelah dua
+  };
+
+  const CORAL_CATALOG = [
+    // --- 1. Branching Corals (Karang Ranting & Tanduk) ---
+    { id: 'staghorn_acropora', common: 'Karang Tanduk Rusa', binomen: 'Acropora cervicornis', archetype: 0, height: 190, baseW: 14, spread: 130, roughness: 0.16, desc: 'Karang bercabang silindris anggun dengan corak kelopak cangkir polip runcing menghadap cahaya.' },
+    { id: 'elkhorn_coral', common: 'Karang Tanduk Rusa Pipih', binomen: 'Acropora palmata', archetype: 0, height: 180, baseW: 22, spread: 150, roughness: 0.22, desc: 'Percabangan kokoh menyerupai tanduk rusa kutub dengan lempengan lebar penahan hantaman arus.' },
+    { id: 'birdsnest_coral', common: 'Karang Sarang Burung', binomen: 'Seriatopora hystrix', archetype: 0, height: 150, baseW: 10, spread: 120, roughness: 0.14, desc: 'Jalinan ranting-ranting runcing rapat menyerupai sarang burung dengan ujung jarum tajam.' },
+    { id: 'stylophora_club', common: 'Karang Gada Berbuku', binomen: 'Stylophora pistillata', archetype: 0, height: 160, baseW: 16, spread: 110, roughness: 0.18, desc: 'Batang bercabang dengan ujung membulat seperti gada bertabur cincin koralit sumi-e.' },
+
+    // --- 2. Brain Corals (Karang Otak Labirin) ---
+    { id: 'brain_diploria', common: 'Karang Otak Alur', binomen: 'Diploria labyrinthiformis', archetype: 1, height: 140, baseW: 160, spread: 160, roughness: 0.25, desc: 'Bongkahan kubah masif dengan lekukan meander labirin berliku mirip lipatan otak purba.' },
+    { id: 'maze_platygyra', common: 'Karang Labirin Karang', binomen: 'Platygyra lamellina', archetype: 1, height: 130, baseW: 150, spread: 150, roughness: 0.28, desc: 'Pola dinding meander tajam berselang-seling dengan lembah arsir kapak sumi-e yang dalam.' },
+    { id: 'boulder_brain', common: 'Karang Otak Bulat Masif', binomen: 'Colpophyllia natans', archetype: 1, height: 160, baseW: 170, spread: 170, roughness: 0.20, desc: 'Kubah batu terumbu danau kokoh berstruktur alur ganda dengan tekstur kontur elevasi cincin.' },
+    { id: 'honeycomb_favia', common: 'Karang Sarang Lebah', binomen: 'Favia speciosa', archetype: 1, height: 120, baseW: 140, spread: 140, roughness: 0.22, desc: 'Koloni heksagonal rapat bersusun beraturan dengan kaliks koralit mangkuk monokrom.' },
+
+    // --- 3. Table Corals (Karang Meja Bertingkat) ---
+    { id: 'table_acropora', common: 'Karang Piring Meja', binomen: 'Acropora cytherea', archetype: 2, height: 175, baseW: 24, spread: 210, roughness: 0.15, desc: 'Piringan horizontal datar melebar horizontal bertingkat ditopang batang kayu tengah yang kokoh.' },
+    { id: 'tiered_montipora', common: 'Karang Piring Bertingkat', binomen: 'Montipora capricornis', archetype: 2, height: 165, baseW: 20, spread: 190, roughness: 0.18, desc: 'Lempeng kelopak melingkar berjenjang spiral ke atas dengan tepian bergelombang renda.' },
+    { id: 'bracket_shelf', common: 'Karang Rak Dinding', binomen: 'Pachyseris speciosa', archetype: 2, height: 140, baseW: 18, spread: 170, roughness: 0.20, desc: 'Lempeng rak bertrap dengan garis-garis punggungan konsentris sejajar yang halus.' },
+    { id: 'disk_turbinaria', common: 'Karang Cawan Piring', binomen: 'Turbinaria peltata', archetype: 2, height: 150, baseW: 22, spread: 180, roughness: 0.16, desc: 'Cawan datar lebar menyerupai piring saji dengan bintik-bintik koralit polip timbul.' },
+
+    // --- 4. Sea Fans (Kipas Laut Renda Lentur) ---
+    { id: 'sea_fan_gorgonian', common: 'Kipas Laut Renda', binomen: 'Gorgonia ventalina', archetype: 3, height: 210, baseW: 12, spread: 180, roughness: 0.12, desc: 'Anyaman jala renda pipih berpori mikro yang meliuk anggun mengikuti tiupan arus air bawah.' },
+    { id: 'sea_whip_black', common: 'Kipas Cemeti Hitam', binomen: 'Antipathes dichotoma', archetype: 3, height: 230, baseW: 10, spread: 140, roughness: 0.15, desc: 'Jalinan cabang lentur menjulang tinggi dengan pola arsir jala sumi-e yang renggang.' },
+    { id: 'venus_sea_fan', common: 'Kipas Anyam Venus', binomen: 'Gorgonia flabellum', archetype: 3, height: 200, baseW: 14, spread: 190, roughness: 0.14, desc: 'Kipas jala segitiga terbalik melebar dengan kerangka anyaman mikro saling mengunci.' },
+    { id: 'lace_coral', common: 'Kipas Renda Halus', binomen: 'Stylaster roseus', archetype: 3, height: 170, baseW: 10, spread: 130, roughness: 0.10, desc: 'Struktur renda kalsit tipis dengan percabangan mikroskopis yang tembus pandang.' },
+
+    // --- 5. Foliose & Cup Corals (Karang Selada & Cawan) ---
+    { id: 'lettuce_coral', common: 'Karang Selada Renda', binomen: 'Turbinaria mesenterina', archetype: 4, height: 160, baseW: 30, spread: 170, roughness: 0.24, desc: 'Kelopak cawan bergelombang lipat-melipat menyerupai daun selada air atau bunga mawar mekar.' },
+    { id: 'carnation_coral', common: 'Karang Mawar Kelopak', binomen: 'Pectinia lactuca', archetype: 4, height: 150, baseW: 28, spread: 160, roughness: 0.26, desc: 'Piramida kelopak tipis berlekuk tegak dengan sayatan kontur chiaroscuro yang tajam.' },
+    { id: 'scroll_coral', common: 'Karang Gulungan Kertas', binomen: 'Turbinaria reniformis', archetype: 4, height: 145, baseW: 26, spread: 155, roughness: 0.20, desc: 'Lempeng berpilin melingkar mirip gulungan washi kuno yang terbuka di dasar kolam.' },
+    { id: 'ridge_coral', common: 'Karang Kelopak Karang', binomen: 'Echinopora lamellosa', archetype: 4, height: 155, baseW: 25, spread: 165, roughness: 0.22, desc: 'Cawan pipih berombak dengan tepian bergerigi halus dan alur septa memusat.' },
+
+    // --- 6. Pillar & Pipe Corals (Karang Tabung Pilar) ---
+    { id: 'pillar_dendrogyra', common: 'Karang Pilar Tiang', binomen: 'Dendrogyra cylindrus', archetype: 5, height: 220, baseW: 90, spread: 140, roughness: 0.20, desc: 'Kumpulan silinder pilar kokoh menjulang vertikal dengan permukaan berbulu polip halus.' },
+    { id: 'organ_pipe', common: 'Karang Pipa Organ', binomen: 'Tubipora musica', archetype: 5, height: 180, baseW: 80, spread: 130, roughness: 0.18, desc: 'Deretan tabung paralel berjenjang seperti pipa organ katedral dengan sekat pelat horizontal.' },
+    { id: 'finger_porites', common: 'Karang Tabung Jari', binomen: 'Porites compressa', archetype: 5, height: 190, baseW: 85, spread: 135, roughness: 0.22, desc: 'Gugusan silinder ramping tumpul mirip jari-jemari tangan yang mengarah ke permukaan air.' },
+    { id: 'clustered_tube', common: 'Karang Tabung Rumpun', binomen: 'Galaxea fascicularis', archetype: 5, height: 170, baseW: 75, spread: 125, roughness: 0.25, desc: 'Tabung koralit bersudut bintang tajam yang tumbuh memancar dari substrat dasar kolam.' }
+  ];
+
+  function getCoralById(id) {
+    return CORAL_CATALOG.find(c => c.id === id) || CORAL_CATALOG[0];
+  }
+
+  function getCoralList() {
+    return CORAL_CATALOG.slice();
   }
 
   // -----------------------------------------------------------------
-  // 20 HAND-DRAWN DOODLE CORAL STYLES (Direct 5x4 Grid Mapping)
-  // -----------------------------------------------------------------
-  const CORAL_PRESETS = [
-    // 01: TRUMPET TRIO (Row 1, Col 1)
-    {
-      id: 'trumpet_trio',
-      gridRow: 1, gridCol: 1,
-      common: 'Cawan Terompet Tiga Tabung',
-      binomen: 'Caulastrea curvata',
-      desc: 'Tiga cawan terompet tegak melebar pada alas pasir bergelombang dengan gelang volume dan bibir elips ganda.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const bw = 55 * sc;
-
-        // Base wavy substrate plate
-        if (opts.showPebbles !== false) {
-          ctx.beginPath();
-          ctx.moveTo(-bw, 5 * sc);
-          ctx.bezierCurveTo(-bw * 0.7, -2 * sc, -bw * 0.3, 6 * sc, 0, 2 * sc);
-          ctx.bezierCurveTo(bw * 0.35, -2 * sc, bw * 0.7, 6 * sc, bw, 5 * sc);
-          ctx.bezierCurveTo(bw * 1.08, 14 * sc, bw * 0.7, 18 * sc, 0, 16 * sc);
-          ctx.bezierCurveTo(-bw * 0.7, 18 * sc, -bw * 1.08, 14 * sc, -bw, 5 * sc);
-          ctx.closePath();
-          ctx.fill(); ctx.stroke();
-
-          if (opts.showDots !== false) {
-            ctx.fillStyle = opts.strokeColor;
-            [[-bw*0.6, 7*sc], [-bw*0.2, 10*sc], [bw*0.3, 8*sc], [bw*0.65, 10*sc]].forEach(([dx, dy]) => {
-              ctx.beginPath(); ctx.arc(dx, dy, 1.8 * sc, 0, TWO_PI); ctx.fill();
-            });
-            ctx.fillStyle = opts.fillColor;
-          }
-        }
-
-        const tubes = [
-          { rx0: -18 * sc, tx: -36 * sc, ty: -90 * sc * p.hMult, rx: 22 * sc, ry: 8 * sc, w: 10 * sc },
-          { rx0: 18 * sc, tx: 36 * sc, ty: -96 * sc * p.hMult, rx: 24 * sc, ry: 9 * sc, w: 10 * sc },
-          { rx0: 0, tx: 0, ty: -75 * sc * p.hMult, rx: 20 * sc, ry: 7.5 * sc, w: 9 * sc }
-        ];
-
-        tubes.forEach(t => {
-          ctx.beginPath();
-          ctx.moveTo(t.rx0 - t.w, 0);
-          ctx.bezierCurveTo(t.rx0 - t.w * 0.8, t.ty * 0.4, t.tx - t.rx * 0.85, t.ty * 0.8, t.tx - t.rx, t.ty);
-          ctx.quadraticCurveTo(t.tx, t.ty + t.ry, t.tx + t.rx, t.ty);
-          ctx.bezierCurveTo(t.tx + t.rx * 0.85, t.ty * 0.8, t.rx0 + t.w * 0.8, t.ty * 0.4, t.rx0 + t.w, 0);
-          ctx.closePath();
-          ctx.fill(); ctx.stroke();
-
-          if (opts.showBands !== false) {
-            [0.35, 0.62].forEach(frac => {
-              const by = t.ty * frac;
-              const bx = t.rx0 + (t.tx - t.rx0) * frac;
-              const bwBand = t.w + (t.rx - t.w) * frac * 0.9;
-              ctx.beginPath();
-              ctx.ellipse(bx, by, bwBand, bwBand * 0.28, 0, 0, PI);
-              ctx.stroke();
-            });
-          }
-
-          ctx.beginPath(); ctx.ellipse(t.tx, t.ty, t.rx, t.ry, 0, 0, TWO_PI); ctx.fill(); ctx.stroke();
-          ctx.beginPath(); ctx.ellipse(t.tx, t.ty, t.rx * 0.65, t.ry * 0.65, 0, 0, TWO_PI); ctx.stroke();
-        });
-      }
-    },
-
-    // 02: GINGER ANTLER (Row 1, Col 2)
-    {
-      id: 'ginger_branch',
-      gridRow: 1, gridCol: 2,
-      common: 'Ranting Tanduk Jahe Montok',
-      binomen: 'Acropora humilis',
-      desc: 'Percabangan silinder montok membulat seperti rimpang jahe dengan ujung jari tumpul dan bintik lingkaran.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        ctx.beginPath();
-        ctx.moveTo(-14 * sc, 0);
-        ctx.quadraticCurveTo(-15 * sc, -28 * sc * hm, -24 * sc, -40 * sc * hm);
-        ctx.quadraticCurveTo(-40 * sc, -48 * sc * hm, -46 * sc, -65 * sc * hm);
-        ctx.arc(-42 * sc, -75 * sc * hm, 9 * sc, PI * 0.8, -PI * 0.2);
-        ctx.quadraticCurveTo(-30 * sc, -65 * sc * hm, -26 * sc, -72 * sc * hm);
-        ctx.arc(-20 * sc, -92 * sc * hm, 9 * sc, PI * 0.8, -PI * 0.2);
-        ctx.quadraticCurveTo(-12 * sc, -78 * sc * hm, -4 * sc, -82 * sc * hm);
-        ctx.arc(5 * sc, -105 * sc * hm, 10 * sc, PI * 0.8, -PI * 0.2);
-        ctx.quadraticCurveTo(14 * sc, -82 * sc * hm, 22 * sc, -75 * sc * hm);
-        ctx.arc(35 * sc, -78 * sc * hm, 10 * sc, -PI * 0.8, PI * 0.2);
-        ctx.quadraticCurveTo(30 * sc, -60 * sc * hm, 20 * sc, -52 * sc * hm);
-        ctx.quadraticCurveTo(15 * sc, -30 * sc * hm, 14 * sc, 0);
-        ctx.closePath();
-        ctx.fill(); ctx.stroke();
-
-        if (opts.showDots !== false) {
-          [[-16, -45, 5], [-32, -62, 4], [-10, -70, 5], [6, -60, 5.5], [14, -38, 4], [-2, -20, 5]].forEach(([sx, sy, r]) => {
-            ctx.beginPath(); ctx.arc(sx * sc, sy * sc * hm, r * sc, 0, TWO_PI); ctx.stroke();
-          });
-        }
-        ctx.beginPath(); ctx.arc(0, 0, 14 * sc, PI, TWO_PI); ctx.stroke();
-      }
-    },
-
-    // 03: DOME POLYPS (Row 1, Col 3)
-    {
-      id: 'anemone_mounds',
-      gridRow: 1, gridCol: 3,
-      common: 'Dua Kubah Polip Anemon',
-      binomen: 'Goniopora stokesi',
-      desc: 'Dua kubah montok berkepala tentakel jari memancar ke segala arah yang bertumpu pada tiga batu kerikil sungai.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        if (opts.showPebbles !== false) {
-          drawPebble(ctx, -30 * sc, 4 * sc, 16 * sc, 8 * sc, -0.1, opts.strokeColor, opts.fillColor, opts.lineWidth);
-          drawPebble(ctx, 28 * sc, 5 * sc, 18 * sc, 9 * sc, 0.1, opts.strokeColor, opts.fillColor, opts.lineWidth);
-          drawPebble(ctx, -2 * sc, 6 * sc, 13 * sc, 7 * sc, 0.05, opts.strokeColor, opts.fillColor, opts.lineWidth);
-        }
-
-        const mounds = [
-          { mx: -20 * sc, mw: 26 * sc, mh: 60 * sc * hm, angles: [-2.5, -2.1, -1.7, -1.3, -0.9, -0.5], dots: [[-4, -36], [3, -30], [-2, -18]] },
-          { mx: 18 * sc, mw: 30 * sc, mh: 80 * sc * hm, angles: [-2.6, -2.2, -1.8, -1.4, -1.0, -0.6], dots: [[-3, -52], [5, -44], [-4, -28], [4, -20]] }
-        ];
-
-        mounds.forEach(m => {
-          ctx.beginPath();
-          ctx.moveTo(m.mx - m.mw * 0.5, 0);
-          ctx.bezierCurveTo(m.mx - m.mw * 0.55, -m.mh * 0.6, m.mx - m.mw * 0.45, -m.mh, m.mx, -m.mh);
-          ctx.bezierCurveTo(m.mx + m.mw * 0.45, -m.mh, m.mx + m.mw * 0.55, -m.mh * 0.6, m.mx + m.mw * 0.5, 0);
-          ctx.closePath(); ctx.fill(); ctx.stroke();
-
-          m.angles.forEach(a => {
-            const r0 = m.mw * 0.42;
-            const r1 = r0 + 14 * sc;
-            ctx.lineWidth = opts.lineWidth * 1.6;
-            ctx.beginPath();
-            ctx.moveTo(m.mx + Math.cos(a) * r0, -m.mh + Math.sin(a) * (r0 * 0.5));
-            ctx.lineTo(m.mx + Math.cos(a) * r1, -m.mh + Math.sin(a) * (r1 * 0.65));
-            ctx.stroke();
-            ctx.lineWidth = opts.lineWidth;
-          });
-
-          if (opts.showDots !== false) {
-            ctx.fillStyle = opts.strokeColor;
-            m.dots.forEach(([dx, dy]) => {
-              ctx.beginPath(); ctx.arc(m.mx + dx * sc, dy * sc * hm, 1.8 * sc, 0, TWO_PI); ctx.fill();
-            });
-            ctx.fillStyle = opts.fillColor;
-          }
-        });
-      }
-    },
-
-    // 04: CRINKLY STAGHORN (Row 1, Col 4)
-    {
-      id: 'crinkly_staghorn',
-      gridRow: 1, gridCol: 4,
-      common: 'Tanduk Ranting Keriting Berkeluk',
-      binomen: 'Acropora prolifera',
-      desc: 'Cabang tanduk karang bergelombang dengan lekukan pinggir organik dan garis alur sumbu di tengah.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        ctx.beginPath();
-        ctx.moveTo(-10 * sc, 0);
-        ctx.bezierCurveTo(-14 * sc, -20 * sc * hm, -22 * sc, -30 * sc * hm, -32 * sc, -45 * sc * hm);
-        ctx.bezierCurveTo(-45 * sc, -55 * sc * hm, -42 * sc, -75 * sc * hm, -35 * sc, -88 * sc * hm);
-        ctx.bezierCurveTo(-38 * sc, -98 * sc * hm, -28 * sc, -112 * sc * hm, -18 * sc, -120 * sc * hm);
-        ctx.lineTo(-8 * sc, -112 * sc * hm);
-        ctx.bezierCurveTo(-4 * sc, -125 * sc * hm, 4 * sc, -132 * sc * hm, 10 * sc, -135 * sc * hm);
-        ctx.bezierCurveTo(16 * sc, -125 * sc * hm, 14 * sc, -112 * sc * hm, 18 * sc, -100 * sc * hm);
-        ctx.bezierCurveTo(30 * sc, -95 * sc * hm, 42 * sc, -80 * sc * hm, 36 * sc, -65 * sc * hm);
-        ctx.bezierCurveTo(28 * sc, -50 * sc * hm, 18 * sc, -40 * sc * hm, 14 * sc, -20 * sc * hm);
-        ctx.lineTo(10 * sc, 0);
-        ctx.closePath();
-        ctx.fill(); ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(-2 * sc, -5 * sc);
-        ctx.bezierCurveTo(-4 * sc, -25 * sc * hm, -12 * sc, -45 * sc * hm, -8 * sc, -70 * sc * hm);
-        ctx.bezierCurveTo(-4 * sc, -90 * sc * hm, 4 * sc, -105 * sc * hm, 6 * sc, -125 * sc * hm);
-        ctx.stroke();
-
-        if (opts.showDots !== false) {
-          [[-25, -55], [-16, -85], [20, -68], [12, -92]].forEach(([wx, wy]) => {
-            ctx.beginPath(); ctx.arc(wx * sc, wy * sc * hm, 4 * sc, 0, TWO_PI); ctx.stroke();
-          });
-        }
-      }
-    },
-
-    // 05: DIGITATE HAND (Row 1, Col 5)
-    {
-      id: 'digitate_hand',
-      gridRow: 1, gridCol: 5,
-      common: 'Karang Menjari Gerigi Mahkota',
-      binomen: 'Acropora gemmifera',
-      desc: 'Bentuk lima jari tegak menjari menyerupai telapak tangan dengan tepi ujung bergigi koralit runcing.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        ctx.beginPath();
-        ctx.moveTo(-14 * sc, 0);
-        ctx.lineTo(-14 * sc, -30 * sc * hm);
-        ctx.lineTo(-32 * sc, -45 * sc * hm);
-        ctx.lineTo(-36 * sc, -85 * sc * hm);
-        ctx.lineTo(-32 * sc, -90 * sc * hm); ctx.lineTo(-28 * sc, -85 * sc * hm);
-        ctx.lineTo(-24 * sc, -48 * sc * hm);
-        ctx.lineTo(-18 * sc, -95 * sc * hm);
-        ctx.lineTo(-14 * sc, -100 * sc * hm); ctx.lineTo(-10 * sc, -95 * sc * hm);
-        ctx.lineTo(-6 * sc, -50 * sc * hm);
-        ctx.lineTo(-2 * sc, -115 * sc * hm);
-        ctx.lineTo(2 * sc, -120 * sc * hm); ctx.lineTo(6 * sc, -115 * sc * hm);
-        ctx.lineTo(10 * sc, -48 * sc * hm);
-        ctx.lineTo(18 * sc, -105 * sc * hm);
-        ctx.lineTo(22 * sc, -110 * sc * hm); ctx.lineTo(26 * sc, -105 * sc * hm);
-        ctx.lineTo(24 * sc, -45 * sc * hm);
-        ctx.lineTo(34 * sc, -80 * sc * hm);
-        ctx.lineTo(38 * sc, -85 * sc * hm); ctx.lineTo(40 * sc, -80 * sc * hm);
-        ctx.lineTo(26 * sc, -30 * sc * hm);
-        ctx.lineTo(14 * sc, -30 * sc * hm);
-        ctx.lineTo(14 * sc, 0);
-        ctx.closePath();
-        ctx.fill(); ctx.stroke();
-
-        if (opts.showDots !== false) {
-          ctx.fillStyle = opts.strokeColor;
-          [[-6, -8], [0, -12], [6, -7], [-4, -20], [4, -18]].forEach(([dx, dy]) => {
-            ctx.beginPath(); ctx.arc(dx * sc, dy * sc, 1.8 * sc, 0, TWO_PI); ctx.fill();
-          });
-          ctx.fillStyle = opts.fillColor;
-        }
-      }
-    },
-
-    // 06: ANTLER FORK (Row 2, Col 1)
-    {
-      id: 'antler_fork',
-      gridRow: 2, gridCol: 1,
-      common: 'Tanduk Rusa Garpu Anggun',
-      binomen: 'Acropora cervicornis',
-      desc: 'Percabangan tanduk rusa langsing dengan cincin corong terbuka di setiap ujung dahan.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        ctx.beginPath();
-        ctx.moveTo(-10 * sc, 0);
-        ctx.bezierCurveTo(-14 * sc, -25 * sc * hm, -24 * sc, -40 * sc * hm, -35 * sc, -55 * sc * hm);
-        ctx.bezierCurveTo(-45 * sc, -70 * sc * hm, -48 * sc, -88 * sc * hm, -42 * sc, -102 * sc * hm);
-        ctx.lineTo(-28 * sc, -98 * sc * hm);
-        ctx.bezierCurveTo(-32 * sc, -85 * sc * hm, -30 * sc, -72 * sc * hm, -22 * sc, -62 * sc * hm);
-        ctx.bezierCurveTo(-18 * sc, -75 * sc * hm, -14 * sc, -95 * sc * hm, -8 * sc, -112 * sc * hm);
-        ctx.lineTo(4 * sc, -110 * sc * hm);
-        ctx.bezierCurveTo(0, -92 * sc * hm, 0, -75 * sc * hm, 8 * sc, -62 * sc * hm);
-        ctx.bezierCurveTo(18 * sc, -72 * sc * hm, 30 * sc, -78 * sc * hm, 40 * sc, -90 * sc * hm);
-        ctx.lineTo(48 * sc, -84 * sc * hm);
-        ctx.bezierCurveTo(36 * sc, -68 * sc * hm, 22 * sc, -58 * sc * hm, 14 * sc, -42 * sc * hm);
-        ctx.bezierCurveTo(14 * sc, -25 * sc * hm, 12 * sc, -10 * sc * hm, 10 * sc, 0);
-        ctx.closePath();
-        ctx.fill(); ctx.stroke();
-
-        [[-35, -100, 7, 4, -0.3], [-2, -111, 6.5, 4, -0.1], [44, -87, 7, 4, 0.4]].forEach(([rx, ry, ra, rb, rot]) => {
-          ctx.beginPath(); ctx.ellipse(rx * sc, ry * sc * hm, ra * sc, rb * sc, rot, 0, TWO_PI); ctx.fill(); ctx.stroke();
-          ctx.beginPath(); ctx.ellipse(rx * sc, ry * sc * hm, ra * sc * 0.55, rb * sc * 0.55, rot, 0, TWO_PI); ctx.stroke();
-        });
-        ctx.beginPath(); ctx.ellipse(0, 0, 14 * sc, 6 * sc, 0, 0, TWO_PI); ctx.stroke();
-      }
-    },
-
-    // 07: CRATER BOWL (Row 2, Col 2)
-    {
-      id: 'crater_bowl',
-      gridRow: 2, gridCol: 2,
-      common: 'Mangkuk Kawah Cerobong Sponge',
-      binomen: 'Xestospongia testudinaria',
-      desc: 'Bongkahan mangkuk lebar bertanduk 4 cerobong kawah terbuka dengan sebaran bintik pori kalsit.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        ctx.beginPath();
-        ctx.moveTo(-58 * sc, -15 * sc * hm);
-        ctx.quadraticCurveTo(-66 * sc, 12 * sc, -32 * sc, 24 * sc);
-        ctx.quadraticCurveTo(0, 30 * sc, 32 * sc, 24 * sc);
-        ctx.quadraticCurveTo(66 * sc, 12 * sc, 58 * sc, -15 * sc * hm);
-        ctx.bezierCurveTo(40 * sc, -4 * sc * hm, 16 * sc, -8 * sc * hm, 0, -6 * sc * hm);
-        ctx.bezierCurveTo(-16 * sc, -8 * sc * hm, -40 * sc, -4 * sc * hm, -58 * sc, -15 * sc * hm);
-        ctx.closePath();
-        ctx.fill(); ctx.stroke();
-
-        const chimneys = [
-          { cx: -40 * sc, cy: -35 * sc * hm, w: 12 * sc, h: 25 * sc * hm, rx: 9 * sc, ry: 4 * sc },
-          { cx: -16 * sc, cy: -58 * sc * hm, w: 13 * sc, h: 52 * sc * hm, rx: 10 * sc, ry: 4.5 * sc },
-          { cx: 14 * sc, cy: -66 * sc * hm, w: 14 * sc, h: 60 * sc * hm, rx: 11 * sc, ry: 5 * sc },
-          { cx: 42 * sc, cy: -38 * sc * hm, w: 12 * sc, h: 28 * sc * hm, rx: 9 * sc, ry: 4 * sc }
-        ];
-
-        chimneys.forEach(ch => {
-          ctx.beginPath();
-          ctx.moveTo(ch.cx - ch.w * 0.5, ch.cy + ch.h);
-          ctx.lineTo(ch.cx - ch.rx, ch.cy);
-          ctx.quadraticCurveTo(ch.cx, ch.cy + ch.ry, ch.cx + ch.rx, ch.cy);
-          ctx.lineTo(ch.cx + ch.w * 0.5, ch.cy + ch.h);
-          ctx.closePath(); ctx.fill(); ctx.stroke();
-
-          ctx.beginPath(); ctx.ellipse(ch.cx, ch.cy, ch.rx, ch.ry, 0, 0, TWO_PI); ctx.fill(); ctx.stroke();
-          ctx.beginPath(); ctx.ellipse(ch.cx, ch.cy, ch.rx * 0.65, ch.ry * 0.65, 0, 0, TWO_PI); ctx.stroke();
-        });
-
-        if (opts.showDots !== false) {
-          ctx.fillStyle = opts.strokeColor;
-          [[-38, 0], [-26, 12], [-14, 4], [-4, 15], [6, 8], [18, 16], [30, 6], [42, 2], [0, 2]].forEach(([dx, dy]) => {
-            ctx.beginPath(); ctx.arc(dx * sc, dy * sc, 1.8 * sc, 0, TWO_PI); ctx.fill();
-          });
-          ctx.fillStyle = opts.fillColor;
-        }
-      }
-    },
-
-    // 08: STRIPED BRANCH (Row 2, Col 3)
-    {
-      id: 'striped_branch',
-      gridRow: 2, gridCol: 3,
-      common: 'Ranting Belang Gelang Silinder',
-      binomen: 'Stylophora pistillata',
-      desc: 'Pohon karang bervolume tebal dengan garis belang horizontal di sekujur dahan dan mulut terbuka di puncak.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        ctx.beginPath();
-        ctx.moveTo(-13 * sc, 0);
-        ctx.bezierCurveTo(-15 * sc, -25 * sc * hm, -25 * sc, -36 * sc * hm, -36 * sc, -48 * sc * hm);
-        ctx.bezierCurveTo(-44 * sc, -60 * sc * hm, -44 * sc, -76 * sc * hm, -38 * sc, -88 * sc * hm);
-        ctx.lineTo(-25 * sc, -84 * sc * hm);
-        ctx.bezierCurveTo(-30 * sc, -72 * sc * hm, -30 * sc, -60 * sc * hm, -22 * sc, -52 * sc * hm);
-        ctx.bezierCurveTo(-18 * sc, -65 * sc * hm, -16 * sc, -85 * sc * hm, -12 * sc, -100 * sc * hm);
-        ctx.lineTo(-2 * sc, -98 * sc * hm);
-        ctx.bezierCurveTo(-6 * sc, -80 * sc * hm, -6 * sc, -65 * sc * hm, 2 * sc, -52 * sc * hm);
-        ctx.bezierCurveTo(12 * sc, -60 * sc * hm, 24 * sc, -64 * sc * hm, 34 * sc, -76 * sc * hm);
-        ctx.lineTo(42 * sc, -70 * sc * hm);
-        ctx.bezierCurveTo(30 * sc, -56 * sc * hm, 18 * sc, -48 * sc * hm, 13 * sc, -36 * sc * hm);
-        ctx.bezierCurveTo(15 * sc, -24 * sc * hm, 13 * sc, -8 * sc * hm, 13 * sc, 0);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-
-        [[-32, -86, 7.5, 4, -0.4], [-7, -99, 6.5, 3.8, -0.1], [38, -73, 6.5, 4, 0.4]].forEach(([rx, ry, ra, rb, rot]) => {
-          ctx.beginPath(); ctx.ellipse(rx * sc, ry * sc * hm, ra * sc, rb * sc, rot, 0, TWO_PI); ctx.fill(); ctx.stroke();
-          ctx.beginPath(); ctx.ellipse(rx * sc, ry * sc * hm, ra * sc * 0.6, rb * sc * 0.6, rot, 0, TWO_PI); ctx.stroke();
-        });
-
-        if (opts.showBands !== false) {
-          const bands = [
-            [-11, 0, 11, -12], [-11, -16, 11, -14],
-            [-32, -56, -22, -52], [-38, -72, -27, -68],
-            [-17, -68, -6, -64], [-14, -84, -4, -82],
-            [14, -44, 21, -52], [22, -60, 30, -68]
-          ];
-          bands.forEach(([x0, y0, x1, y1]) => {
-            ctx.beginPath(); ctx.moveTo(x0 * sc, y0 * sc * hm);
-            ctx.quadraticCurveTo((x0 + x1) * 0.5 * sc, ((y0 + y1) * 0.5 + 3) * sc * hm, x1 * sc, y1 * sc * hm);
-            ctx.stroke();
-          });
-        }
-      }
-    },
-
-    // 09: BRAIN DOME (Row 2, Col 4)
-    {
-      id: 'brain_dome',
-      gridRow: 2, gridCol: 4,
-      common: 'Kubah Otak Sel Cincin Konsentris',
-      binomen: 'Platygyra lamellina',
-      desc: 'Kubah setengah bola padat yang dipenuhi puluhan bilik sel cincin konsentris dari dasar hingga puncaknya.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const rx = 52 * sc, ry = 42 * sc * p.hMult;
-        ctx.beginPath();
-        ctx.moveTo(-rx, 0);
-        ctx.bezierCurveTo(-rx, -ry * 1.35, rx, -ry * 1.35, rx, 0);
-        ctx.closePath();
-        ctx.fill(); ctx.stroke();
-
-        if (opts.showDots !== false) {
-          ctx.save(); ctx.clip();
-          const rings = [
-            [-42, -6, 6.5, 5], [-28, -6, 7, 5.5], [-14, -6, 6.5, 5], [0, -6, 7, 5.5], [14, -6, 6.5, 5], [28, -6, 7, 5.5], [42, -6, 6.5, 5],
-            [-35, -18, 6.5, 5], [-21, -18, 7, 5.5], [-7, -18, 6.5, 5], [7, -18, 7, 5.5], [21, -18, 7, 5.5], [35, -18, 6.5, 5],
-            [-28, -29, 6.5, 5], [-14, -29, 7, 5.5], [0, -29, 6.5, 5], [14, -29, 7, 5.5], [28, -29, 6.5, 5],
-            [-16, -39, 6, 4.5], [0, -39, 6.5, 5], [16, -39, 6, 4.5],
-            [0, -47, 5.5, 4]
-          ];
-          rings.forEach(([cx, cy, cra, crb]) => {
-            ctx.beginPath(); ctx.ellipse(cx * sc, cy * sc * p.hMult, cra * sc, crb * sc, 0, 0, TWO_PI); ctx.stroke();
-            ctx.beginPath(); ctx.ellipse(cx * sc, cy * sc * p.hMult, cra * sc * 0.5, crb * sc * 0.5, 0, 0, TWO_PI); ctx.stroke();
-          });
-          ctx.restore();
-        }
-
-        ctx.beginPath();
-        ctx.moveTo(-rx, 0);
-        ctx.bezierCurveTo(-rx, -ry * 1.35, rx, -ry * 1.35, rx, 0);
-        ctx.closePath(); ctx.stroke();
-      }
-    },
-
-    // 10: RIBBON GRASS (Row 2, Col 5)
-    {
-      id: 'ribbon_grass',
-      gridRow: 2, gridCol: 5,
-      common: 'Riak Rumput Pita Batu Kali',
-      binomen: 'Vallisneria spiralis',
-      desc: 'Bilah rumput air berkeluk lentur yang meliuk vertikal dari dua batu kerikil sungai yang saling bertumpuk.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        if (opts.showPebbles !== false) {
-          drawPebble(ctx, -14 * sc, 5 * sc, 18 * sc, 9 * sc, -0.05, opts.strokeColor, opts.fillColor, opts.lineWidth);
-          drawPebble(ctx, 16 * sc, 6 * sc, 18 * sc, 9 * sc, 0.05, opts.strokeColor, opts.fillColor, opts.lineWidth);
-        }
-
-        const blades = [
-          [-22, 0, -32, -35, -28, -75, -34, -105],
-          [-12, 0, -18, -40, -10, -85, -14, -120],
-          [-2, 0, 2, -45, -2, -90, 2, -125],
-          [8, 0, 16, -40, 12, -80, 18, -115],
-          [18, 0, 28, -35, 24, -75, 30, -100]
-        ];
-        blades.forEach(([x0, y0, cx1, cy1, cx2, cy2, tx, ty]) => {
-          ctx.beginPath();
-          ctx.moveTo((x0 - 3) * sc, y0 * sc);
-          ctx.bezierCurveTo((cx1 - 4) * sc, cy1 * sc * hm, (cx2 - 3) * sc, cy2 * sc * hm, tx * sc, ty * sc * hm);
-          ctx.bezierCurveTo((cx2 + 3) * sc, cy2 * sc * hm, (cx1 + 4) * sc, cy1 * sc * hm, (x0 + 3) * sc, y0 * sc);
-          ctx.closePath();
-          ctx.fill(); ctx.stroke();
-        });
-      }
-    },
-
-    // 11: CHIMNEY CLUSTER (Row 3, Col 1)
-    {
-      id: 'chimney_cluster',
-      gridRow: 3, gridCol: 1,
-      common: 'Gugusan Cerobong Tabung Laut',
-      binomen: 'Haliclona fascigera',
-      desc: 'Lembah mangkuk rendah dengan lima cerobong kawah terbuka bertingkat menghadap ke atas.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        ctx.beginPath();
-        ctx.moveTo(-52 * sc, -12 * sc * hm);
-        ctx.quadraticCurveTo(-60 * sc, 14 * sc, -28 * sc, 22 * sc);
-        ctx.quadraticCurveTo(0, 28 * sc, 28 * sc, 22 * sc);
-        ctx.quadraticCurveTo(60 * sc, 14 * sc, 52 * sc, -12 * sc * hm);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-
-        const chimneys = [
-          { cx: -42 * sc, cy: -28 * sc * hm, rx: 11 * sc, ry: 5 * sc },
-          { cx: -24 * sc, cy: -48 * sc * hm, rx: 13 * sc, ry: 5.5 * sc },
-          { cx: 0, cy: -56 * sc * hm, rx: 14 * sc, ry: 6 * sc },
-          { cx: 25 * sc, cy: -46 * sc * hm, rx: 13 * sc, ry: 5.5 * sc },
-          { cx: 44 * sc, cy: -26 * sc * hm, rx: 10 * sc, ry: 4.5 * sc }
-        ];
-        chimneys.forEach(ch => {
-          ctx.beginPath(); ctx.ellipse(ch.cx, ch.cy, ch.rx, ch.ry, 0, 0, TWO_PI); ctx.fill(); ctx.stroke();
-          ctx.beginPath(); ctx.ellipse(ch.cx, ch.cy, ch.rx * 0.6, ch.ry * 0.6, 0, 0, TWO_PI); ctx.stroke();
-        });
-
-        if (opts.showDots !== false) {
-          ctx.fillStyle = opts.strokeColor;
-          [[-30, 2], [-12, 10], [6, 12], [24, 4], [0, 4]].forEach(([dx, dy]) => {
-            ctx.beginPath(); ctx.arc(dx * sc, dy * sc, 1.8 * sc, 0, TWO_PI); ctx.fill();
-          });
-          ctx.fillStyle = opts.fillColor;
-        }
-      }
-    },
-
-    // 12: SPOTTED FLAME SHRUB (Row 3, Col 2)
-    {
-      id: 'spotted_flame',
-      gridRow: 3, gridCol: 2,
-      common: 'Semak Karang Lidah Api Bercak',
-      binomen: 'Millepora dichotoma',
-      desc: 'Semak karang meliuk menyerupai jilatan api dengan corak cincin dan bintik polip di badannya.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        ctx.beginPath();
-        ctx.moveTo(-12 * sc, 0);
-        ctx.bezierCurveTo(-18 * sc, -25 * sc * hm, -28 * sc, -42 * sc * hm, -40 * sc, -55 * sc * hm);
-        ctx.bezierCurveTo(-52 * sc, -68 * sc * hm, -48 * sc, -88 * sc * hm, -40 * sc, -98 * sc * hm);
-        ctx.lineTo(-30 * sc, -90 * sc * hm);
-        ctx.bezierCurveTo(-34 * sc, -78 * sc * hm, -30 * sc, -68 * sc * hm, -20 * sc, -58 * sc * hm);
-        ctx.bezierCurveTo(-16 * sc, -75 * sc * hm, -12 * sc, -98 * sc * hm, -6 * sc, -118 * sc * hm);
-        ctx.lineTo(6 * sc, -115 * sc * hm);
-        ctx.bezierCurveTo(0, -95 * sc * hm, 2 * sc, -75 * sc * hm, 12 * sc, -62 * sc * hm);
-        ctx.bezierCurveTo(22 * sc, -72 * sc * hm, 34 * sc, -76 * sc * hm, 42 * sc, -88 * sc * hm);
-        ctx.lineTo(48 * sc, -80 * sc * hm);
-        ctx.bezierCurveTo(36 * sc, -64 * sc * hm, 22 * sc, -54 * sc * hm, 15 * sc, -40 * sc * hm);
-        ctx.bezierCurveTo(15 * sc, -22 * sc * hm, 13 * sc, -8 * sc * hm, 12 * sc, 0);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-
-        if (opts.showDots !== false) {
-          [[-25, -50], [-10, -78], [15, -60], [-4, -30]].forEach(([sx, sy]) => {
-            ctx.beginPath(); ctx.arc(sx * sc, sy * sc * hm, 4.5 * sc, 0, TWO_PI); ctx.stroke();
-          });
-          ctx.fillStyle = opts.strokeColor;
-          [[-16, -20], [8, -35], [-2, -60], [25, -68], [-32, -75]].forEach(([dx, dy]) => {
-            ctx.beginPath(); ctx.arc(dx * sc, dy * sc * hm, 2 * sc, 0, TWO_PI); ctx.fill();
-          });
-          ctx.fillStyle = opts.fillColor;
-        }
-      }
-    },
-
-    // 13: PEDESTAL TREE (Row 3, Col 3)
-    {
-      id: 'pedestal_tree',
-      gridRow: 3, gridCol: 3,
-      common: 'Pohon Karang Berundak Trap',
-      binomen: 'Acropora hyacinthus',
-      desc: 'Pohon tegak pada bantalan batu undak dengan dahan mendatar bertingkat dan cawan koralit di tiap ujung.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        // Pedestal base
-        if (opts.showPebbles !== false) {
-          ctx.beginPath();
-          ctx.moveTo(-32 * sc, 8 * sc);
-          ctx.lineTo(-24 * sc, -4 * sc);
-          ctx.lineTo(24 * sc, -4 * sc);
-          ctx.lineTo(32 * sc, 8 * sc);
-          ctx.closePath(); ctx.fill(); ctx.stroke();
-        }
-
-        // Trunk
-        ctx.beginPath();
-        ctx.moveTo(-8 * sc, -4 * sc);
-        ctx.lineTo(-8 * sc, -120 * sc * hm);
-        ctx.lineTo(8 * sc, -120 * sc * hm);
-        ctx.lineTo(8 * sc, -4 * sc);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-
-        const branches = [
-          [-8 * sc, -25 * sc * hm, -34 * sc, -38 * sc * hm],
-          [8 * sc, -40 * sc * hm, 36 * sc, -55 * sc * hm],
-          [-8 * sc, -60 * sc * hm, -32 * sc, -75 * sc * hm],
-          [8 * sc, -80 * sc * hm, 30 * sc, -95 * sc * hm],
-          [-8 * sc, -98 * sc * hm, -24 * sc, -110 * sc * hm]
-        ];
-        branches.forEach(([x0, y0, x1, y1]) => {
-          ctx.beginPath();
-          ctx.moveTo(x0, y0 - 4 * sc);
-          ctx.lineTo(x1, y1 - 4 * sc);
-          ctx.lineTo(x1, y1 + 4 * sc);
-          ctx.lineTo(x0, y0 + 4 * sc);
-          ctx.closePath(); ctx.fill(); ctx.stroke();
-          ctx.beginPath(); ctx.ellipse(x1, y1, 5 * sc, 3.5 * sc, 0, 0, TWO_PI); ctx.fill(); ctx.stroke();
-        });
-        ctx.beginPath(); ctx.ellipse(0, -120 * sc * hm, 8 * sc, 4.5 * sc, 0, 0, TWO_PI); ctx.fill(); ctx.stroke();
-      }
-    },
-
-    // 14: TWISTED PILLAR (Row 3, Col 4)
-    {
-      id: 'twisted_pillar',
-      gridRow: 3, gridCol: 4,
-      common: 'Pilar Spiral Terpilin Heliks',
-      binomen: 'Dendronephthya klunzingeri',
-      desc: 'Pilar terpilin berbentuk kurva S dengan pita heliks diagonal dan tunas anakan kecil di pangkalnya.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        if (opts.showPebbles !== false) {
-          ctx.beginPath(); ctx.ellipse(0, 5 * sc, 36 * sc, 14 * sc, 0, 0, TWO_PI); ctx.fill(); ctx.stroke();
-        }
-
-        ctx.beginPath();
-        ctx.moveTo(-16 * sc, 5 * sc);
-        ctx.bezierCurveTo(-24 * sc, -30 * sc * hm, 8 * sc, -60 * sc * hm, -12 * sc, -95 * sc * hm);
-        ctx.bezierCurveTo(-18 * sc, -110 * sc * hm, -12 * sc, -125 * sc * hm, -4 * sc, -130 * sc * hm);
-        ctx.bezierCurveTo(4 * sc, -125 * sc * hm, 6 * sc, -110 * sc * hm, 2 * sc, -95 * sc * hm);
-        ctx.bezierCurveTo(18 * sc, -60 * sc * hm, -6 * sc, -30 * sc * hm, 16 * sc, 5 * sc);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-
-        if (opts.showBands !== false) {
-          [-15, -40, -65, -90, -115].forEach(sy => {
-            ctx.beginPath();
-            ctx.moveTo(-14 * sc, sy * sc * hm);
-            ctx.quadraticCurveTo(0, (sy - 6) * sc * hm, 14 * sc, (sy - 12) * sc * hm);
-            ctx.stroke();
-          });
-        }
-
-        // Small side shoot
-        ctx.beginPath();
-        ctx.moveTo(18 * sc, 5 * sc);
-        ctx.quadraticCurveTo(32 * sc, -10 * sc * hm, 30 * sc, -25 * sc * hm);
-        ctx.quadraticCurveTo(22 * sc, -10 * sc * hm, 16 * sc, 0);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-      }
-    },
-
-    // 15: SUNBURST POLYPS (Row 3, Col 5)
-    {
-      id: 'sunburst_polyps',
-      gridRow: 3, gridCol: 5,
-      common: 'Bunga Polip Surya Kelopak Mekar',
-      binomen: 'Tubastraea faulkneri',
-      desc: 'Dua tabung kalsit silindris bermahkota kelopak bunga matahari mekar memancar dengan bintik koralit.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        function drawFlower(cx, w, h, numPetals, petalR) {
-          ctx.beginPath();
-          ctx.moveTo(cx - w * 0.5, 0);
-          ctx.lineTo(cx - w * 0.42, -h);
-          ctx.lineTo(cx + w * 0.42, -h);
-          ctx.lineTo(cx + w * 0.5, 0);
-          ctx.closePath(); ctx.fill(); ctx.stroke();
-
-          if (opts.showDots !== false) {
-            ctx.fillStyle = opts.strokeColor;
-            [[-w * 0.25, -10], [0, -14], [w * 0.22, -8], [-w * 0.15, -22], [w * 0.18, -20]].forEach(([dx, dy]) => {
-              ctx.beginPath(); ctx.arc(cx + dx, dy * sc * hm, 1.6 * sc, 0, TWO_PI); ctx.fill();
-            });
-            ctx.fillStyle = opts.fillColor;
-          }
-
-          for (let pt = 0; pt < numPetals; pt++) {
-            const ang = (pt / numPetals) * TWO_PI;
-            const px0 = cx + Math.cos(ang) * (w * 0.35);
-            const py0 = -h + Math.sin(ang) * (w * 0.25);
-            const px1 = cx + Math.cos(ang) * (w * 0.35 + petalR);
-            const py1 = -h + Math.sin(ang) * (w * 0.25 + petalR * 0.75);
-            const perpA = ang + HALF_PI;
-            const pw = 3.5 * sc;
-            ctx.beginPath();
-            ctx.moveTo(px0 - Math.cos(perpA) * pw, py0 - Math.sin(perpA) * pw);
-            ctx.lineTo(px1, py1);
-            ctx.lineTo(px0 + Math.cos(perpA) * pw, py0 + Math.sin(perpA) * pw);
-            ctx.closePath(); ctx.fill(); ctx.stroke();
-          }
-          ctx.beginPath(); ctx.ellipse(cx, -h, w * 0.30, w * 0.20, 0, 0, TWO_PI); ctx.fill(); ctx.stroke();
-        }
-
-        drawFlower(-24 * sc, 28 * sc, 55 * sc * hm, 12, 18 * sc);
-        drawFlower(22 * sc, 34 * sc, 78 * sc * hm, 14, 22 * sc);
-      }
-    },
-
-    // 16: SEAWEED CLUMP (Row 4, Col 1)
-    {
-      id: 'seaweed_clump',
-      gridRow: 4, gridCol: 1,
-      common: 'Rumpun Daun Rumput Kali',
-      binomen: 'Potamogeton crispus',
-      desc: 'Gugusan daun air berujung runcing dengan lekukan kurva anggun yang bertumpu pada batu kerikil danau.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        if (opts.showPebbles !== false) {
-          drawPebble(ctx, -14 * sc, 5 * sc, 18 * sc, 9 * sc, -0.05, opts.strokeColor, opts.fillColor, opts.lineWidth);
-          drawPebble(ctx, 16 * sc, 6 * sc, 18 * sc, 9 * sc, 0.05, opts.strokeColor, opts.fillColor, opts.lineWidth);
-        }
-
-        const leaves = [
-          [-16, 0, -28, -40, -22, -80, -30, -110],
-          [-8, 0, -14, -50, -4, -95, -12, -130],
-          [2, 0, 6, -55, 0, -100, 4, -135],
-          [10, 0, 20, -45, 14, -85, 22, -118],
-          [18, 0, 30, -35, 24, -70, 32, -95]
-        ];
-        leaves.forEach(([x0, y0, cx1, cy1, cx2, cy2, tx, ty]) => {
-          ctx.beginPath();
-          ctx.moveTo((x0 - 3.5) * sc, y0 * sc);
-          ctx.bezierCurveTo((cx1 - 5) * sc, cy1 * sc * hm, (cx2 - 4) * sc, cy2 * sc * hm, tx * sc, ty * sc * hm);
-          ctx.bezierCurveTo((cx2 + 4) * sc, cy2 * sc * hm, (cx1 + 5) * sc, cy1 * sc * hm, (x0 + 3.5) * sc, y0 * sc);
-          ctx.closePath(); ctx.fill(); ctx.stroke();
-        });
-      }
-    },
-
-    // 17: PIPE SPONGE BUNDLE (Row 4, Col 2)
-    {
-      id: 'pipe_bundle',
-      gridRow: 4, gridCol: 2,
-      common: 'Bundel Tabung Spons Miring',
-      binomen: 'Aplysina fistularis',
-      desc: 'Sekelompok tabung spons berpenampang miring dengan bibir elips terbuka dan garis alur sumbu memanjang.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        const pipes = [
-          { cx: -32 * sc, ang: -0.42, w: 18 * sc, h: 65 * sc * hm },
-          { cx: -15 * sc, ang: -0.18, w: 20 * sc, h: 90 * sc * hm },
-          { cx: 8 * sc, ang: 0.08, w: 22 * sc, h: 98 * sc * hm },
-          { cx: 28 * sc, ang: 0.32, w: 19 * sc, h: 75 * sc * hm }
-        ];
-
-        pipes.forEach(pipe => {
-          ctx.save();
-          ctx.translate(pipe.cx, 0);
-          ctx.rotate(pipe.ang);
-
-          ctx.beginPath();
-          ctx.moveTo(-pipe.w * 0.5, 0);
-          ctx.lineTo(-pipe.w * 0.44, -pipe.h);
-          ctx.lineTo(pipe.w * 0.44, -pipe.h);
-          ctx.lineTo(pipe.w * 0.5, 0);
-          ctx.closePath(); ctx.fill(); ctx.stroke();
-
-          ctx.beginPath(); ctx.ellipse(0, -pipe.h, pipe.w * 0.48, pipe.w * 0.24, 0, 0, TWO_PI); ctx.fill(); ctx.stroke();
-          ctx.beginPath(); ctx.ellipse(0, -pipe.h, pipe.w * 0.30, pipe.w * 0.15, 0, 0, TWO_PI); ctx.stroke();
-
-          ctx.beginPath(); ctx.moveTo(0, -pipe.h + pipe.w * 0.24); ctx.lineTo(0, 0); ctx.stroke();
-
-          if (opts.showDots !== false) {
-            ctx.fillStyle = opts.strokeColor;
-            [[-pipe.w * 0.22, -pipe.h * 0.4], [pipe.w * 0.22, -pipe.h * 0.6]].forEach(([dx, dy]) => {
-              ctx.beginPath(); ctx.arc(dx, dy, 1.8 * sc, 0, TWO_PI); ctx.fill();
-            });
-            ctx.fillStyle = opts.fillColor;
-          }
-          ctx.restore();
-        });
-      }
-    },
-
-    // 18: ZIGZAG KNOBBY (Row 4, Col 3)
-    {
-      id: 'zigzag_knobby',
-      gridRow: 4, gridCol: 3,
-      common: 'Ranting Berbuku Zigzag Bersusun',
-      binomen: 'Pocillopora verrucosa',
-      desc: 'Pohon kalsit kokoh dengan tonjolan buku berselang-seling kiri dan kanan berhias mata cincin koralit.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        ctx.beginPath();
-        ctx.moveTo(-10 * sc, 0);
-        ctx.lineTo(-12 * sc, -20 * sc * hm); ctx.lineTo(-28 * sc, -25 * sc * hm); ctx.arc(-32 * sc, -28 * sc * hm, 5 * sc, PI, 0); ctx.lineTo(-14 * sc, -36 * sc * hm);
-        ctx.lineTo(-14 * sc, -50 * sc * hm); ctx.lineTo(-34 * sc, -58 * sc * hm); ctx.arc(-38 * sc, -62 * sc * hm, 5 * sc, PI, 0); ctx.lineTo(-12 * sc, -70 * sc * hm);
-        ctx.lineTo(-10 * sc, -90 * sc * hm); ctx.arc(0, -98 * sc * hm, 9 * sc, PI, 0);
-        ctx.lineTo(10 * sc, -90 * sc * hm);
-        ctx.lineTo(12 * sc, -70 * sc * hm); ctx.lineTo(34 * sc, -62 * sc * hm); ctx.arc(38 * sc, -58 * sc * hm, 5 * sc, 0, PI); ctx.lineTo(14 * sc, -50 * sc * hm);
-        ctx.lineTo(14 * sc, -36 * sc * hm); ctx.lineTo(28 * sc, -28 * sc * hm); ctx.arc(32 * sc, -25 * sc * hm, 5 * sc, 0, PI); ctx.lineTo(12 * sc, -20 * sc * hm);
-        ctx.lineTo(10 * sc, 0);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-
-        if (opts.showDots !== false) {
-          [[-16, -42], [16, -42], [0, -65], [0, -30]].forEach(([dx, dy]) => {
-            ctx.beginPath(); ctx.arc(dx * sc, dy * sc * hm, 3.5 * sc, 0, TWO_PI); ctx.stroke();
-          });
-        }
-      }
-    },
-
-    // 19: FAN FINGER CUP (Row 4, Col 4)
-    {
-      id: 'fan_finger_cup',
-      gridRow: 4, gridCol: 4,
-      common: 'Kipas Jari Kalsit Cawan',
-      binomen: 'Tubipora musica',
-      desc: 'Bantalan kipas cekung setengah lingkaran yang melahirkan enam jari silinder tegak di atas hamparan kerikil.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        if (opts.showPebbles !== false) {
-          drawPebble(ctx, -22 * sc, 6 * sc, 14 * sc, 7 * sc, -0.1, opts.strokeColor, opts.fillColor, opts.lineWidth);
-          drawPebble(ctx, 0, 8 * sc, 16 * sc, 8 * sc, 0, opts.strokeColor, opts.fillColor, opts.lineWidth);
-          drawPebble(ctx, 22 * sc, 6 * sc, 14 * sc, 7 * sc, 0.1, opts.strokeColor, opts.fillColor, opts.lineWidth);
-        }
-
-        // U-shaped cradle
-        ctx.beginPath();
-        ctx.moveTo(-45 * sc, -10 * sc * hm);
-        ctx.quadraticCurveTo(-52 * sc, 12 * sc, -22 * sc, 18 * sc);
-        ctx.quadraticCurveTo(0, 22 * sc, 22 * sc, 18 * sc);
-        ctx.quadraticCurveTo(52 * sc, 12 * sc, 45 * sc, -10 * sc * hm);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-
-        const fingers = [-35 * sc, -21 * sc, -7 * sc, 7 * sc, 21 * sc, 35 * sc];
-        fingers.forEach(fx => {
-          const h = (45 + (1 - Math.abs(fx) / (45 * sc)) * 25) * sc * hm;
-          ctx.beginPath();
-          ctx.moveTo(fx - 5 * sc, 0);
-          ctx.lineTo(fx - 5 * sc, -h);
-          ctx.lineTo(fx + 5 * sc, -h);
-          ctx.lineTo(fx + 5 * sc, 0);
-          ctx.closePath(); ctx.fill(); ctx.stroke();
-
-          ctx.beginPath(); ctx.ellipse(fx, -h, 5 * sc, 2.8 * sc, 0, 0, TWO_PI); ctx.fill(); ctx.stroke();
-          ctx.beginPath(); ctx.ellipse(fx, -h, 2.8 * sc, 1.5 * sc, 0, 0, TWO_PI); ctx.stroke();
-        });
-
-        if (opts.showDots !== false) {
-          ctx.fillStyle = opts.strokeColor;
-          fingers.forEach(fx => {
-            [-12, -24, -36].forEach(dy => {
-              ctx.beginPath(); ctx.arc(fx, dy * sc * hm, 1.4 * sc, 0, TWO_PI); ctx.fill();
-            });
-          });
-          ctx.fillStyle = opts.fillColor;
-        }
-      }
-    },
-
-    // 20: SPOUT PIPE TREE (Row 4, Col 5)
-    {
-      id: 'spout_pipe_tree',
-      gridRow: 4, gridCol: 5,
-      common: 'Pohon Pipa Cerobong Moncong',
-      binomen: 'Dendrophyllia ramea',
-      desc: 'Batang silinder utama bergaris gelang trap dengan empat cerobong siku menyamping berlubang koralit terbuka.',
-      draw: function(ctx, p, opts) {
-        const sc = p.scale;
-        const hm = p.hMult;
-        const tw = 18 * sc, th = 110 * sc * hm;
-
-        ctx.beginPath();
-        ctx.moveTo(-tw * 0.5, 0);
-        ctx.lineTo(-tw * 0.45, -th);
-        ctx.lineTo(tw * 0.45, -th);
-        ctx.lineTo(tw * 0.5, 0);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-
-        if (opts.showBands !== false) {
-          [-20, -42, -68, -92].forEach(sy => {
-            ctx.beginPath(); ctx.moveTo(-tw * 0.48, sy * sc * hm); ctx.lineTo(tw * 0.48, sy * sc * hm); ctx.stroke();
-          });
-        }
-
-        const nozzles = [
-          { isLeft: true, ny: -30 * sc * hm, len: 14 * sc, rx: 6 * sc, ry: 3.5 * sc },
-          { isLeft: false, ny: -50 * sc * hm, len: 13 * sc, rx: 5.5 * sc, ry: 3.5 * sc },
-          { isLeft: true, ny: -75 * sc * hm, len: 12 * sc, rx: 5 * sc, ry: 3 * sc },
-          { isLeft: false, ny: -98 * sc * hm, len: 20 * sc, rx: 7.5 * sc, ry: 4 * sc }
-        ];
-
-        nozzles.forEach(nz => {
-          const dir = nz.isLeft ? -1 : 1;
-          const edgeX = dir * tw * 0.46;
-          const tipX = edgeX + dir * nz.len;
-          ctx.beginPath();
-          ctx.moveTo(edgeX, nz.ny - nz.ry * 0.85);
-          ctx.lineTo(tipX, nz.ny - nz.ry);
-          ctx.lineTo(tipX, nz.ny + nz.ry);
-          ctx.lineTo(edgeX, nz.ny + nz.ry * 0.85);
-          ctx.closePath(); ctx.fill(); ctx.stroke();
-
-          ctx.beginPath(); ctx.ellipse(tipX, nz.ny, nz.rx, nz.ry, 0, 0, TWO_PI); ctx.fill(); ctx.stroke();
-          ctx.beginPath(); ctx.ellipse(tipX, nz.ny, nz.rx * 0.55, nz.ry * 0.55, 0, 0, TWO_PI); ctx.stroke();
-        });
-
-        ctx.beginPath(); ctx.ellipse(-5 * sc, -th, 6.5 * sc, 3.8 * sc, -0.2, 0, TWO_PI); ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.ellipse(-5 * sc, -th, 3.5 * sc, 2 * sc, -0.2, 0, TWO_PI); ctx.stroke();
-        ctx.beginPath(); ctx.ellipse(6 * sc, -th - 6 * sc * hm, 7 * sc, 4 * sc, 0.2, 0, TWO_PI); ctx.fill(); ctx.stroke();
-        ctx.beginPath(); ctx.ellipse(6 * sc, -th - 6 * sc * hm, 4 * sc, 2.2 * sc, 0.2, 0, TWO_PI); ctx.stroke();
-      }
-    }
-  ];
-
-  // -----------------------------------------------------------------
-  // 3. Specimen Model Wrapper
+  // 3. Mathematical Single Coral Specimen
   // -----------------------------------------------------------------
   class CoralSpecimen {
     constructor(x, y, seed, config = {}) {
@@ -952,24 +152,385 @@
       this.seed = seed || `Coral_${Math.floor(rand() * 99999)}`;
       set_seed(this.seed);
 
-      // Determine style (0 to 19)
-      this.styleIdx = config.styleIdx !== undefined
-        ? (Number(config.styleIdx) % CORAL_PRESETS.length)
-        : Math.floor(rand() * CORAL_PRESETS.length);
+      this.archetype = config.archetype !== undefined ? config.archetype : CORAL_ARCHETYPES.BRANCHING;
+      this.morph = config.morph !== undefined && config.morph !== 'auto'
+        ? Number(config.morph)
+        : (config.morphPreset !== undefined ? config.morphPreset : Math.floor(rand() * 7));
 
       this.scale = config.scale || 1.0;
-      this.hMult = config.hMult || rndtri(0.85, 1.0, 1.25);
-      this.wMult = config.wMult || rndtri(0.88, 1.0, 1.20);
+      this.height = (config.height || rndtri(140, 180, 220)) * this.scale;
+      this.baseW = (config.baseW || rndtri(14, 22, 32)) * this.scale;
+      this.spread = (config.spread || rndtri(120, 160, 200)) * this.scale;
+      this.roughness = config.roughness !== undefined ? config.roughness : rndtri(0.12, 0.20, 0.32);
 
-      // Hydrodynamic sway
+      // Light vector (top-left sumi-e ambient light)
+      this.lightAngle = rndtri(-PI * 0.85, -PI * 0.65, -PI * 0.45);
+      this.lightVec = { x: Math.cos(this.lightAngle), y: Math.sin(this.lightAngle) };
+
+      // Hydrodynamic current phase
       this.swayPhase = rnd(0, TWO_PI);
-      this.swayAmp = 2.5 * this.scale;
+      this.swayAmp = (this.archetype === CORAL_ARCHETYPES.FAN ? 14 : 4) * this.scale;
       this.currentSwayX = 0;
+
+      // Internal structures
+      this.branches = [];
+      this.plates = [];
+      this.meanders = [];
+      this.meshLattice = [];
+      this.ruffles = [];
+      this.pillars = [];
+      this.polyps = [];
+      this.holdfastPts = [];
+
+      this.initHoldfast();
+      this.buildGeometry();
+    }
+
+    initHoldfast() {
+      // Basal calcified holdfast cementing coral to lakebed
+      this.holdfastPts = [];
+      const footW = this.baseW * 1.8;
+      const footH = this.baseW * 0.55;
+      const numPts = 16;
+      for (let i = 0; i <= numPts; i++) {
+        const u = (i / numPts - 0.5) * 2;
+        const px = u * footW;
+        const py = Math.pow(u, 2) * footH + rndtri(-2, 0, 2);
+        this.holdfastPts.push({ x: px, y: py });
+      }
+    }
+
+    buildGeometry() {
+      switch (this.archetype) {
+        case CORAL_ARCHETYPES.BRANCHING:
+          this.buildBranching();
+          break;
+        case CORAL_ARCHETYPES.BRAIN:
+          this.buildBrain();
+          break;
+        case CORAL_ARCHETYPES.TABLE:
+          this.buildTable();
+          break;
+        case CORAL_ARCHETYPES.FAN:
+          this.buildFan();
+          break;
+        case CORAL_ARCHETYPES.FOLIOSE:
+          this.buildFoliose();
+          break;
+        case CORAL_ARCHETYPES.PILLAR:
+          this.buildPillar();
+          break;
+        default:
+          this.buildBranching();
+      }
+    }
+
+    // --- 3.1 Branching Acropora (L-system recursive tree) ---
+    buildBranching() {
+      this.branches = [];
+      this.polyps = [];
+
+      const startW = this.baseW;
+      const rootLen = this.height * 0.38;
+
+      const queue = [
+        { x: 0, y: 0, angle: -HALF_PI, length: rootLen, width: startW, depth: 0 }
+      ];
+
+      const maxDepth = this.morph === CORAL_MORPHS.DENSE_BUSH ? 4 : 3;
+
+      while (queue.length > 0) {
+        const seg = queue.shift();
+        const endX = seg.x + Math.cos(seg.angle) * seg.length;
+        const endY = seg.y + Math.sin(seg.angle) * seg.length;
+
+        // Curve control point with natural upward buoyancy
+        const midX = (seg.x + endX) * 0.5 + rndtri(-6, 0, 6);
+        const midY = (seg.y + endY) * 0.5 - rndtri(2, 6, 12);
+
+        this.branches.push({
+          x0: seg.x, y0: seg.y,
+          cx: midX, cy: midY,
+          x1: endX, y1: endY,
+          width0: seg.width,
+          width1: Math.max(2.5, seg.width * 0.68),
+          depth: seg.depth
+        });
+
+        // Corallite calices (cups along branch edge)
+        const numCalices = Math.floor(rnd(3, 6));
+        for (let k = 1; k < numCalices; k++) {
+          const t = k / numCalices;
+          const bx = lerp(seg.x, endX, t);
+          const by = lerp(seg.y, endY, t);
+          const normA = seg.angle + (rand() < 0.5 ? HALF_PI : -HALF_PI);
+          this.polyps.push({
+            x: bx + Math.cos(normA) * (seg.width * 0.55),
+            y: by + Math.sin(normA) * (seg.width * 0.55),
+            r: rndtri(2.0, 3.2, 4.2),
+            angle: normA
+          });
+        }
+
+        if (seg.depth < maxDepth) {
+          const numChildren = (seg.depth === 0 && this.morph === CORAL_MORPHS.CLEFT_SPLIT) ? 2 : (rand() < 0.45 ? 3 : 2);
+          const spreadAng = (this.morph === CORAL_MORPHS.SPREADING ? 0.65 : 0.42);
+
+          for (let c = 0; c < numChildren; c++) {
+            const frac = numChildren === 1 ? 0 : (c / (numChildren - 1) - 0.5) * 2;
+            const childAngle = seg.angle + frac * spreadAng + rndtri(-0.15, 0, 0.15);
+            const childLen = seg.length * rndtri(0.65, 0.78, 0.88);
+            const childW = seg.width * 0.68;
+
+            queue.push({
+              x: endX, y: endY,
+              angle: childAngle,
+              length: childLen,
+              width: childW,
+              depth: seg.depth + 1
+            });
+          }
+        }
+      }
+    }
+
+    // --- 3.2 Brain Coral (Labyrinthine Gyri & Sulci) ---
+    buildBrain() {
+      this.meanders = [];
+      this.polyps = [];
+
+      const domeRx = this.spread * 0.52;
+      const domeRy = this.height * 0.65;
+      const centerY = -domeRy * 0.85;
+
+      // Outer dome silhouette points
+      this.domePts = [];
+      const numDome = 48;
+      for (let i = 0; i <= numDome; i++) {
+        const theta = PI + (i / numDome) * PI;
+        const cosT = Math.cos(theta);
+        const sinT = Math.sin(theta);
+        const baseR = (domeRx * domeRy) / Math.hypot(domeRy * cosT, domeRx * sinT);
+        const perturb = 1.0 + rndtri(-0.06, 0, 0.06);
+        this.domePts.push({
+          x: cosT * baseR * perturb,
+          y: centerY + sinT * baseR * perturb
+        });
+      }
+
+      // Generate undulating meander ridge curves inside the dome
+      const numBands = 9;
+      for (let b = 1; b < numBands; b++) {
+        const frac = b / numBands;
+        const bandRy = domeRy * (1 - frac * 0.85);
+        const bandRx = domeRx * (1 - frac * 0.85);
+        const bandCenterY = centerY + frac * (domeRy * 0.35);
+
+        const pts = [];
+        const steps = 36;
+        for (let s = 0; s <= steps; s++) {
+          const theta = PI + (s / steps) * PI;
+          // Meander sinusoidal jitter (brain convolution)
+          const freq = 7.0 + (b % 3);
+          const amp = 6.0 * (1 - frac * 0.3);
+          const rOff = Math.sin(theta * freq + b * 1.4) * amp;
+
+          const baseR = (bandRx * bandRy) / Math.hypot(bandRy * Math.cos(theta), bandRx * Math.sin(theta));
+          const r = Math.max(10, baseR + rOff);
+          pts.push({
+            x: Math.cos(theta) * r,
+            y: bandCenterY + Math.sin(theta) * r
+          });
+        }
+        this.meanders.push(pts);
+      }
+    }
+
+    // --- 3.3 Table Coral (Cantilevered Horizontal Tiered Discs) ---
+    buildTable() {
+      this.plates = [];
+      this.polyps = [];
+
+      const numTiers = this.morph === CORAL_MORPHS.TIERED_STEP ? 4 : (this.morph === CORAL_MORPHS.TALL_SPIRE ? 2 : 3);
+      const topW = this.spread * 0.55;
+
+      for (let t = 0; t < numTiers; t++) {
+        const frac = t / (numTiers);
+        const plateY = -this.height * (0.45 + frac * 0.50);
+        const plateRx = topW * (0.65 + frac * 0.45);
+        const plateRy = plateRx * 0.28; // 2.5D perspective flatten
+        const shiftX = rndtri(-12, 0, 12);
+
+        const rimPts = [];
+        const numRim = 36;
+        for (let i = 0; i <= numRim; i++) {
+          const th = (i / numRim) * TWO_PI;
+          const rMod = 1.0 + Math.sin(th * 12) * 0.04 + rndtri(-0.03, 0, 0.03);
+          rimPts.push({
+            x: shiftX + Math.cos(th) * plateRx * rMod,
+            y: plateY + Math.sin(th) * plateRy * rMod
+          });
+        }
+
+        // Under-plate support struts
+        const struts = [];
+        const numStruts = 6;
+        for (let s = 0; s < numStruts; s++) {
+          const a = (s / numStruts) * PI;
+          struts.push({
+            x0: 0, y0: plateY + plateRy * 0.6,
+            x1: shiftX + Math.cos(a) * plateRx * 0.85,
+            y1: plateY + Math.sin(a) * plateRy * 0.85
+          });
+        }
+
+        this.plates.push({
+          y: plateY,
+          rx: plateRx,
+          ry: plateRy,
+          shiftX,
+          rimPts,
+          struts
+        });
+      }
+
+      // Sort plates from top to bottom
+      this.plates.sort((a, b) => a.y - b.y);
+    }
+
+    // --- 3.4 Sea Fan (Anastomosing Reticular Lattice) ---
+    buildFan() {
+      this.meshLattice = [];
+      this.polyps = [];
+
+      const fanH = this.height * 0.95;
+      const fanW = this.spread * 0.55;
+
+      // Primary radial ribs
+      const numRibs = 14;
+      const ribs = [];
+      for (let r = 0; r < numRibs; r++) {
+        const u = (r / (numRibs - 1) - 0.5) * 2;
+        const targetAng = -HALF_PI + u * (PI * 0.38);
+        const len = fanH * (0.85 + (1 - Math.abs(u)) * 0.25);
+
+        const pts = [];
+        const steps = 8;
+        for (let s = 0; s <= steps; s++) {
+          const t = s / steps;
+          const curAng = lerp(-HALF_PI, targetAng, t);
+          const curLen = len * t;
+          pts.push({
+            x: Math.cos(curAng) * curLen + rndtri(-2, 0, 2),
+            y: Math.sin(curAng) * curLen
+          });
+        }
+        ribs.push(pts);
+      }
+
+      // Horizontal cross-connecting lattice rungs
+      const rungs = [];
+      const numRungs = 12;
+      for (let l = 1; l < numRungs; l++) {
+        const t = l / numRungs;
+        const rungPts = [];
+        for (let r = 0; r < numRibs; r++) {
+          const stepIdx = Math.min(ribs[r].length - 1, Math.floor(t * (ribs[r].length - 1)));
+          rungPts.push(ribs[r][stepIdx]);
+        }
+        rungs.push(rungPts);
+      }
+
+      this.meshLattice = { ribs, rungs };
+    }
+
+    // --- 3.5 Foliose / Cup Coral (Conchoid Petaloid Whorls) ---
+    buildFoliose() {
+      this.ruffles = [];
+      this.polyps = [];
+
+      const numCups = this.morph === CORAL_MORPHS.DENSE_BUSH ? 5 : 3;
+      for (let c = 0; c < numCups; c++) {
+        const frac = c / numCups;
+        const cupCenterY = -this.height * (0.35 + frac * 0.55);
+        const cupRx = this.spread * (0.35 + (1 - frac) * 0.25);
+        const cupRy = cupRx * 0.45;
+        const offX = rndtri(-18, 0, 18);
+
+        const petalPts = [];
+        const numPts = 42;
+        for (let i = 0; i <= numPts; i++) {
+          const th = (i / numPts) * TWO_PI;
+          // Harmonic wavy ruffle edge
+          const ruffle = 1.0 + Math.sin(th * 6.0 + c * 1.8) * 0.16 + Math.cos(th * 3.0) * 0.08;
+          petalPts.push({
+            x: offX + Math.cos(th) * cupRx * ruffle,
+            y: cupCenterY + Math.sin(th) * cupRy * ruffle
+          });
+        }
+
+        // Internal radial septa striations
+        const striations = [];
+        const numStriae = 16;
+        for (let s = 0; s < numStriae; s++) {
+          const a = (s / numStriae) * TWO_PI;
+          striations.push({
+            x0: offX, y0: cupCenterY,
+            x1: offX + Math.cos(a) * cupRx * 0.85,
+            y1: cupCenterY + Math.sin(a) * cupRy * 0.85
+          });
+        }
+
+        this.ruffles.push({
+          y: cupCenterY,
+          offX,
+          rx: cupRx,
+          ry: cupRy,
+          petalPts,
+          striations
+        });
+      }
+
+      this.ruffles.sort((a, b) => a.y - b.y);
+    }
+
+    // --- 3.6 Pillar & Pipe Coral (Vertical Clustered Cylinders) ---
+    buildPillar() {
+      this.pillars = [];
+      this.polyps = [];
+
+      const numCols = Math.floor(rnd(4, 7));
+      const colWidth = this.baseW * 0.95;
+      const spanW = this.spread * 0.65;
+
+      for (let i = 0; i < numCols; i++) {
+        const u = (i / (numCols - 1) - 0.5) * 2;
+        const colX = u * spanW * 0.5 + rndtri(-6, 0, 6);
+        const colH = this.height * (0.65 + (1 - Math.abs(u) * 0.45) * 0.35 + rndtri(-0.1, 0, 0.1));
+        const w = colWidth * rndtri(0.75, 1.0, 1.25);
+
+        // Fluted vertical grooves
+        const grooves = [];
+        const numG = 3;
+        for (let g = 0; g < numG; g++) {
+          const gx = colX + (g - 1) * (w * 0.35);
+          grooves.push({ x0: gx, y0: 0, x1: gx, y1: -colH });
+        }
+
+        this.pillars.push({
+          x: colX,
+          height: colH,
+          width: w,
+          grooves
+        });
+      }
+
+      this.pillars.sort((a, b) => Math.abs(a.x) - Math.abs(b.x));
     }
 
     update(dt, waterFlow = 0) {
-      this.swayPhase += dt * 1.5;
-      this.currentSwayX = Math.sin(this.swayPhase) * this.swayAmp + waterFlow * 4;
+      this.swayPhase += dt * 1.4;
+      this.currentSwayX = Math.sin(this.swayPhase) * this.swayAmp + waterFlow * 8;
     }
 
     render(ctx, options = {}) {
@@ -978,54 +539,359 @@
 
       const theme = options.theme || 'washi';
       const isMidnight = theme === 'midnight';
-      const strokeColor = options.strokeColor || (isMidnight ? '#f0f0f0' : '#151515');
-      const fillColor = options.fillColor || (isMidnight ? '#191e28' : '#ffffff');
-      const lineWidth = (options.lineWidth || 2.4);
+      const strokeColor = options.strokeColor || (isMidnight ? '#f0f0f0' : '#111111');
+      const lineWidth = options.lineWidth || 1.15;
 
-      // Optional drop shadow
+      // 100% STRICTLY MONOCHROME PALETTE
+      const baseWash = isMidnight
+        ? (options.coralWash || 'rgba(255, 255, 255, 0.08)')
+        : (options.coralWash || 'rgba(35, 35, 35, 0.08)');
+
+      const shadowWash = isMidnight
+        ? 'rgba(0, 0, 0, 0.60)'
+        : 'rgba(20, 20, 20, 0.24)';
+
+      const highlightWash = isMidnight
+        ? 'rgba(255, 255, 255, 0.18)'
+        : 'rgba(255, 255, 255, 0.55)';
+
+      const polypInk = isMidnight
+        ? 'rgba(240, 240, 240, 0.75)'
+        : 'rgba(15, 15, 15, 0.80)';
+
+      const dropShadowColor = isMidnight
+        ? 'rgba(0, 0, 0, 0.45)'
+        : 'rgba(0, 0, 0, 0.14)';
+
+      // 1. Soft underwater ground drop shadow
       if (options.showShadow !== false) {
         ctx.save();
         ctx.beginPath();
-        ctx.ellipse(0, 6 * this.scale, 45 * this.scale * this.wMult, 10 * this.scale, 0, 0, TWO_PI);
-        ctx.fillStyle = isMidnight ? 'rgba(0, 0, 0, 0.45)' : 'rgba(40, 40, 40, 0.08)';
+        ctx.ellipse(0, 8, this.spread * 0.45, 12, 0, 0, TWO_PI);
+        ctx.fillStyle = dropShadowColor;
         ctx.fill();
         ctx.restore();
       }
 
-      // Current sway transform
-      ctx.save();
-      ctx.transform(1, 0, this.currentSwayX / 600, 1, 0, 0);
+      // 2. Basal Holdfast Anchor
+      if (this.holdfastPts.length > 2 && options.showHoldfast !== false) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(this.holdfastPts[0].x, this.holdfastPts[0].y);
+        for (let i = 1; i < this.holdfastPts.length; i++) {
+          ctx.lineTo(this.holdfastPts[i].x, this.holdfastPts[i].y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = baseWash;
+        ctx.fill();
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = lineWidth * 0.9;
+        ctx.stroke();
+        ctx.restore();
+      }
 
-      ctx.lineWidth = lineWidth;
+      // Dynamic subtle hydrodynamic sway transform
+      ctx.save();
+      const swayX = this.currentSwayX;
+      ctx.transform(1, 0, swayX / 600, 1, 0, 0);
+
+      // 3. Render According to Archetype
+      switch (this.archetype) {
+        case CORAL_ARCHETYPES.BRANCHING:
+          this.renderBranching(ctx, strokeColor, lineWidth, baseWash, shadowWash, polypInk, options);
+          break;
+        case CORAL_ARCHETYPES.BRAIN:
+          this.renderBrain(ctx, strokeColor, lineWidth, baseWash, shadowWash, options);
+          break;
+        case CORAL_ARCHETYPES.TABLE:
+          this.renderTable(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options);
+          break;
+        case CORAL_ARCHETYPES.FAN:
+          this.renderFan(ctx, strokeColor, lineWidth, baseWash, shadowWash, options);
+          break;
+        case CORAL_ARCHETYPES.FOLIOSE:
+          this.renderFoliose(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options);
+          break;
+        case CORAL_ARCHETYPES.PILLAR:
+          this.renderPillar(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options);
+          break;
+      }
+
+      // 4. Corallite Polyps (Cups / Dots)
+      if (this.polyps.length > 0 && options.showPolyps !== false) {
+        ctx.save();
+        ctx.fillStyle = polypInk;
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = lineWidth * 0.6;
+        for (const p of this.polyps) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, TWO_PI);
+          ctx.fill();
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      ctx.restore(); // Exit sway transform
+      ctx.restore(); // Exit root translate
+    }
+
+    renderBranching(ctx, strokeColor, lineWidth, baseWash, shadowWash, polypInk, options) {
+      ctx.save();
       ctx.strokeStyle = strokeColor;
-      ctx.fillStyle = fillColor;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
-      const preset = CORAL_PRESETS[this.styleIdx] || CORAL_PRESETS[0];
-      const p = {
-        scale: this.scale * this.wMult,
-        hMult: this.hMult
-      };
+      for (const b of this.branches) {
+        // Shaded branch stroke
+        ctx.beginPath();
+        ctx.moveTo(b.x0, b.y0);
+        ctx.quadraticCurveTo(b.cx, b.cy, b.x1, b.y1);
 
-      const renderOpts = {
-        strokeColor,
-        fillColor,
-        lineWidth,
-        showDots: options.showPolyps !== false,
-        showBands: options.showVolumeRings !== false,
-        showPebbles: options.showPebbles !== false
-      };
+        ctx.lineWidth = b.width0;
+        ctx.strokeStyle = baseWash;
+        ctx.stroke();
 
-      preset.draw(ctx, p, renderOpts);
+        // Outline contour
+        ctx.lineWidth = Math.max(0.8, lineWidth * (1 - b.depth * 0.18));
+        ctx.strokeStyle = strokeColor;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
 
-      ctx.restore(); // Exit sway
-      ctx.restore(); // Exit root translate
+    renderBrain(ctx, strokeColor, lineWidth, baseWash, shadowWash, options) {
+      if (!this.domePts || this.domePts.length < 3) return;
+
+      // 1. Dome Silhouette & Base Wash
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(this.domePts[0].x, this.domePts[0].y);
+      for (let i = 1; i < this.domePts.length; i++) {
+        ctx.lineTo(this.domePts[i].x, this.domePts[i].y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = baseWash;
+      ctx.fill();
+
+      // Clip to dome for internal meander valleys
+      ctx.save();
+      ctx.clip();
+
+      // Shadow on lower-right
+      ctx.beginPath();
+      ctx.ellipse(this.spread * 0.15, -this.height * 0.25, this.spread * 0.45, this.height * 0.35, 0.2, 0, TWO_PI);
+      ctx.fillStyle = shadowWash;
+      ctx.fill();
+
+      // 2. Meandering Gyri / Sulci lines
+      if (options.showMeanders !== false) {
+        ctx.strokeStyle = strokeColor;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        for (const line of this.meanders) {
+          ctx.beginPath();
+          ctx.lineWidth = Math.max(0.6, lineWidth * 0.85);
+          ctx.moveTo(line[0].x, line[0].y);
+          for (let i = 1; i < line.length; i++) {
+            ctx.lineTo(line[i].x, line[i].y);
+          }
+          ctx.stroke();
+        }
+      }
+
+      ctx.restore(); // Exit clip
+
+      // Outer boundary stroke
+      ctx.beginPath();
+      ctx.moveTo(this.domePts[0].x, this.domePts[0].y);
+      for (let i = 1; i < this.domePts.length; i++) {
+        ctx.lineTo(this.domePts[i].x, this.domePts[i].y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = lineWidth * 1.1;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    renderTable(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options) {
+      ctx.save();
+
+      // 1. Main Trunk Holdfast
+      ctx.beginPath();
+      ctx.moveTo(-this.baseW * 0.6, 0);
+      ctx.lineTo(-this.baseW * 0.35, -this.height * 0.75);
+      ctx.lineTo(this.baseW * 0.35, -this.height * 0.75);
+      ctx.lineTo(this.baseW * 0.6, 0);
+      ctx.closePath();
+      ctx.fillStyle = shadowWash;
+      ctx.fill();
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = lineWidth;
+      ctx.stroke();
+
+      // 2. Tiered Horizontal Plates
+      for (const p of this.plates) {
+        // Struts beneath plate
+        if (p.struts) {
+          ctx.save();
+          ctx.strokeStyle = strokeColor;
+          ctx.lineWidth = lineWidth * 0.75;
+          ctx.globalAlpha = 0.55;
+          for (const s of p.struts) {
+            ctx.beginPath();
+            ctx.moveTo(s.x0, s.y0);
+            ctx.lineTo(s.x1, s.y1);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // Plate disc fill
+        ctx.beginPath();
+        ctx.moveTo(p.rimPts[0].x, p.rimPts[0].y);
+        for (let i = 1; i < p.rimPts.length; i++) {
+          ctx.lineTo(p.rimPts[i].x, p.rimPts[i].y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = baseWash;
+        ctx.fill();
+
+        // Rim highlight & contour
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    renderFan(ctx, strokeColor, lineWidth, baseWash, shadowWash, options) {
+      if (!this.meshLattice || !this.meshLattice.ribs) return;
+      ctx.save();
+
+      // Stem
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, -this.height * 0.22);
+      ctx.lineWidth = this.baseW * 0.65;
+      ctx.strokeStyle = strokeColor;
+      ctx.stroke();
+
+      // Reticulated Ribs
+      ctx.strokeStyle = strokeColor;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      for (const rib of this.meshLattice.ribs) {
+        ctx.beginPath();
+        ctx.lineWidth = Math.max(0.6, lineWidth * 0.75);
+        ctx.moveTo(rib[0].x, rib[0].y);
+        for (let i = 1; i < rib.length; i++) {
+          ctx.lineTo(rib[i].x, rib[i].y);
+        }
+        ctx.stroke();
+      }
+
+      // Horizontal Lattice Rungs
+      for (const rung of this.meshLattice.rungs) {
+        ctx.beginPath();
+        ctx.lineWidth = Math.max(0.4, lineWidth * 0.5);
+        ctx.globalAlpha = 0.65;
+        ctx.moveTo(rung[0].x, rung[0].y);
+        for (let i = 1; i < rung.length; i++) {
+          ctx.lineTo(rung[i].x, rung[i].y);
+        }
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    renderFoliose(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options) {
+      ctx.save();
+
+      for (const r of this.ruffles) {
+        // Ruffle Petal Plate
+        ctx.beginPath();
+        ctx.moveTo(r.petalPts[0].x, r.petalPts[0].y);
+        for (let i = 1; i < r.petalPts.length; i++) {
+          ctx.lineTo(r.petalPts[i].x, r.petalPts[i].y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = baseWash;
+        ctx.fill();
+
+        // Septa striations radiating outward
+        if (r.striations && options.showStriations !== false) {
+          ctx.save();
+          ctx.strokeStyle = strokeColor;
+          ctx.lineWidth = Math.max(0.4, lineWidth * 0.5);
+          ctx.globalAlpha = 0.45;
+          for (const s of r.striations) {
+            ctx.beginPath();
+            ctx.moveTo(s.x0, s.y0);
+            ctx.lineTo(s.x1, s.y1);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = lineWidth * 1.05;
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    renderPillar(ctx, strokeColor, lineWidth, baseWash, shadowWash, highlightWash, options) {
+      ctx.save();
+
+      for (const p of this.pillars) {
+        const topY = -p.height;
+        const rad = p.width * 0.5;
+
+        // Pillar column body
+        ctx.beginPath();
+        ctx.moveTo(p.x - rad, 0);
+        ctx.lineTo(p.x - rad, topY + rad);
+        ctx.arc(p.x, topY + rad, rad, PI, 0);
+        ctx.lineTo(p.x + rad, 0);
+        ctx.closePath();
+
+        ctx.fillStyle = baseWash;
+        ctx.fill();
+
+        // Grooves
+        if (p.grooves && options.showGrooves !== false) {
+          ctx.save();
+          ctx.strokeStyle = strokeColor;
+          ctx.lineWidth = Math.max(0.5, lineWidth * 0.65);
+          ctx.globalAlpha = 0.5;
+          for (const g of p.grooves) {
+            ctx.beginPath();
+            ctx.moveTo(g.x0, g.y0);
+            ctx.lineTo(g.x1, g.y1);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+      }
+
+      ctx.restore();
     }
   }
 
   // -----------------------------------------------------------------
-  // 4. Composite Colony & Reef
+  // 4. Composite Multi-Coral Colony
   // -----------------------------------------------------------------
   class CoralColony {
     constructor(x, y, seed, options = {}) {
@@ -1034,37 +900,59 @@
       this.seed = seed || `Colony_${Math.floor(rand() * 99999)}`;
       set_seed(this.seed);
 
-      this.styleIdx = options.styleIdx !== undefined ? options.styleIdx : 0;
-      this.scale = options.scale || 1.0;
+      let profile = CORAL_CATALOG.find(c => c.id === options.coralId || c.binomen === this.seed || c.common === this.seed);
+      if (!profile) {
+        const parsedArch = options.archetype !== undefined ? options.archetype : choice([0, 1, 2, 3, 4, 5]);
+        profile = choice(CORAL_CATALOG.filter(c => c.archetype === parsedArch)) || CORAL_CATALOG[0];
+      }
+
+      this.profile = profile;
+      this.archetype = profile.archetype;
+      this.scale = (options.scale || rndtri(0.75, 1.0, 1.25)) * (options.scaleMult || 1.0);
+
       this.corals = [];
+      const numCorals = options.count !== undefined ? options.count : (options.single === true ? 1 : Math.floor(rnd(2, 4)));
 
-      const count = options.single === true ? 1 : Math.max(1, options.count || 1);
-
-      if (count <= 1) {
-        this.corals.push(new CoralSpecimen(0, 0, `${this.seed}_0`, {
-          styleIdx: this.styleIdx,
-          scale: this.scale,
-          hMult: options.hMult,
-          wMult: options.wMult
+      if (numCorals <= 1) {
+        // Single specimen
+        this.corals.push(new CoralSpecimen(0, 0, `${this.seed}_single`, {
+          archetype: this.archetype,
+          morph: options.morph !== undefined ? options.morph : profile.morph,
+          height: (options.height || profile.height) * this.scale,
+          baseW: (options.baseW || profile.baseW) * this.scale,
+          spread: (options.spread || profile.spread) * this.scale,
+          roughness: options.roughness !== undefined ? options.roughness : profile.roughness
         }));
       } else {
-        // Main specimen
+        // Natural clustered colony
+        const mainH = (options.height || profile.height) * this.scale;
+        const mainW = (options.spread || profile.spread) * this.scale;
+
         this.corals.push(new CoralSpecimen(0, 0, `${this.seed}_main`, {
-          styleIdx: this.styleIdx,
-          scale: this.scale * 1.05
+          archetype: this.archetype,
+          morph: options.morph !== undefined ? options.morph : profile.morph,
+          height: mainH,
+          baseW: (options.baseW || profile.baseW) * this.scale,
+          spread: mainW,
+          roughness: profile.roughness
         }));
 
-        // Satellite companions
-        for (let i = 1; i < count; i++) {
-          const u = (i / (count - 1) - 0.5) * 2;
-          const offX = u * 60 * this.scale + rndtri(-8, 0, 8);
-          const offY = rndtri(-4, 0, 4);
-          const satScale = rndtri(0.70, 0.85, 0.95) * this.scale;
+        for (let i = 1; i < numCorals; i++) {
+          const u = (i / (numCorals - 1) - 0.5) * 2;
+          const satScale = rndtri(0.48, 0.70, 0.88);
+          const offX = u * mainW * 0.42 + rndtri(-10, 0, 10);
+          const offY = rndtri(-8, 0, 8);
+
           this.corals.push(new CoralSpecimen(offX, offY, `${this.seed}_sat_${i}`, {
-            styleIdx: this.styleIdx,
-            scale: satScale
+            archetype: this.archetype,
+            morph: choice([0, 1, 2, 3, 4, 5, 6]),
+            height: mainH * satScale,
+            baseW: profile.baseW * satScale,
+            spread: mainW * satScale,
+            roughness: profile.roughness
           }));
         }
+
         this.corals.sort((a, b) => a.y - b.y);
       }
     }
@@ -1085,6 +973,9 @@
     }
   }
 
+  // -----------------------------------------------------------------
+  // 5. Coral Reef Ecosystem Manager (Barrier / Lakebed Reef)
+  // -----------------------------------------------------------------
   class CoralReef {
     constructor(options = {}) {
       this.colonies = [];
@@ -1098,20 +989,22 @@
       this.width = width;
       this.height = height;
 
-      const margin = 90;
+      const margin = 80;
       const step = (width - margin * 2) / Math.max(1, count - 1);
+      const archetypesPool = [0, 1, 2, 3, 4, 5];
 
       for (let i = 0; i < count; i++) {
-        const baseX = margin + i * step + rndtri(-25, 0, 25);
-        const baseY = height - rndtri(10, 22, 36);
+        const baseX = margin + i * step + rndtri(-40, 0, 40);
+        const baseY = height - rndtri(8, 20, 36);
         const colSeed = `${this.seed}_reef_${i}`;
-        const styleIdx = (i * 3 + Math.floor(rand() * 4)) % CORAL_PRESETS.length;
+        const arch = archetypesPool[i % archetypesPool.length];
+        const species = choice(CORAL_CATALOG.filter(c => c.archetype === arch)) || CORAL_CATALOG[0];
 
         const colony = new CoralColony(baseX, baseY, colSeed, {
-          styleIdx: styleIdx,
-          scale: rndtri(0.85, 1.05, 1.25),
-          single: rand() < 0.65,
-          count: Math.floor(rnd(2, 3))
+          coralId: species.id,
+          archetype: arch,
+          scale: rndtri(0.65, 0.90, 1.2),
+          count: arch === CORAL_ARCHETYPES.BRANCHING || arch === CORAL_ARCHETYPES.PILLAR ? Math.floor(rnd(2, 4)) : 1
         });
         this.colonies.push(colony);
       }
@@ -1137,22 +1030,20 @@
   }
 
   // -----------------------------------------------------------------
-  // 5. Public Module API
+  // 6. Public Module API
   // -----------------------------------------------------------------
   return {
     set_seed,
-    CORAL_PRESETS,
-    catalog: CORAL_PRESETS,
-    getCoralById: function(id) {
-      return CORAL_PRESETS.find(c => c.id === id) || CORAL_PRESETS[0];
-    },
-    getCoralList: function() {
-      return CORAL_PRESETS.slice();
-    },
+    CORAL_ARCHETYPES,
+    CORAL_MORPHS,
+    CORAL_CATALOG,
+    catalog: CORAL_CATALOG,
+    getCoralById,
+    getCoralList,
     CoralSpecimen,
     CoralColony,
     CoralReef,
-    createReef: function(options) {
+    createReef: function (options) {
       return new CoralReef(options);
     }
   };

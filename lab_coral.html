@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fishline • Laboratorium Terumbu Karang Air (20 Coral Doodles)</title>
+  <title>Fishline • Laboratorium Terumbu Karang Air (Coral Workbench)</title>
   <style>
     :root {
       --bg-wash: #f5f2e9;
@@ -146,7 +146,7 @@
 
     /* Left Parameter Sidebar */
     .lab-sidebar {
-      width: 390px;
+      width: 380px;
       background: var(--paper-card);
       border-right: 1px solid var(--paper-border);
       display: flex;
@@ -208,26 +208,15 @@
       border-color: var(--ink);
     }
 
-    /* 20 Presets Grid (2 columns or 4 rows x 5 columns) */
-    .preset-grid {
+    /* Archetype Grid */
+    .archetype-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 5px;
-      max-height: 220px;
-      overflow-y: auto;
-      padding-right: 2px;
+      gap: 6px;
     }
 
-    .preset-grid::-webkit-scrollbar {
-      width: 4px;
-    }
-    .preset-grid::-webkit-scrollbar-thumb {
-      background: var(--paper-border);
-      border-radius: 2px;
-    }
-
-    .btn-preset {
-      padding: 6px 8px;
+    .btn-arch {
+      padding: 8px 10px;
       font-size: 11px;
       font-weight: 600;
       background: var(--paper-card);
@@ -238,36 +227,25 @@
       text-align: left;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
       transition: all 0.15s ease;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
-    .btn-preset:hover {
+    .btn-arch:hover {
       border-color: var(--ink);
       color: var(--ink);
     }
 
-    .btn-preset.active {
+    .btn-arch.active {
       background: var(--ink);
       color: var(--bg-wash);
       border-color: var(--ink);
     }
 
-    .preset-num {
+    .arch-code {
       font-size: 10px;
       font-family: monospace;
       opacity: 0.75;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .preset-txt {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
     /* Botanical & Geological Info Card */
@@ -471,7 +449,7 @@
     <div class="lab-branding">
       <span class="lab-seal">珊</span>
       <span class="lab-title-text">Laboratorium Terumbu Karang Air</span>
-      <span class="lab-sub-badge">20 DOODLE CORAL PRESETS</span>
+      <span class="lab-sub-badge">CORAL & REEF ENGINE</span>
     </div>
 
     <nav class="lab-nav-links">
@@ -500,107 +478,165 @@
           <div style="display:flex; gap:6px;">
             <button class="btn-action-sm active" id="btn-mode-single" style="flex:1;">Karang Tunggal</button>
             <button class="btn-action-sm btn-action-outline" id="btn-mode-cluster" style="flex:1;">Rumpun Koloni</button>
-            <button class="btn-action-sm btn-action-outline" id="btn-mode-bed" style="flex:1;">Hamparan Terumbu</button>
+            <button class="btn-action-sm btn-action-outline" id="btn-mode-bed" style="flex:1;">Hamparan Karang (Reef)</button>
           </div>
         </div>
 
-        <!-- 2. Katalog 20 Gaya Karang Doodle Sesuai Gambar -->
+        <!-- 2. Katalog 24 Spesies Karang Terumbu -->
         <div class="control-group">
           <div class="group-label">
-            <span>20 Gaya Ilustrasi Doodle Karang</span>
-            <span class="lab-sub-badge">GRID 5×4</span>
+            <span>Katalog 24 Spesies Karang Air</span>
+            <span class="lab-sub-badge" id="lbl-catalog-count">24 SPESIES</span>
           </div>
 
-          <div class="preset-grid" id="preset-grid-container">
-            <!-- Dynamically populated with 20 presets -->
-          </div>
-
-          <button class="btn-stamp-action" id="btn-random-shape" style="width:100%; margin-top:4px;" title="Acak bentuk variasi baru tanpa ganti preset (Space / R)">
-            <span>🎲</span>
-            <span>Acak Bentuk Saja (Random Shape)</span>
-            <span style="margin-left:auto; font-size:10px; opacity:0.75; font-weight:500; border:1px solid currentColor; padding:1px 5px; border-radius:4px;">Space / R</span>
-          </button>
+          <select id="select-coral" class="select-field">
+            <!-- Dynamically populated with all 24 coral species -->
+          </select>
 
           <div style="display:flex; gap:6px;">
-            <button class="btn-action-sm btn-action-outline" id="btn-random-preset" style="flex:1;">Acak Koleksi (Random Preset)</button>
+            <button class="btn-action-sm btn-action-outline" id="btn-random-species" style="flex:1;">Acak Spesies</button>
             <button class="btn-action-sm btn-action-outline" id="btn-copy-name">Salin Nama</button>
           </div>
 
           <div class="botanical-info-card">
-            <div class="botanical-common-title" id="display-common-name">Cawan Terompet Tiga Tabung</div>
-            <div class="botanical-binomen" id="display-binomen">Caulastrea curvata (Baris 1, Kolom 1)</div>
+            <div class="botanical-common-title" id="display-common-name">Karang Tanduk Rusa</div>
+            <div class="botanical-binomen" id="display-binomen">Acropora cervicornis</div>
             <div class="botanical-desc" id="display-desc">
-              Tiga cawan terompet tegak melebar pada alas pasir bergelombang dengan gelang volume dan bibir elips ganda.
+              Karang bercabang silindris anggun dengan corak kelopak cangkir polip runcing menghadap cahaya.
             </div>
           </div>
         </div>
 
-        <!-- 3. Parameter Dimensi & Skala -->
+        <!-- 3. Arsitektur Bentuk Karang (6 Tipe Morfologi) -->
         <div class="control-group">
           <div class="group-label">
-            <span>Dimensi &amp; Ketebalan Garis</span>
+            <span>6 Arsitektur Morfologi Karang</span>
+          </div>
+
+          <div class="archetype-grid">
+            <button class="btn-arch active" data-arch="0" id="arch-btn-0">
+              <span class="arch-code">01</span>
+              <span>Ranting Acropora</span>
+            </button>
+            <button class="btn-arch" data-arch="1" id="arch-btn-1">
+              <span class="arch-code">02</span>
+              <span>Karang Otak Labirin</span>
+            </button>
+            <button class="btn-arch" data-arch="2" id="arch-btn-2">
+              <span class="arch-code">03</span>
+              <span>Karang Meja Piring</span>
+            </button>
+            <button class="btn-arch" data-arch="3" id="arch-btn-3">
+              <span class="arch-code">04</span>
+              <span>Kipas Laut Renda</span>
+            </button>
+            <button class="btn-arch" data-arch="4" id="arch-btn-4">
+              <span class="arch-code">05</span>
+              <span>Selada Cawan Ruffle</span>
+            </button>
+            <button class="btn-arch" data-arch="5" id="arch-btn-5">
+              <span class="arch-code">06</span>
+              <span>Tabung Pilar Tiang</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3.5 Profil Morfologi Siluet Bentuk (7 Morfologi Geometri) -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>7 Morfologi Siluet Bentuk</span>
+            <span class="lab-sub-badge" id="lbl-morph-count">7 PROFIL</span>
+          </div>
+
+          <select id="select-morph" class="select-field">
+            <option value="auto">Acak Sesuai Karakteristik Karang (Auto)</option>
+            <option value="0">01 Standar Botani (Standard Form)</option>
+            <option value="1">02 Melebar Horizontal (Horizontal Spreading)</option>
+            <option value="2">03 Menjulang Tinggi (Tall Spire / Flute)</option>
+            <option value="3">04 Rumpun Rapat Lebat (Dense Bush Cluster)</option>
+            <option value="4">05 Melengkung Arus (Curved Water Flow)</option>
+            <option value="5">06 Bertingkat Tangga (Tiered Step Trap)</option>
+            <option value="6">07 Patahan Terbelah (Cleft Fork Split)</option>
+          </select>
+
+          <button class="btn-stamp-action" id="btn-random-shape" style="width:100%; margin-top:8px;" title="Acak bentuk geometri karang tanpa ubah spesies (Space / R)">
+            <span>🎲</span>
+            <span>Acak Bentuk Saja (Random Shape)</span>
+            <span style="margin-left:auto; font-size:10px; opacity:0.75; font-weight:500; border:1px solid currentColor; padding:1px 5px; border-radius:4px;">Space / R</span>
+          </button>
+        </div>
+
+        <!-- 4. Parameter Dimensi, Tekstur & Gugusan -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>Dimensi, Rentang & Arus Air</span>
           </div>
 
           <div class="slider-field">
             <div class="slider-header">
-              <span>Skala Ukuran (Scale):</span>
-              <span class="slider-val" id="val-scale">1.00 &times;</span>
+              <span>Tinggi Karang Vertikal:</span>
+              <span class="slider-val" id="val-height">190 px</span>
             </div>
-            <input type="range" id="slider-scale" min="0.6" max="1.6" step="0.05" value="1.0">
+            <input type="range" id="slider-height" min="80" max="320" step="5" value="190">
           </div>
 
           <div class="slider-field">
             <div class="slider-header">
-              <span>Rasio Tinggi (Height Ratio):</span>
-              <span class="slider-val" id="val-height">1.00 &times;</span>
+              <span>Lebar Batang Dasar (Base Width):</span>
+              <span class="slider-val" id="val-basew">14 px</span>
             </div>
-            <input type="range" id="slider-height" min="0.75" max="1.45" step="0.05" value="1.0">
+            <input type="range" id="slider-basew" min="6" max="60" step="2" value="14">
           </div>
 
           <div class="slider-field">
             <div class="slider-header">
-              <span>Rasio Lebar (Spread Ratio):</span>
-              <span class="slider-val" id="val-width">1.00 &times;</span>
+              <span>Rentang Sebaran Mahkota (Spread):</span>
+              <span class="slider-val" id="val-spread">130 px</span>
             </div>
-            <input type="range" id="slider-width" min="0.75" max="1.40" step="0.05" value="1.0">
+            <input type="range" id="slider-spread" min="60" max="300" step="5" value="130">
           </div>
 
           <div class="slider-field">
             <div class="slider-header">
-              <span>Ketebalan Garis Tinta (Line Width):</span>
-              <span class="slider-val" id="val-linewidth">2.40 px</span>
+              <span>Kekasaran / Fraktur Alur (Roughness):</span>
+              <span class="slider-val" id="val-roughness">0.16</span>
             </div>
-            <input type="range" id="slider-linewidth" min="1.4" max="4.0" step="0.2" value="2.4">
+            <input type="range" id="slider-roughness" min="0.05" max="0.50" step="0.02" value="0.16">
           </div>
 
-          <div class="slider-field" id="group-cluster-count" style="display:none;">
+          <div class="slider-field" id="group-cluster-count">
             <div class="slider-header">
               <span>Jumlah Rumpun dalam Koloni:</span>
               <span class="slider-val" id="val-count">3 rumpun</span>
             </div>
-            <input type="range" id="slider-count" min="2" max="6" step="1" value="3">
+            <input type="range" id="slider-count" min="1" max="8" step="1" value="3">
           </div>
         </div>
 
-        <!-- 4. Lapisan Visual & Detail Anatomi -->
+        <!-- 5. Lapisan Visual Sumi-e & Anatomi -->
         <div class="control-group">
           <div class="group-label">
-            <span>Lapisan Gambar Garis &amp; Ornamen</span>
+            <span>Lapisan Visual & Anatomi Karang</span>
           </div>
 
           <label class="checkbox-row">
-            <input type="checkbox" id="chk-volumerings" checked>
-            <span>Garis Gelang Melingkar (Volume Bands)</span>
-          </label>
-
-          <label class="checkbox-row">
             <input type="checkbox" id="chk-polyps" checked>
-            <span>Bintik Pori &amp; Titik Koralit (Pores &amp; Dots)</span>
+            <span>Cangkir Polip & Koralit (Corallite Calices)</span>
           </label>
 
           <label class="checkbox-row">
-            <input type="checkbox" id="chk-pebbles" checked>
-            <span>Batu Kerikil Penopang Dasar (Base Pebbles)</span>
+            <input type="checkbox" id="chk-meanders" checked>
+            <span>Alur Labirin Meander Otak (Gyri / Sulci)</span>
+          </label>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-striations" checked>
+            <span>Garis Sekat Septa & Alur Pilar (Striations / Flutes)</span>
+          </label>
+
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-holdfast" checked>
+            <span>Kaki Jangkar Kalsit (Basal Holdfast Anchor)</span>
           </label>
 
           <label class="checkbox-row">
@@ -608,8 +644,16 @@
             <span>Bayangan Dasar Air (Submerged Drop Shadow)</span>
           </label>
 
-          <button class="btn-action-sm btn-action-outline" id="btn-export-png" style="width:100%; margin-top:6px;">
-            Unduh Snapshot Karang PNG
+          <div class="slider-field" style="margin-top:4px;">
+            <div class="slider-header">
+              <span>Ketebalan Garis Tinta:</span>
+              <span class="slider-val" id="val-linewidth">1.15 px</span>
+            </div>
+            <input type="range" id="slider-linewidth" min="0.6" max="2.6" step="0.1" value="1.15">
+          </div>
+
+          <button class="btn-action-sm btn-action-outline" id="btn-export-png" style="width:100%; margin-top:8px;">
+            Unduh Snapshot Terumbu PNG
           </button>
         </div>
 
@@ -619,7 +663,7 @@
     <!-- Right Viewport: Interactive Canvas -->
     <section class="lab-viewport" id="viewport-coral-container">
       <div style="position:absolute; top:18px; right:18px; z-index:10; display:flex; gap:8px;">
-        <button class="btn-stamp-action" id="btn-floating-random-shape" style="padding:6px 12px; font-size:11px;" title="Acak bentuk karang tanpa ganti preset (Space / R)">
+        <button class="btn-stamp-action" id="btn-floating-random-shape" style="padding:6px 12px; font-size:11px;" title="Acak bentuk karang tanpa ubah spesies (Space / R)">
           <span>🎲</span>
           <span>Acak Bentuk (Shape)</span>
         </button>
@@ -628,15 +672,16 @@
       <canvas id="canvas-coral"></canvas>
 
       <div class="viewport-hint">
-        Klik di mana saja untuk memicu riak air dan lenturan alami terumbu
+        Klik di mana saja untuk melihat gelombang arus air dan riak lentur terumbu
       </div>
 
       <div class="viewport-hud">
-        <div>Gaya: <span id="hud-name" style="font-weight:700;">01. Cawan Terompet Tiga Tabung</span></div>
-        <div>Taksonomi: <span id="hud-binomen">Caulastrea curvata</span></div>
-        <div>Posisi Grid: <span id="hud-grid" style="font-weight:600;">Baris 1, Kolom 1 (Top-Left)</span></div>
-        <div>Gaya Visual: <span id="hud-style">Hand-Drawn Vector Line-Art</span></div>
-        <div>Palet: <span id="hud-palette" style="font-weight:600;">100% Monokrom Murni</span></div>
+        <div>Spesies: <span id="hud-name">Acropora cervicornis</span></div>
+        <div>Arsitektur: <span id="hud-arch">Ranting Acropora</span></div>
+        <div>Morfologi: <span id="hud-morph">Standar Botani</span></div>
+        <div>Kombinasi: <span id="hud-combo">451.584 Pola Makro (&infin; Kontinu)</span></div>
+        <div>Palet: <span id="hud-palette" style="color:var(--ink); font-weight:600;">Monokrom Murni (Hitam / Abu-abu / Putih)</span></div>
+        <div>Dimensi: <span id="hud-dim">190 &times; 130 px</span></div>
         <div>FPS: <span id="hud-fps">60</span></div>
       </div>
     </section>
@@ -662,55 +707,57 @@
           reef.resize(viewport.clientWidth, viewport.clientHeight);
         } else if (colony) {
           colony.x = viewport.clientWidth * 0.5;
-          colony.y = viewport.clientHeight * 0.76;
+          colony.y = viewport.clientHeight * 0.78;
         }
       }
       window.addEventListener('resize', resizeCanvas);
 
       // State variables
-      let viewMode = 'single';
+      let viewMode = 'single'; // 'single', 'cluster', 'bed'
       let currentTheme = 'washi';
-      const presets = coraldraw.CORAL_PRESETS;
-      let activePresetIdx = 0;
+      let activeSpecies = coraldraw.CORAL_CATALOG[0]; // Default: Staghorn
+      let activeArchetype = activeSpecies.archetype;
+      let activeMorph = 'auto';
 
-      let paramScale = 1.0;
-      let paramHeight = 1.0;
-      let paramWidth = 1.0;
-      let paramLineWidth = 2.4;
+      let paramHeight = activeSpecies.height;
+      let paramBaseW = activeSpecies.baseW;
+      let paramSpread = activeSpecies.spread;
+      let paramRoughness = activeSpecies.roughness;
       let paramCount = 3;
+      let paramLineWidth = 1.15;
 
-      let showVolumeRings = true;
       let showPolyps = true;
-      let showPebbles = true;
+      let showMeanders = true;
+      let showStriations = true;
+      let showHoldfast = true;
       let showShadow = true;
 
       const ripples = [];
-      let currentSeed = presets[0].binomen;
+      let currentSeed = activeSpecies.binomen;
 
-      // 1. Populate 20 Presets Grid
-      const gridContainer = document.getElementById('preset-grid-container');
-      presets.forEach((p, idx) => {
-        const btn = document.createElement('button');
-        btn.className = 'btn-preset' + (idx === 0 ? ' active' : '');
-        btn.id = `preset-btn-${idx}`;
-        btn.title = `${p.common} (${p.binomen}) - Baris ${p.gridRow}, Kolom ${p.gridCol}`;
+      // 1. Populate Coral Catalog Dropdown
+      const selectCoral = document.getElementById('select-coral');
+      const catalog = coraldraw.getCoralList();
+      const archGroupNames = [
+        '1. Karang Rusa / Ranting (Branching Acropora)',
+        '2. Karang Otak Labirin (Brain Coral)',
+        '3. Karang Piring Meja (Table Coral)',
+        '4. Kipas Laut Renda Lentur (Sea Fan)',
+        '5. Karang Selada Cawan (Foliose Lettuce)',
+        '6. Karang Tabung Pilar (Pillar Pipe)'
+      ];
 
-        const numSpan = document.createElement('span');
-        numSpan.className = 'preset-num';
-        numSpan.textContent = String(idx + 1).padStart(2, '0');
-
-        const txtSpan = document.createElement('span');
-        txtSpan.className = 'preset-txt';
-        txtSpan.textContent = p.common;
-
-        btn.appendChild(numSpan);
-        btn.appendChild(txtSpan);
-
-        btn.addEventListener('click', () => {
-          selectPreset(idx);
+      archGroupNames.forEach((groupName, gIdx) => {
+        const optGroup = document.createElement('optgroup');
+        optGroup.label = groupName;
+        const matching = catalog.filter(c => c.archetype === gIdx);
+        matching.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = `${c.common} (${c.binomen})`;
+          optGroup.appendChild(opt);
         });
-
-        gridContainer.appendChild(btn);
+        selectCoral.appendChild(optGroup);
       });
 
       // 2. Models
@@ -722,15 +769,19 @@
         coraldraw.set_seed(currentSeed);
         colony = new coraldraw.CoralColony(
           viewport.clientWidth * 0.5,
-          viewport.clientHeight * 0.76,
+          viewport.clientHeight * 0.78,
           currentSeed,
           {
-            styleIdx: activePresetIdx,
-            scale: paramScale,
-            hMult: paramHeight,
-            wMult: paramWidth,
+            coralId: activeSpecies.id,
+            archetype: activeArchetype,
+            morph: activeMorph,
+            height: paramHeight,
+            baseW: paramBaseW,
+            spread: paramSpread,
+            roughness: paramRoughness,
             single: viewMode === 'single',
-            count: viewMode === 'single' ? 1 : Math.max(2, paramCount)
+            count: viewMode === 'single' ? 1 : Math.max(2, paramCount),
+            scale: 1.0
           }
         );
         syncInfoUI();
@@ -747,10 +798,22 @@
         syncInfoUI();
       }
 
+      // Randomize Shape Only (Keeps activeSpecies intact)
       function randomizeShape() {
-        currentSeed = `Coral_${presets[activePresetIdx].id}_${Date.now()}_${Math.floor(Math.random() * 999999)}`;
-        paramHeight = parseFloat((0.85 + Math.random() * 0.45).toFixed(2));
-        paramWidth = parseFloat((0.85 + Math.random() * 0.40).toFixed(2));
+        currentSeed = `Coral_Shape_${activeSpecies.id}_${Date.now()}_${Math.floor(Math.random() * 999999)}`;
+
+        activeMorph = Math.floor(Math.random() * 7);
+        const selectMorph = document.getElementById('select-morph');
+        if (selectMorph) selectMorph.value = String(activeMorph);
+
+        const baseH = activeSpecies.height || 180;
+        const baseW = activeSpecies.baseW || 16;
+        const baseSpread = activeSpecies.spread || 150;
+
+        paramHeight = Math.round(baseH * (0.80 + Math.random() * 0.45));
+        paramBaseW = Math.round(baseW * (0.85 + Math.random() * 0.40));
+        paramSpread = Math.round(baseSpread * (0.75 + Math.random() * 0.55));
+        paramRoughness = parseFloat((activeSpecies.roughness * (0.70 + Math.random() * 0.65)).toFixed(2));
 
         syncInfoUI();
 
@@ -762,48 +825,61 @@
 
         ripples.push({
           x: viewport.clientWidth * 0.5,
-          y: viewport.clientHeight * 0.76,
+          y: viewport.clientHeight * 0.78,
           r: 12,
           alpha: 0.95
         });
       }
 
       function syncInfoUI() {
-        const p = presets[activePresetIdx];
-        document.getElementById('display-common-name').textContent = p.common;
-        document.getElementById('display-binomen').textContent = `${p.binomen} (Baris ${p.gridRow}, Kolom ${p.gridCol})`;
-        document.getElementById('display-desc').textContent = p.desc;
+        document.getElementById('display-common-name').textContent = activeSpecies.common;
+        document.getElementById('display-binomen').textContent = activeSpecies.binomen;
+        document.getElementById('display-desc').textContent = activeSpecies.desc;
 
-        document.getElementById('hud-name').textContent = `${String(activePresetIdx + 1).padStart(2, '0')}. ${p.common}`;
-        document.getElementById('hud-binomen').textContent = p.binomen;
-        document.getElementById('hud-grid').textContent = `Baris ${p.gridRow}, Kolom ${p.gridCol} (Grid 5×4)`;
-
-        document.getElementById('slider-scale').value = paramScale;
-        document.getElementById('val-scale').textContent = paramScale.toFixed(2) + ' ×';
+        document.getElementById('hud-name').textContent = activeSpecies.binomen;
+        const archNames = ['Ranting Acropora', 'Karang Otak Labirin', 'Karang Meja Piring', 'Kipas Laut Renda', 'Selada Cawan Ruffle', 'Tabung Pilar Tiang'];
+        document.getElementById('hud-arch').textContent = archNames[activeArchetype] || 'Terumbu Karang';
+        const morphNames = ['01 Standar Botani', '02 Melebar Horizontal', '03 Menjulang Spire', '04 Rumpun Rapat', '05 Melengkung Arus', '06 Bertingkat Trap', '07 Patahan Cleft'];
+        const hudMorphEl = document.getElementById('hud-morph');
+        if (hudMorphEl) {
+          hudMorphEl.textContent = activeMorph === 'auto' ? 'Acak Alami (Auto)' : (morphNames[Number(activeMorph)] || 'Morfologi Kustom');
+        }
+        document.getElementById('hud-dim').textContent = `${paramHeight} × ${paramSpread} px`;
 
         document.getElementById('slider-height').value = paramHeight;
-        document.getElementById('val-height').textContent = paramHeight.toFixed(2) + ' ×';
+        document.getElementById('val-height').textContent = paramHeight + ' px';
 
-        document.getElementById('slider-width').value = paramWidth;
-        document.getElementById('val-width').textContent = paramWidth.toFixed(2) + ' ×';
+        document.getElementById('slider-basew').value = paramBaseW;
+        document.getElementById('val-basew').textContent = paramBaseW + ' px';
 
-        document.getElementById('slider-linewidth').value = paramLineWidth;
-        document.getElementById('val-linewidth').textContent = paramLineWidth.toFixed(2) + ' px';
+        document.getElementById('slider-spread').value = paramSpread;
+        document.getElementById('val-spread').textContent = paramSpread + ' px';
+
+        document.getElementById('slider-roughness').value = paramRoughness;
+        document.getElementById('val-roughness').textContent = paramRoughness.toFixed(2);
 
         document.getElementById('slider-count').value = paramCount;
         document.getElementById('val-count').textContent = paramCount + ' rumpun';
 
-        presets.forEach((_, idx) => {
-          const btn = document.getElementById(`preset-btn-${idx}`);
-          if (btn) btn.classList.toggle('active', idx === activePresetIdx);
-        });
+        document.getElementById('slider-linewidth').value = paramLineWidth;
+        document.getElementById('val-linewidth').textContent = paramLineWidth.toFixed(2) + ' px';
+
+        // Update active archetype buttons
+        for (let a = 0; a < 6; a++) {
+          const btn = document.getElementById(`arch-btn-${a}`);
+          if (btn) btn.classList.toggle('active', a === activeArchetype);
+        }
       }
 
-      function selectPreset(idx) {
-        activePresetIdx = idx;
-        currentSeed = presets[idx].binomen;
-        paramHeight = 1.0;
-        paramWidth = 1.0;
+      function selectSpecies(species) {
+        activeSpecies = species;
+        activeArchetype = species.archetype;
+        currentSeed = species.binomen;
+        paramHeight = species.height;
+        paramBaseW = species.baseW;
+        paramSpread = species.spread;
+        paramRoughness = species.roughness;
+        selectCoral.value = species.id;
         if (viewMode !== 'bed') createColony(currentSeed);
         else createReef(currentSeed);
       }
@@ -813,13 +889,27 @@
       createReef();
 
       // 3. UI Listeners
+      selectCoral.addEventListener('change', (e) => {
+        const found = coraldraw.getCoralById(e.target.value);
+        if (found) selectSpecies(found);
+      });
+
+      const selectMorphEl = document.getElementById('select-morph');
+      if (selectMorphEl) {
+        selectMorphEl.addEventListener('change', (e) => {
+          activeMorph = e.target.value;
+          if (viewMode !== 'bed') createColony();
+        });
+      }
+
+      // Randomize Shape Buttons
       const btnRandShape = document.getElementById('btn-random-shape');
       if (btnRandShape) btnRandShape.addEventListener('click', randomizeShape);
 
       const btnFloatRand = document.getElementById('btn-floating-random-shape');
       if (btnFloatRand) btnFloatRand.addEventListener('click', randomizeShape);
 
-      // Keyboard Shortcut (Space / R)
+      // Keyboard Shortcut (Space / R for instant shape randomization)
       window.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
           return;
@@ -830,19 +920,30 @@
         }
       });
 
-      document.getElementById('btn-random-preset').addEventListener('click', () => {
-        const randIdx = Math.floor(Math.random() * presets.length);
-        selectPreset(randIdx);
+      document.getElementById('btn-random-species').addEventListener('click', () => {
+        const randSpecies = catalog[Math.floor(Math.random() * catalog.length)];
+        selectSpecies(randSpecies);
       });
 
       document.getElementById('btn-copy-name').addEventListener('click', () => {
-        const p = presets[activePresetIdx];
-        navigator.clipboard.writeText(`${p.common} (${p.binomen}) - Baris ${p.gridRow}, Kolom ${p.gridCol}`);
+        navigator.clipboard.writeText(`${activeSpecies.common} (${activeSpecies.binomen})`);
         const btn = document.getElementById('btn-copy-name');
         const orig = btn.textContent;
         btn.textContent = 'Tersalin!';
         setTimeout(() => btn.textContent = orig, 1200);
       });
+
+      // Archetype Buttons
+      for (let a = 0; a < 6; a++) {
+        const btn = document.getElementById(`arch-btn-${a}`);
+        if (btn) {
+          btn.addEventListener('click', () => {
+            activeArchetype = a;
+            const matching = catalog.find(c => c.archetype === a);
+            if (matching) selectSpecies(matching);
+          });
+        }
+      }
 
       // View Mode Buttons
       const btnSingle = document.getElementById('btn-mode-single');
@@ -871,27 +972,28 @@
       setViewMode('single');
 
       // Sliders
-      document.getElementById('slider-scale').addEventListener('input', (e) => {
-        paramScale = parseFloat(e.target.value);
-        document.getElementById('val-scale').textContent = paramScale.toFixed(2) + ' ×';
-        if (viewMode !== 'bed') createColony();
-      });
-
       document.getElementById('slider-height').addEventListener('input', (e) => {
-        paramHeight = parseFloat(e.target.value);
-        document.getElementById('val-height').textContent = paramHeight.toFixed(2) + ' ×';
+        paramHeight = parseInt(e.target.value);
+        document.getElementById('val-height').textContent = paramHeight + ' px';
         if (viewMode !== 'bed') createColony();
       });
 
-      document.getElementById('slider-width').addEventListener('input', (e) => {
-        paramWidth = parseFloat(e.target.value);
-        document.getElementById('val-width').textContent = paramWidth.toFixed(2) + ' ×';
+      document.getElementById('slider-basew').addEventListener('input', (e) => {
+        paramBaseW = parseInt(e.target.value);
+        document.getElementById('val-basew').textContent = paramBaseW + ' px';
         if (viewMode !== 'bed') createColony();
       });
 
-      document.getElementById('slider-linewidth').addEventListener('input', (e) => {
-        paramLineWidth = parseFloat(e.target.value);
-        document.getElementById('val-linewidth').textContent = paramLineWidth.toFixed(2) + ' px';
+      document.getElementById('slider-spread').addEventListener('input', (e) => {
+        paramSpread = parseInt(e.target.value);
+        document.getElementById('val-spread').textContent = paramSpread + ' px';
+        if (viewMode !== 'bed') createColony();
+      });
+
+      document.getElementById('slider-roughness').addEventListener('input', (e) => {
+        paramRoughness = parseFloat(e.target.value);
+        document.getElementById('val-roughness').textContent = paramRoughness.toFixed(2);
+        if (viewMode !== 'bed') createColony();
       });
 
       document.getElementById('slider-count').addEventListener('input', (e) => {
@@ -900,11 +1002,16 @@
         if (viewMode === 'cluster') createColony();
       });
 
+      document.getElementById('slider-linewidth').addEventListener('input', (e) => {
+        paramLineWidth = parseFloat(e.target.value);
+        document.getElementById('val-linewidth').textContent = paramLineWidth.toFixed(2) + ' px';
+      });
+
       // Visual Checkboxes
-      const chkVol = document.getElementById('chk-volumerings');
-      if (chkVol) chkVol.addEventListener('change', (e) => showVolumeRings = e.target.checked);
       document.getElementById('chk-polyps').addEventListener('change', (e) => showPolyps = e.target.checked);
-      document.getElementById('chk-pebbles').addEventListener('change', (e) => showPebbles = e.target.checked);
+      document.getElementById('chk-meanders').addEventListener('change', (e) => showMeanders = e.target.checked);
+      document.getElementById('chk-striations').addEventListener('change', (e) => showStriations = e.target.checked);
+      document.getElementById('chk-holdfast').addEventListener('change', (e) => showHoldfast = e.target.checked);
       document.getElementById('chk-shadow').addEventListener('change', (e) => showShadow = e.target.checked);
 
       // Theme toggle
@@ -925,7 +1032,7 @@
       // PNG Snapshot Export
       document.getElementById('btn-export-png').addEventListener('click', () => {
         const link = document.createElement('a');
-        link.download = `Coral_Doodle_${presets[activePresetIdx].id}_${Date.now()}.png`;
+        link.download = `Coral_${activeSpecies.id}_${Date.now()}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       });
@@ -950,6 +1057,7 @@
         const w = viewport.clientWidth;
         const h = viewport.clientHeight;
 
+        // Ripples update
         for (let i = ripples.length - 1; i >= 0; i--) {
           const r = ripples[i];
           r.r += dt * 32;
@@ -959,8 +1067,7 @@
 
         ctx.clearRect(0, 0, w, h);
 
-        const inkColor = currentTheme === 'midnight' ? '#f0f0f0' : '#151515';
-        const fillColor = currentTheme === 'midnight' ? '#191e28' : '#ffffff';
+        const inkColor = currentTheme === 'midnight' ? '#f0f0f0' : '#111111';
         const rippleColor = currentTheme === 'midnight' ? 'rgba(220, 220, 220, ' : 'rgba(80, 80, 80, ';
 
         // 1. Water Ripples
@@ -975,15 +1082,15 @@
           ctx.restore();
         }
 
-        // 2. Render Coral Models
+        // 2. Update & Render Coral Models
         const renderOpts = {
-          theme: currentTheme,
           strokeColor: inkColor,
-          fillColor: fillColor,
           lineWidth: paramLineWidth,
-          showVolumeRings: showVolumeRings,
+          theme: currentTheme,
           showPolyps: showPolyps,
-          showPebbles: showPebbles,
+          showMeanders: showMeanders,
+          showStriations: showStriations,
+          showHoldfast: showHoldfast,
           showShadow: showShadow
         };
 
