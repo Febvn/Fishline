@@ -639,10 +639,6 @@
             <span>Tampilkan Garis Serat Venasi Bagian Dalam</span>
           </label>
 
-          <label class="checkbox-row">
-            <input type="checkbox" id="chk-rock" checked>
-            <span>Tampilkan Batu Jangkar Dasar Kolam (Holdfast)</span>
-          </label>
 
           <div class="slider-field" style="margin-top:4px;">
             <div class="slider-header">
@@ -721,7 +717,6 @@
       let paramLineWidth = 1.1;
 
       let showVeins = true;
-      let showRock = true;
 
       const ripples = [];
       let mousePos = { x: -999, y: -999, active: false };
@@ -1007,7 +1002,6 @@
       });
 
       document.getElementById('chk-veins').addEventListener('change', (e) => showVeins = e.target.checked);
-      document.getElementById('chk-rock').addEventListener('change', (e) => showRock = e.target.checked);
 
       // Virtual fish sweep probe
       document.getElementById('btn-virtual-fish-sweep').addEventListener('click', () => {
@@ -1159,7 +1153,6 @@
           strokeColor: inkColor,
           lineWidth: paramLineWidth,
           washColor: washColor,
-          stoneWash: showRock ? stoneWash : 'transparent',
           showVeins: showVeins
         };
 

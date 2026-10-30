@@ -1180,8 +1180,8 @@
     render(ctx, options = {}) {
       ctx.save();
 
-      // Holdfast anchor rock
-      if (options.stoneWash !== 'transparent') {
+      // Holdfast anchor rock (disabled by default)
+      if (options.showRock === true) {
         ctx.beginPath();
         ctx.ellipse(this.x, this.y, this.rockRadiusX, this.rockRadiusY, 0, 0, PI * 2);
         ctx.fillStyle = options.stoneWash || 'rgba(30, 26, 36, 0.08)';
