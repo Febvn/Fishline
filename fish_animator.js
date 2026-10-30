@@ -145,6 +145,7 @@
       } else {
         this.targetFood = { x: foodOrX, y: maybeY, radius: 4, eaten: false };
       }
+      this.chewTimer = 0;
       this.setState('eat');
     }
 
@@ -289,9 +290,10 @@
       const dist = Math.hypot(dx, dy);
 
       if (!food.eaten) {
-        // 1. Set horizontal facing towards the food
-        if (dx > 25) this.setFacing(1);
-        else if (dx < -25) this.setFacing(-1);
+        // 1. Set horizontal facing towards the food relative to fish body center
+        const bodyDx = food.x - this.x;
+        if (bodyDx > 25) this.setFacing(1);
+        else if (bodyDx < -25) this.setFacing(-1);
 
         // 2. Pitch angle straight towards the food pellet
         const targetPitch = Math.atan2(dy, Math.max(15, Math.abs(dx)));
