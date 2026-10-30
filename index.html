@@ -776,6 +776,281 @@
       pointer-events: auto;
     }
 
+    /* =========================================
+       GACHA, REWARDED ADS & QRIS PAYMENT STYLES
+       ========================================= */
+    .gacha-shrine-box {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .gacha-balance-card {
+      background: rgba(0, 0, 0, 0.03);
+      border: 1.5px dashed var(--paper-border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .gacha-balance-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .gacha-balance-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-muted);
+      font-weight: 600;
+    }
+
+    .gacha-balance-val {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-summon-action {
+      background: var(--ink);
+      color: var(--bg-wash);
+      border: 1.5px solid var(--ink);
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s var(--transition-smooth);
+      box-shadow: 0 4px 14px rgba(24, 20, 31, 0.2);
+    }
+
+    .btn-summon-action:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(24, 20, 31, 0.3);
+      background: #2a2233;
+    }
+
+    .btn-summon-action:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .gacha-options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .gacha-option-card {
+      border: 1.5px solid var(--paper-border);
+      border-radius: 16px;
+      background: var(--paper-card);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      position: relative;
+      transition: all 0.24s var(--transition-smooth);
+    }
+
+    .gacha-option-card:hover {
+      border-color: var(--ink);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .gacha-badge-ribbon {
+      align-self: flex-start;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid currentColor;
+    }
+
+    .badge-free {
+      color: #1e7e48;
+      background: rgba(30, 126, 72, 0.1);
+    }
+
+    .badge-paid {
+      color: var(--seal-red);
+      background: var(--seal-red-bg);
+    }
+
+    .gacha-opt-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .gacha-opt-desc {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--ink-muted);
+    }
+
+    /* Rewarded Ad Box */
+    .ad-screen-box {
+      border: 1.5px solid var(--paper-border);
+      border-radius: 16px;
+      background: #11141a;
+      overflow: hidden;
+      position: relative;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #f0ede6;
+    }
+
+    .ad-overlay-ui {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .ad-timer-pill {
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .ad-progress-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+
+    .ad-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #ba3222;
+      transition: width 0.15s linear;
+    }
+
+    /* QRIS Presentation */
+    .qris-card-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .qris-badge-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: #ffffff;
+      border: 1.5px solid #ded8cb;
+      border-radius: 12px;
+      padding: 10px 16px;
+    }
+
+    .qris-graphic-frame {
+      background: #ffffff;
+      border: 2px solid #18141f;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Gacha Summon Reveal */
+    .summon-reveal-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 14px;
+      padding: 8px 0;
+    }
+
+    .enso-portal {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3.5px dashed var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      animation: rotateEnso 20s linear infinite;
+      position: relative;
+    }
+
+    @keyframes rotateEnso {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .rarity-pill {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1.5px solid currentColor;
+    }
+
+    .rarity-common {
+      color: var(--ink-muted);
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .rarity-rare {
+      color: #1a6d96;
+      border-color: #1a6d96;
+      background: rgba(26, 109, 150, 0.1);
+    }
+
+    .rarity-mythic {
+      color: var(--seal-red);
+      border-color: var(--seal-red);
+      background: var(--seal-red-bg);
+      box-shadow: 0 0 18px rgba(186, 50, 34, 0.35);
+    }
+
     /* Responsive Queries */
     @media (max-width: 920px) {
       .landing-screen {
@@ -827,6 +1102,10 @@
       <button class="btn-icon-capsule" id="btn-toggle-main-menu" title="Buka Menu Game (ESC)">
         <span class="hanko-stamp-sm">☰</span>
         <span>Menu</span>
+      </button>
+      <button class="btn-icon-capsule" id="btn-top-gacha" title="Kuil Pemanggilan Spesies Gacha (Space / G)">
+        <span>🎟️</span>
+        <span id="top-ticket-badge">1 Tiket</span>
       </button>
       <button class="btn-icon-capsule" id="btn-quick-sound-toggle" title="Matikan/Hidupkan Suara">
         <span id="sound-icon">🔊</span>
@@ -891,10 +1170,10 @@
 
           <button class="menu-item-btn" id="menu-btn-reroll">
             <div class="menu-item-left">
-              <span class="menu-icon">🎲</span>
+              <span class="menu-icon">🎟️</span>
               <div class="menu-text-group">
-                <span class="menu-title">Acak Spesies Baru</span>
-                <span class="menu-desc">Generate spesimen ikan baru secara acak</span>
+                <span class="menu-title">Panggil Spesies Baru (Gacha)</span>
+                <span class="menu-desc">Kuil pemanggilan ikan: tonton iklan atau bayar tiket</span>
               </div>
             </div>
             <span class="menu-key-hint">SPACE</span>
@@ -962,8 +1241,8 @@
         <button class="dock-btn btn-pellet-drop" id="dock-btn-feed" title="Jatuhkan pelet makanan (F)">
           <span>🥢 Beri Makan</span>
         </button>
-        <button class="dock-btn" id="dock-btn-new-fish" title="Acak ikan baru (Space)">
-          <span>🎲 Acak Ikan</span>
+        <button class="dock-btn" id="dock-btn-new-fish" title="Panggil Spesies Ikan Gacha (Space / G)">
+          <span>🎟️ Gacha Ikan</span>
         </button>
         <button class="dock-btn" id="dock-btn-kill" title="Pingsan terbalik (K)">
           <span>💀 Pingsan</span>
@@ -1091,6 +1370,246 @@
     </div>
   </div>
 
+  <!-- ========================================================
+       MODAL: GACHA SHRINE (KUIL PEMANGGILAN SPESIES)
+       ======================================================== -->
+  <div class="modal-backdrop" id="modal-gacha">
+    <div class="modal-scroll-window" style="max-width: 620px;">
+      <div class="modal-header">
+        <h3><span>⛩️</span> Kuil Pemanggilan Spesies Ikan (Gacha)</h3>
+        <button class="btn-modal-close" data-close="modal-gacha">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="gacha-shrine-box">
+          <!-- Balance & Summon Action Bar -->
+          <div class="gacha-balance-card">
+            <div class="gacha-balance-info">
+              <span class="gacha-balance-label">Dompet Pemanggilan</span>
+              <span class="gacha-balance-val">
+                <span>🎟️</span>
+                <span id="shrine-ticket-val">1 Tiket Gacha</span>
+              </span>
+            </div>
+            <button class="btn-summon-action" id="btn-shrine-summon">
+              <span>🌊 Panggil 1x Spesies Baru (Gunakan 1 Tiket)</span>
+            </button>
+          </div>
+
+          <p style="font-size:13px; color:var(--ink-muted); margin:0 4px;">
+            Setiap pemanggilan memunculkan spesimen ikan sumi-e baru dengan keunikan genetika, pola sisik, dan tingkat kelangkaan (Biasa, Langka, atau Legendaris). Pilih cara untuk mendapatkan tiket gacha:
+          </p>
+
+          <!-- 2 Pilihan Utama: Tonton Iklan atau Bayar QRIS -->
+          <div class="gacha-options-grid">
+            
+            <!-- Opsi 1: Tonton Iklan Sponsor (Gratis) -->
+            <div class="gacha-option-card">
+              <div>
+                <span class="gacha-badge-ribbon badge-free">GRATIS • REWARDED AD</span>
+                <div class="gacha-opt-title" style="margin-top:8px;">
+                  <span>🎬</span>
+                  <span>Tonton Iklan Sponsor</span>
+                </div>
+                <p class="gacha-opt-desc" style="margin-top:6px;">
+                  Tonton tayangan sponsor singkat 5 detik untuk menerima <strong>1x Tiket Gacha Gratis</strong> langsung ke kolam Anda.
+                </p>
+              </div>
+              <button class="dock-btn" id="btn-opt-watch-ad" style="width:100%; justify-content:center; background:var(--ink); color:var(--bg-wash);">
+                <span>▶ Tonton Iklan (5 Detik)</span>
+              </button>
+            </div>
+
+            <!-- Opsi 2: Beli via QRIS (Payment Gateway) -->
+            <div class="gacha-option-card">
+              <div>
+                <span class="gacha-badge-ribbon badge-paid">INSTAN • PAYMENT GATEWAY</span>
+                <div class="gacha-opt-title" style="margin-top:8px;">
+                  <span>⚡</span>
+                  <span>Bayar via QRIS</span>
+                </div>
+                <p class="gacha-opt-desc" style="margin-top:6px;">
+                  Dukung pengembangan kolam akuarium dengan membeli tiket instan via QRIS (BCA, GoPay, OVO, Dana, dll).
+                </p>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <button class="dock-btn" id="btn-buy-ticket-1" style="width:100%; justify-content:space-between;">
+                  <span>🎟️ 1x Tiket Gacha</span>
+                  <strong>Rp 2.000</strong>
+                </button>
+                <button class="dock-btn" id="btn-buy-ticket-5" style="width:100%; justify-content:space-between; border-color:var(--seal-red); color:var(--seal-red);">
+                  <span>🎟️ 5x Tiket Gacha (Hemat)</span>
+                  <strong>Rp 8.000</strong>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <div style="font-size:11px; color:var(--ink-faint); text-align:center;">
+            Probabilitas Kelangkaan: Biasa (70%) • Langka (24%) • Legendaris (6%) • Sistem Native 100%
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL: REWARDED AD PLAYER (5 DETIK COUNTDOWN)
+       ======================================================== -->
+  <div class="modal-backdrop" id="modal-ad-player">
+    <div class="modal-scroll-window" style="max-width: 460px;">
+      <div class="modal-header">
+        <h3><span>🎬</span> Tayangan Sponsor Eksklusif</h3>
+        <button class="btn-modal-close" data-close="modal-ad-player">&times;</button>
+      </div>
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+        <div class="ad-screen-box">
+          <div class="ad-overlay-ui">
+            <span class="ad-timer-pill" id="ad-timer-countdown">5s</span>
+            <div style="font-size:24px; margin-top:4px;">🍃 🍵</div>
+            <h4 style="font-size:16px; font-weight:700;">Kedai Teh Daun Bambu Tradisional</h4>
+            <p style="font-size:12px; color:#c7cbd3; max-width:320px;">
+              Menyajikan ketenangan washi dan kehangatan tradisi Jepang dalam setiap seduhan daun bambu alami.
+            </p>
+          </div>
+          <div class="ad-progress-track">
+            <div class="ad-progress-fill" id="ad-progress-bar"></div>
+          </div>
+        </div>
+
+        <button class="btn-summon-action" id="btn-claim-ad-reward" disabled style="width:100%; justify-content:center;">
+          <span>Menonton tayangan sponsor... (5s)</span>
+        </button>
+
+        <p style="font-size:11px; text-align:center; color:var(--ink-faint);">
+          Hadiah 1 Tiket Gacha akan langsung aktif begitu countdown 5 detik selesai.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL: QRIS PAYMENT GATEWAY SIMULATOR
+       ======================================================== -->
+  <div class="modal-backdrop" id="modal-payment-qris">
+    <div class="modal-scroll-window" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3><span>📱</span> Pembayaran QRIS Instan</h3>
+        <button class="btn-modal-close" data-close="modal-payment-qris">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="qris-card-wrap">
+          <div class="qris-badge-header">
+            <div>
+              <div style="font-size:14px; font-weight:700;" id="qris-pkg-title">Paket 1x Tiket Gacha</div>
+              <div style="font-size:11px; color:var(--ink-muted);" id="qris-order-id">Order ID: FISH-89214</div>
+            </div>
+            <div style="font-size:16px; font-weight:800; color:var(--seal-red);" id="qris-pkg-price">Rp 2.000</div>
+          </div>
+
+          <!-- Dynamic SVG QRIS Code Frame -->
+          <div class="qris-graphic-frame">
+            <div style="font-size:12px; font-weight:800; letter-spacing:0.18em; color:#18141f;">QRIS STANDAR NASIONAL</div>
+            
+            <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <rect width="200" height="200" fill="#ffffff"/>
+              <!-- Finder 1: Top-Left -->
+              <rect x="15" y="15" width="45" height="45" fill="#000000" rx="4"/>
+              <rect x="22" y="22" width="31" height="31" fill="#ffffff" rx="2"/>
+              <rect x="29" y="29" width="17" height="17" fill="#000000" rx="1"/>
+              
+              <!-- Finder 2: Top-Right -->
+              <rect x="140" y="15" width="45" height="45" fill="#000000" rx="4"/>
+              <rect x="147" y="22" width="31" height="31" fill="#ffffff" rx="2"/>
+              <rect x="154" y="29" width="17" height="17" fill="#000000" rx="1"/>
+
+              <!-- Finder 3: Bottom-Left -->
+              <rect x="15" y="140" width="45" height="45" fill="#000000" rx="4"/>
+              <rect x="22" y="147" width="31" height="31" fill="#ffffff" rx="2"/>
+              <rect x="29" y="154" width="17" height="17" fill="#000000" rx="1"/>
+
+              <!-- Data Pixels Pattern -->
+              <g fill="#000000">
+                <rect x="70" y="20" width="8" height="8"/><rect x="85" y="20" width="8" height="8"/><rect x="105" y="20" width="8" height="8"/>
+                <rect x="70" y="35" width="8" height="8"/><rect x="115" y="35" width="8" height="8"/>
+                <rect x="75" y="50" width="8" height="8"/><rect x="95" y="50" width="8" height="8"/><rect x="110" y="50" width="8" height="8"/>
+                <rect x="20" y="70" width="8" height="8"/><rect x="40" y="70" width="8" height="8"/><rect x="60" y="70" width="8" height="8"/><rect x="80" y="70" width="8" height="8"/><rect x="130" y="70" width="8" height="8"/><rect x="150" y="70" width="8" height="8"/><rect x="170" y="70" width="8" height="8"/>
+                <rect x="30" y="85" width="8" height="8"/><rect x="50" y="85" width="8" height="8"/><rect x="120" y="85" width="8" height="8"/><rect x="140" y="85" width="8" height="8"/><rect x="160" y="85" width="8" height="8"/>
+                <rect x="20" y="105" width="8" height="8"/><rect x="60" y="105" width="8" height="8"/><rect x="135" y="105" width="8" height="8"/><rect x="170" y="105" width="8" height="8"/>
+                <rect x="70" y="125" width="8" height="8"/><rect x="90" y="125" width="8" height="8"/><rect x="110" y="125" width="8" height="8"/><rect x="130" y="125" width="8" height="8"/><rect x="150" y="125" width="8" height="8"/><rect x="170" y="125" width="8" height="8"/>
+                <rect x="75" y="145" width="8" height="8"/><rect x="105" y="145" width="8" height="8"/><rect x="140" y="145" width="8" height="8"/><rect x="160" y="145" width="8" height="8"/>
+                <rect x="70" y="165" width="8" height="8"/><rect x="85" y="165" width="8" height="8"/><rect x="115" y="165" width="8" height="8"/><rect x="135" y="165" width="8" height="8"/><rect x="170" y="165" width="8" height="8"/>
+              </g>
+
+              <!-- Center Logo Emblem -->
+              <circle cx="100" cy="100" r="19" fill="#ffffff" stroke="#ba3222" stroke-width="2.5"/>
+              <text x="100" y="105" font-size="12" font-weight="900" text-anchor="middle" fill="#ba3222" font-family="serif">墨</text>
+            </svg>
+
+            <span style="font-size:11px; font-weight:600; color:var(--ink-muted);">Pindai dengan BCA / GoPay / OVO / Dana / Mandiri</span>
+          </div>
+
+          <div class="qris-timer-meta">
+            <span>⏱️ Batas Waktu Bayar: <strong>14:59</strong></span>
+            <span>•</span>
+            <span>Verifikasi Otomatis</span>
+          </div>
+
+          <!-- Tombol Simulasi Pembayaran Berhasil / Webhook -->
+          <button class="btn-summon-action" id="btn-simulate-qris-paid" style="width:100%; justify-content:center; background:#1e7e48; border-color:#1e7e48;">
+            <span>⚡ Simulasikan Pembayaran Berhasil (Instant Webhook)</span>
+          </button>
+
+          <p style="font-size:11px; color:var(--ink-faint); text-align:center; line-height:1.4;">
+            Mekanisme native siap disambungkan ke backend PHP via <code>curl</code> Midtrans Snap / Xendit API Webhook.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL: GACHA SUMMON REVEAL (HASIL PEMANGGILAN)
+       ======================================================== -->
+  <div class="modal-backdrop" id="modal-gacha-reveal">
+    <div class="modal-scroll-window" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3><span>✨</span> Hasil Pemanggilan Spesies Baru</h3>
+        <button class="btn-modal-close" data-close="modal-gacha-reveal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="summon-reveal-wrap">
+          <div class="enso-portal">
+            <span>🐟</span>
+          </div>
+
+          <span class="rarity-pill rarity-mythic" id="reveal-rarity-pill">LEGENDARIS (MYTHIC) ★★★</span>
+
+          <div>
+            <h2 id="reveal-fish-name" style="font-size:22px; font-style:italic; font-weight:700; color:var(--ink); margin-bottom:4px;">
+              Pterophis sumiensis
+            </h2>
+            <div id="reveal-fish-seed" style="font-family:monospace; font-size:11px; color:var(--ink-faint); margin-bottom:10px;">
+              Seed Genetik: 984128
+            </div>
+            <p id="reveal-fish-desc" style="font-size:13px; color:var(--ink-muted); line-height:1.5;">
+              Ikan purba bertuah sumi-e dengan sirip camar megah dan sisik emas washi.
+            </p>
+          </div>
+
+          <div style="display:flex; gap:10px; width:100%; margin-top:8px;">
+            <button class="dock-btn" id="btn-reveal-enter-pond" style="flex:1; justify-content:center; background:var(--ink); color:var(--bg-wash);">
+              <span>🌊 Masuk ke Kolam</span>
+            </button>
+            <button class="dock-btn" id="btn-reveal-roll-again" style="flex:1; justify-content:center;">
+              <span>🎟️ Panggil Lagi</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="fishdraw.js"></script>
   <script src="fish_animator.js"></script>
@@ -1128,6 +1647,45 @@
             gain.connect(this.ctx.destination);
             osc.start(now);
             osc.stop(now + 0.07);
+          } catch (e) {}
+        },
+        playCoinSound() {
+          if (!this.enabled) return;
+          try {
+            this.init();
+            if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(987.77, now);
+            osc.frequency.setValueAtTime(1318.51, now + 0.08);
+            gain.gain.setValueAtTime(0.08, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.3);
+          } catch (e) {}
+        },
+        playGachaChime() {
+          if (!this.enabled) return;
+          try {
+            this.init();
+            if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+            const now = this.ctx.currentTime;
+            [440, 659.25, 880, 1174.66].forEach((freq, idx) => {
+              const osc = this.ctx.createOscillator();
+              const gain = this.ctx.createGain();
+              osc.type = 'triangle';
+              osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+              gain.gain.setValueAtTime(0.05, now + idx * 0.06);
+              gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.35);
+              osc.connect(gain);
+              gain.connect(this.ctx.destination);
+              osc.start(now + idx * 0.06);
+              osc.stop(now + idx * 0.06 + 0.36);
+            });
           } catch (e) {}
         },
         playClick() {
@@ -1383,8 +1941,256 @@
         }
       }
 
-      document.getElementById('menu-btn-reroll').addEventListener('click', rerollFish);
-      document.getElementById('dock-btn-new-fish').addEventListener('click', rerollFish);
+      // -------------------------------------------------------------
+      // Gacha, Rewarded Ads & Native QRIS Payment System
+      // -------------------------------------------------------------
+      const GachaManager = {
+        tickets: 1,
+        adsWatched: 0,
+        totalSpins: 0,
+        pendingPkg: null,
+        adInterval: null,
+
+        init() {
+          const savedTickets = localStorage.getItem('fishline_tickets');
+          if (savedTickets !== null) {
+            this.tickets = parseInt(savedTickets, 10) || 0;
+          } else {
+            this.tickets = 1; // 1 welcome ticket for new players!
+            this.save();
+          }
+
+          this.adsWatched = parseInt(localStorage.getItem('fishline_ads_watched') || '0', 10);
+          this.totalSpins = parseInt(localStorage.getItem('fishline_total_spins') || '0', 10);
+          this.updateUI();
+          this.attachEvents();
+        },
+
+        save() {
+          localStorage.setItem('fishline_tickets', this.tickets);
+          localStorage.setItem('fishline_ads_watched', this.adsWatched);
+          localStorage.setItem('fishline_total_spins', this.totalSpins);
+        },
+
+        updateUI() {
+          const badge = document.getElementById('top-ticket-badge');
+          if (badge) badge.textContent = `${this.tickets} Tiket`;
+
+          const shrineBal = document.getElementById('shrine-ticket-val');
+          if (shrineBal) shrineBal.textContent = `${this.tickets} Tiket Gacha`;
+
+          const btnSummon = document.getElementById('btn-shrine-summon');
+          if (btnSummon) {
+            if (this.tickets > 0) {
+              btnSummon.disabled = false;
+              btnSummon.innerHTML = '<span>🌊 Panggil 1x Spesies Baru (Gunakan 1 Tiket)</span>';
+            } else {
+              btnSummon.disabled = true;
+              btnSummon.innerHTML = '<span>Tiket Habis • Tonton Iklan atau Bayar di Bawah</span>';
+            }
+          }
+        },
+
+        openGachaModal() {
+          this.updateUI();
+          openModal('modal-gacha');
+          AudioFX.playClick();
+        },
+
+        roll() {
+          if (this.tickets <= 0) {
+            this.openGachaModal();
+            return;
+          }
+
+          this.tickets--;
+          this.totalSpins++;
+          this.save();
+          this.updateUI();
+
+          // Generate new unique species
+          animator.generate();
+          updateHUD();
+          AudioFX.playGachaChime();
+
+          // Calculate Rarity based on deterministic hash
+          const rollSeed = animator.seed;
+          let rarity = 'Biasa (Common)';
+          let rarityClass = 'rarity-common';
+          let rarityDesc = 'Ikan air tawar dengan pola sisik sederhana dan sirip klasik.';
+
+          let hashVal = 0;
+          for (let i = 0; i < rollSeed.length; i++) hashVal = (hashVal * 31 + rollSeed.charCodeAt(i)) >>> 0;
+          const pct = hashVal % 100;
+
+          if (pct < 7) {
+            rarity = 'LEGENDARIS (MYTHIC) ★★★';
+            rarityClass = 'rarity-mythic';
+            rarityDesc = 'Ikan purba bertuah sumi-e dengan sirip camar megah dan sisik emas washi.';
+          } else if (pct < 32) {
+            rarity = 'Langka (Rare) ★★';
+            rarityClass = 'rarity-rare';
+            rarityDesc = 'Spesimen langka dengan corak punggung bergelombang dan kontur tajam.';
+          }
+
+          // Add to Bestiary if not present
+          if (!bestiaryCatalog.some(b => b.seed === animator.seed)) {
+            bestiaryCatalog.unshift({
+              name: animator.speciesName,
+              seed: animator.seed,
+              desc: `${rarity} — ${rarityDesc}`
+            });
+            renderBestiary();
+          }
+
+          // Populate Reveal Modal
+          const nameEl = document.getElementById('reveal-fish-name');
+          if (nameEl) nameEl.textContent = animator.speciesName;
+
+          const pillEl = document.getElementById('reveal-rarity-pill');
+          if (pillEl) {
+            pillEl.textContent = rarity;
+            pillEl.className = 'rarity-pill ' + rarityClass;
+          }
+
+          const descEl = document.getElementById('reveal-fish-desc');
+          if (descEl) descEl.textContent = rarityDesc;
+
+          const seedEl = document.getElementById('reveal-fish-seed');
+          if (seedEl) seedEl.textContent = 'Seed Genetik: ' + animator.seed;
+
+          closeModal();
+          openModal('modal-gacha-reveal');
+        },
+
+        startAd() {
+          closeModal();
+          openModal('modal-ad-player');
+
+          const timerEl = document.getElementById('ad-timer-countdown');
+          const progEl = document.getElementById('ad-progress-bar');
+          const claimBtn = document.getElementById('btn-claim-ad-reward');
+          if (claimBtn) {
+            claimBtn.disabled = true;
+            claimBtn.textContent = 'Menonton tayangan sponsor... (5s)';
+          }
+
+          let timeLeft = 5;
+          if (timerEl) timerEl.textContent = `${timeLeft}s`;
+          if (progEl) progEl.style.width = '0%';
+
+          if (this.adInterval) clearInterval(this.adInterval);
+          const totalDuration = 5;
+
+          this.adInterval = setInterval(() => {
+            timeLeft--;
+            const progress = ((totalDuration - timeLeft) / totalDuration) * 100;
+            if (progEl) progEl.style.width = `${progress}%`;
+
+            if (timeLeft > 0) {
+              if (timerEl) timerEl.textContent = `${timeLeft}s`;
+              if (claimBtn) claimBtn.textContent = `Menonton tayangan sponsor... (${timeLeft}s)`;
+            } else {
+              clearInterval(this.adInterval);
+              this.adInterval = null;
+              if (timerEl) timerEl.textContent = 'Selesai!';
+              if (claimBtn) {
+                claimBtn.disabled = false;
+                claimBtn.innerHTML = '🎉 Klaim 1 Tiket Gacha & Putar Sekarang!';
+              }
+              AudioFX.playCoinSound();
+            }
+          }, 1000);
+        },
+
+        claimAdReward() {
+          this.tickets += 1;
+          this.adsWatched += 1;
+          this.save();
+          this.updateUI();
+          closeModal();
+          this.roll();
+        },
+
+        startPayment(pkgName, amount, ticketAmount) {
+          closeModal();
+          this.pendingPkg = { pkgName, amount, ticketAmount };
+
+          const titleEl = document.getElementById('qris-pkg-title');
+          const priceEl = document.getElementById('qris-pkg-price');
+          const orderEl = document.getElementById('qris-order-id');
+
+          const orderId = 'FISH-' + Math.floor(100000 + Math.random() * 900000);
+          if (titleEl) titleEl.textContent = pkgName;
+          if (priceEl) priceEl.textContent = `Total: Rp ${amount.toLocaleString('id-ID')}`;
+          if (orderEl) orderEl.textContent = `Order ID: ${orderId}`;
+
+          openModal('modal-payment-qris');
+          AudioFX.playClick();
+        },
+
+        simulatePaymentSuccess() {
+          if (!this.pendingPkg) return;
+          const { ticketAmount, amount } = this.pendingPkg;
+          this.tickets += ticketAmount;
+          this.save();
+          this.updateUI();
+          AudioFX.playCoinSound();
+
+          alert(`✅ Pembayaran Rp ${amount.toLocaleString('id-ID')} Berhasil via QRIS!\n\n+${ticketAmount} Tiket Gacha telah ditambahkan ke dompet Anda.`);
+          closeModal();
+          this.roll();
+        },
+
+        attachEvents() {
+          const btnTopGacha = document.getElementById('btn-top-gacha');
+          if (btnTopGacha) btnTopGacha.addEventListener('click', () => this.openGachaModal());
+
+          const menuReroll = document.getElementById('menu-btn-reroll');
+          if (menuReroll) menuReroll.addEventListener('click', () => this.openGachaModal());
+
+          const dockNewFish = document.getElementById('dock-btn-new-fish');
+          if (dockNewFish) dockNewFish.addEventListener('click', () => this.openGachaModal());
+
+          const btnShrineSummon = document.getElementById('btn-shrine-summon');
+          if (btnShrineSummon) btnShrineSummon.addEventListener('click', () => this.roll());
+
+          const btnStartAd = document.getElementById('btn-opt-watch-ad');
+          if (btnStartAd) btnStartAd.addEventListener('click', () => this.startAd());
+
+          const btnClaimAd = document.getElementById('btn-claim-ad-reward');
+          if (btnClaimAd) btnClaimAd.addEventListener('click', () => this.claimAdReward());
+
+          const btnBuy1 = document.getElementById('btn-buy-ticket-1');
+          if (btnBuy1) btnBuy1.addEventListener('click', () => this.startPayment('1x Tiket Gacha Spesies', 2000, 1));
+
+          const btnBuy5 = document.getElementById('btn-buy-ticket-5');
+          if (btnBuy5) btnBuy5.addEventListener('click', () => this.startPayment('Paket 5x Tiket Gacha (Hemat 20%)', 8000, 5));
+
+          const btnSimSuccess = document.getElementById('btn-simulate-qris-paid');
+          if (btnSimSuccess) btnSimSuccess.addEventListener('click', () => this.simulatePaymentSuccess());
+
+          const btnEnterPond = document.getElementById('btn-reveal-enter-pond');
+          if (btnEnterPond) {
+            btnEnterPond.addEventListener('click', () => {
+              closeModal();
+              closeMenu();
+              AudioFX.playSplash();
+            });
+          }
+
+          const btnRollAgain = document.getElementById('btn-reveal-roll-again');
+          if (btnRollAgain) {
+            btnRollAgain.addEventListener('click', () => {
+              closeModal();
+              this.roll();
+            });
+          }
+        }
+      };
+
+      GachaManager.init();
+
 
       // -------------------------------------------------------------
       // 4. Food Pellets, Feeding & Ripples
@@ -1501,9 +2307,9 @@
           if (!landingScreen.classList.contains('hidden')) {
             closeMenu();
           }
-        } else if (key === ' ') {
+        } else if (key === ' ' || key === 'g') {
           e.preventDefault();
-          rerollFish();
+          GachaManager.openGachaModal();
         } else if (key === 'f') {
           const fx = Math.max(80, Math.min(window.innerWidth - 80, animator.x + animator.facing * 180));
           dropPellet(fx, animator.y);
