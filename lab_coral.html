@@ -507,40 +507,40 @@
           </div>
         </div>
 
-        <!-- 3. Arsitektur Bentuk Karang (6 Tipe Morfologi) -->
+        <!-- 3. Arsitektur Bentuk Karang (7 Gaya Garis Bervolume 3D) -->
         <div class="control-group">
           <div class="group-label">
-            <span>6 Arsitektur Morfologi Karang</span>
+            <span>7 Arsitektur Karang Bervolume 3D</span>
           </div>
 
           <div class="archetype-grid">
             <button class="btn-arch active" data-arch="0" id="arch-btn-0">
               <span class="arch-code">01</span>
-              <span>Bercabang (ACB/CB)</span>
+              <span>Cawan Terompet (CTV)</span>
             </button>
             <button class="btn-arch" data-arch="1" id="arch-btn-1">
               <span class="arch-code">02</span>
-              <span>Masif Bongkahan (CM)</span>
+              <span>Ranting Tanduk (ACB)</span>
             </button>
             <button class="btn-arch" data-arch="2" id="arch-btn-2">
               <span class="arch-code">03</span>
-              <span>Meja Tabular (ACT)</span>
+              <span>Kawah Cerobong (VMC)</span>
             </button>
             <button class="btn-arch" data-arch="3" id="arch-btn-3">
               <span class="arch-code">04</span>
-              <span>Berkerak (ACE/CE)</span>
+              <span>Kubah Otak Sel (CM)</span>
             </button>
             <button class="btn-arch" data-arch="4" id="arch-btn-4">
               <span class="arch-code">05</span>
-              <span>Berdaun Foliose (CF)</span>
+              <span>Bunga Polip Surya (SPT)</span>
             </button>
             <button class="btn-arch" data-arch="5" id="arch-btn-5">
               <span class="arch-code">06</span>
-              <span>Jamur Soliter (CMR)</span>
+              <span>Menjari Tangan (ACD)</span>
             </button>
             <button class="btn-arch" data-arch="6" id="arch-btn-6" style="grid-column: span 2;">
               <span class="arch-code">07</span>
-              <span>Menjari & Tabung Pipa (ACD/CTU)</span>
+              <span>Pohon Karang Berbuku (KTS)</span>
             </button>
           </div>
         </div>
@@ -625,27 +625,27 @@
 
           <label class="checkbox-row">
             <input type="checkbox" id="chk-volumerings" checked>
-            <span>Cincin Volume 3D (Cylindrical Wrapping Ribs)</span>
+            <span>Gelang Volume 3D Melingkar (Wrapping Bands)</span>
           </label>
 
           <label class="checkbox-row">
             <input type="checkbox" id="chk-polyps" checked>
-            <span>Cangkir Polip & Koralit (Corallite Calices)</span>
+            <span>Bercak Polip & Titik Koralit (Spots & Pores)</span>
           </label>
 
           <label class="checkbox-row">
             <input type="checkbox" id="chk-meanders" checked>
-            <span>Alur Labirin Meander Otak (Gyri / Sulci)</span>
+            <span>Bilik Sel Konsentris Otak (Cellular Chambers)</span>
           </label>
 
           <label class="checkbox-row">
-            <input type="checkbox" id="chk-striations" checked>
-            <span>Garis Sekat Septa & Alur Pilar (Striations / Flutes)</span>
+            <input type="checkbox" id="chk-pebbles" checked>
+            <span>Batu Kerikil Penopang Dasar (Base Pebbles)</span>
           </label>
 
           <label class="checkbox-row">
             <input type="checkbox" id="chk-holdfast" checked>
-            <span>Kaki Jangkar Kalsit (Basal Holdfast Anchor)</span>
+            <span>Plat Substrat Dasar (Substrate Base Plate)</span>
           </label>
 
           <label class="checkbox-row">
@@ -685,13 +685,13 @@
       </div>
 
       <div class="viewport-hud">
-        <div>Spesies: <span id="hud-name">Acropora formosa [ACB]</span></div>
-        <div>Bentuk Karang: <span id="hud-arch">Bercabang (Branching ACB)</span></div>
+        <div>Spesies: <span id="hud-name">Caulastrea curvata [CTV]</span></div>
+        <div>Bentuk Karang: <span id="hud-arch">Cawan Terompet Tabung</span></div>
         <div>Morfologi: <span id="hud-morph">Standar Botani</span></div>
-        <div>Volume: <span id="hud-volume" style="font-weight:700;">3D Volumetrik Chiaroscuro</span></div>
-        <div>Kombinasi: <span id="hud-combo">451.584 Pola Makro (&infin; Kontinu)</span></div>
-        <div>Palet: <span id="hud-palette" style="font-weight:600;">100% Monokrom Murni</span></div>
-        <div>Dimensi: <span id="hud-dim">210 &times; 160 px</span></div>
+        <div>Gaya Garis: <span id="hud-volume" style="font-weight:700;">Garis Tebal Bervolume 3D</span></div>
+        <div>Kombinasi Bentuk: <span id="hud-combo">Batu &amp; Terumbu Tak Terbatas (&infin;)</span></div>
+        <div>Palet: <span id="hud-palette" style="font-weight:600;">100% Monokrom Murni (Tanpa Warna)</span></div>
+        <div>Dimensi: <span id="hud-dim">160 &times; 140 px</span></div>
         <div>FPS: <span id="hud-fps">60</span></div>
       </div>
     </section>
@@ -739,7 +739,7 @@
       let showVolumeRings = true;
       let showPolyps = true;
       let showMeanders = true;
-      let showStriations = true;
+      let showPebbles = true;
       let showHoldfast = true;
       let showShadow = true;
 
@@ -750,13 +750,13 @@
       const selectCoral = document.getElementById('select-coral');
       const catalog = coraldraw.getCoralList();
       const archGroupNames = [
-        '1. Bercabang (Branching ACB / CB)',
-        '2. Masif Bongkahan (Massive CM / ACS)',
-        '3. Meja Tabular (Tabulate ACT)',
-        '4. Berkerak Substrat (Encrusting ACE / CE)',
-        '5. Berdaun Lembaran (Foliose CF)',
-        '6. Jamur Soliter (Mushroom CMR - Fungia)',
-        '7. Menjari & Tabung (Digitate ACD / CTU)'
+        '1. Cawan Terompet Tabung (Flared Trumpet Cups - CTV)',
+        '2. Ranting Tanduk Tebal (Chunky Branching - ACB / CB)',
+        '3. Kubah Kawah Cerobong (Volcano Crater Mound - VMC)',
+        '4. Kubah Otak Selular (Cellular Brain Dome - CM)',
+        '5. Bunga Polip Surya (Sunburst Crown Polyps - SPT)',
+        '6. Menjari Jari Tangan (Upright Digitate Cylinders - ACD / CTU)',
+        '7. Pohon Karang Berbuku (Knobby Spire & Shelves - KTS)'
       ];
 
       archGroupNames.forEach((groupName, gIdx) => {
@@ -850,13 +850,13 @@
 
         document.getElementById('hud-name').textContent = activeSpecies.binomen;
         const archNames = [
-          'Bercabang (Branching ACB / CB)',
-          'Masif Bongkahan (Massive CM / ACS)',
-          'Meja Tabular (Tabulate ACT)',
-          'Berkerak Substrat (Encrusting ACE / CE)',
-          'Berdaun Lembaran (Foliose CF)',
-          'Jamur Soliter (Mushroom CMR - Fungia)',
-          'Menjari & Tabung Pipa (Digitate ACD / CTU)'
+          '01 Cawan Terompet Tabung (Trumpet Cups)',
+          '02 Ranting Tanduk Tebal (Chunky Branching)',
+          '03 Kubah Kawah Cerobong (Volcano Craters)',
+          '04 Kubah Otak Selular (Cellular Brain)',
+          '05 Bunga Polip Surya (Sunburst Polyps)',
+          '06 Menjari Jari Tangan (Digitate Fingers)',
+          '07 Pohon Karang Berbuku (Knobby Spire & Shelves)'
         ];
         document.getElementById('hud-arch').textContent = archNames[activeArchetype] || 'Terumbu Karang';
         document.getElementById('hud-name').textContent = `${activeSpecies.common} [${activeSpecies.code || 'CORAL'}]`;
@@ -1033,7 +1033,8 @@
       if (chkVol) chkVol.addEventListener('change', (e) => showVolumeRings = e.target.checked);
       document.getElementById('chk-polyps').addEventListener('change', (e) => showPolyps = e.target.checked);
       document.getElementById('chk-meanders').addEventListener('change', (e) => showMeanders = e.target.checked);
-      document.getElementById('chk-striations').addEventListener('change', (e) => showStriations = e.target.checked);
+      const chkPeb = document.getElementById('chk-pebbles');
+      if (chkPeb) chkPeb.addEventListener('change', (e) => showPebbles = e.target.checked);
       document.getElementById('chk-holdfast').addEventListener('change', (e) => showHoldfast = e.target.checked);
       document.getElementById('chk-shadow').addEventListener('change', (e) => showShadow = e.target.checked);
 
@@ -1113,7 +1114,7 @@
           showVolumeRings: showVolumeRings,
           showPolyps: showPolyps,
           showMeanders: showMeanders,
-          showStriations: showStriations,
+          showPebbles: showPebbles,
           showHoldfast: showHoldfast,
           showShadow: showShadow
         };
