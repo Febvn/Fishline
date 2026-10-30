@@ -21,7 +21,8 @@ Dokumentasi ini merangkum seluruh alur percakapan, instruksi pengguna, dan imple
 | **10** | `e1918ac` | *https://github.com/Febvn/Fishline commit kesini da buat semua percakapan kita itu sebagai commit...* | Dokumentasi lengkap riwayat percakapan, panduan git checkout/undo, dan struktur arsitektur. |
 | **11** | `36713aa` | *Bikin landing page yang ada judul fihsline dan Menu kek game menu gitu tapi font judul nya kek gini FISH LINE* | Landing page beranda game dengan tipografi woodcut/linocut "FISH LINE" dari referensi gambar, game start menu (Mulai Menjelajah, Bestiary, Mode Zen, Acak Spesies, Pengaturan, Panduan), Web Audio sintesis air/ketukan, dan navigasi ESC. |
 | **12** | `b2c9830` | *anda ngecrop gambar nya masih salah* | Perbaikan isolasi crop tipografi: memotong setiap huruf (F, I, S, H, L, I, N, E) tepat pada batas isolasi piksel bebas kebocoran huruf tetangga (D, G, J, K, M, X), mempertahankan warna tinta asli dari gambar, dan menyatukannya dalam banner presisi. |
-| **13** | `6c23978` | *kalau generate font yang milih jad ngak usah pakai img* | Generator tipografi woodcut/linocut prosedural murni berbasis kode JavaScript & HTML5 Canvas tanpa berkas gambar eksternal (2-pass distance transform, organic displacement wave, dan interaksi riak air saat hover kursor). |
+| **13** | `b525cf8` | *kalau generate font yang milih jad ngak usah pakai img* | Eksperimen generator tipografi linocut prosedural murni berbasis kode JavaScript & HTML5 Canvas tanpa gambar eksternal. |
+| **14** | `5054b54` | *aneh bener jing* | Menghapus generator prosedural sintetis canvas yang kaku/aneh, mengembalikan tipografi otentik cukil kayu asli dari gambar referensi dengan isolasi piksel presisi (connected component analysis, border-free moat margin di setiap huruf F, I, S, H, L, I, N, E, zero neighbor leakage, dan proporsi cap-height serasi). |
 
 ---
 

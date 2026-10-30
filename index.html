@@ -230,21 +230,22 @@
       margin-bottom: 14px;
     }
 
-    .woodcut-banner-canvas {
+    .woodcut-banner-img {
       width: 100%;
       height: auto;
-      max-height: 140px;
+      max-height: 125px;
+      object-fit: contain;
       display: block;
-      filter: drop-shadow(0 6px 14px rgba(24, 20, 31, 0.14));
+      filter: drop-shadow(0 6px 14px rgba(24, 20, 31, 0.16));
       transition: transform 0.3s var(--transition-smooth), filter 0.3s ease;
       cursor: pointer;
     }
 
-    body.theme-midnight .woodcut-banner-canvas {
-      filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.6));
+    body.theme-midnight .woodcut-banner-img {
+      filter: invert(0.92) hue-rotate(180deg) drop-shadow(0 6px 18px rgba(0, 0, 0, 0.6));
     }
 
-    .woodcut-banner-canvas:hover {
+    .woodcut-banner-img:hover {
       transform: translateY(-3px) scale(1.02);
       filter: drop-shadow(0 12px 24px rgba(186, 50, 34, 0.22));
     }
@@ -781,16 +782,16 @@
   <div class="landing-screen" id="landing-screen">
     <div class="landing-content-card">
       
-      <!-- Authentic Procedural Woodcut Title Typography (No External Image Needed!) -->
+      <!-- Authentic Woodcut Title Typography -->
       <div class="woodcut-title-container">
         <div class="woodcut-banner-box">
-          <canvas id="woodcut-title-canvas" width="760" height="150" class="woodcut-banner-canvas" title="FISH LINE • Tipografi Prosedural Linocut"></canvas>
+          <img src="assets/title/title_banner.png" alt="FISH LINE" class="woodcut-banner-img" title="FISH LINE • Seni Cukil Kayu Linocut Otentik">
         </div>
 
         <div class="title-sub-bar">
           <span class="hanko-seal">墨魚図</span>
           <span class="title-tagline">Living Procedural Sumi-e Aquarium</span>
-          <span class="version-pill">v2.0 • Prosedural</span>
+          <span class="version-pill">v2.0 • Cukil Kayu Otentik</span>
         </div>
       </div>
 
@@ -1021,156 +1022,6 @@
   <script>
     (function () {
       // -------------------------------------------------------------
-      // 0. Procedural Woodcut Title Generator (Pure Code, No Images!)
-      // -------------------------------------------------------------
-      class WoodcutTitleRenderer {
-        constructor(canvas) {
-          this.canvas = canvas;
-          this.ctx = canvas.getContext('2d');
-          this.w = canvas.width;
-          this.h = canvas.height;
-          this.hover = false;
-          this.hoverX = this.w * 0.5;
-          this.hoverY = this.h * 0.5;
-          this.time = 0;
-
-          // Offscreen mask canvas
-          this.off = document.createElement('canvas');
-          this.off.width = this.w;
-          this.off.height = this.h;
-          this.offCtx = this.off.getContext('2d');
-
-          this.buildMaskAndDistance();
-          this.attachEvents();
-        }
-
-        buildMaskAndDistance() {
-          const { w, h, offCtx } = this;
-          offCtx.clearRect(0, 0, w, h);
-          offCtx.fillStyle = '#ffffff';
-          offCtx.font = "900 114px 'Impact', 'Arial Black', sans-serif";
-          offCtx.textAlign = 'center';
-          offCtx.textBaseline = 'middle';
-          offCtx.fillText("FISH LINE", w * 0.5, h * 0.5 - 4);
-
-          const imgData = offCtx.getImageData(0, 0, w, h);
-          const data = imgData.data;
-
-          // 1. Organic edge displacement mask
-          this.mask = new Uint8Array(w * h);
-          for (let y = 0; y < h; y++) {
-            for (let x = 0; x < w; x++) {
-              const wx = Math.round(x + 2.6 * Math.sin(y / 10.0) + 1.8 * Math.cos(x / 14.0));
-              const wy = Math.round(y + 2.2 * Math.cos(x / 11.0));
-              if (wx >= 0 && wx < w && wy >= 0 && wy < h) {
-                const alpha = data[(wy * w + wx) * 4 + 3];
-                if (alpha > 100) {
-                  this.mask[y * w + x] = 255;
-                }
-              }
-            }
-          }
-
-          // 2. Fast 2-pass Euclidean / Manhattan Distance Transform
-          this.dist = new Float32Array(w * h);
-          const INF = 9999;
-          for (let i = 0; i < w * h; i++) {
-            this.dist[i] = this.mask[i] ? INF : 0;
-          }
-
-          for (let y = 1; y < h; y++) {
-            for (let x = 1; x < w - 1; x++) {
-              const i = y * w + x;
-              if (this.dist[i] > 0) {
-                this.dist[i] = Math.min(
-                  this.dist[i],
-                  this.dist[i - 1] + 1,
-                  this.dist[i - w] + 1,
-                  this.dist[i - w - 1] + 1.414,
-                  this.dist[i - w + 1] + 1.414
-                );
-              }
-            }
-          }
-
-          for (let y = h - 2; y >= 0; y--) {
-            for (let x = w - 2; x >= 1; x--) {
-              const i = y * w + x;
-              if (this.dist[i] > 0) {
-                this.dist[i] = Math.min(
-                  this.dist[i],
-                  this.dist[i + 1] + 1,
-                  this.dist[i + w] + 1,
-                  this.dist[i + w + 1] + 1.414,
-                  this.dist[i + w - 1] + 1.414
-                );
-              }
-            }
-          }
-
-          this.outImg = this.ctx.createImageData(w, h);
-        }
-
-        attachEvents() {
-          this.canvas.addEventListener('mousemove', (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            this.hoverX = (e.clientX - rect.left) * (this.w / rect.width);
-            this.hoverY = (e.clientY - rect.top) * (this.h / rect.height);
-            this.hover = true;
-          });
-          this.canvas.addEventListener('mouseleave', () => {
-            this.hover = false;
-          });
-        }
-
-        render(theme = 'washi', dt = 0.016) {
-          const { w, h, mask, dist, outImg, ctx } = this;
-          const buf32 = new Uint32Array(outImg.data.buffer);
-          this.time += dt;
-
-          const isMidnight = theme === 'midnight';
-          // Colors in ABGR (Little Endian):
-          // Dark ink: #18141f -> 0xff1f1418
-          // Parchment groove: #fbf9f4 -> 0xfff4f9fb
-          // Midnight Luminescent Ink: #f0ede6 -> 0xffe6edf0
-          // Midnight Deep Groove: #1a202c -> 0xff2c201a
-          const colInk = isMidnight ? 0xffe6edf0 : 0xff1f1418;
-          const colGroove = isMidnight ? 0xff2c201a : 0xfff4f9fb;
-
-          const spacing = 5.6;
-          const lineW = 1.6;
-
-          for (let y = 0; y < h; y++) {
-            const rowOffset = y * w;
-            for (let x = 0; x < w; x++) {
-              const i = rowOffset + x;
-              if (!mask[i]) {
-                buf32[i] = 0;
-                continue;
-              }
-
-              let wave = 3.6 * Math.sin(y / 6.5) + 2.2 * Math.cos(x / 8.2) + 1.2 * Math.sin((x + y) / 10.0);
-
-              if (this.hover) {
-                const dx = x - this.hoverX;
-                const dy = y - this.hoverY;
-                const d = Math.hypot(dx, dy);
-                if (d < 150) {
-                  wave += Math.sin(d * 0.16 - this.time * 7.0) * (1 - d / 150) * 3.5;
-                }
-              }
-
-              const field = dist[i] + wave;
-              const isGroove = (field % spacing) < lineW;
-              buf32[i] = isGroove ? colGroove : colInk;
-            }
-          }
-
-          ctx.putImageData(outImg, 0, 0);
-        }
-      }
-
-      // -------------------------------------------------------------
       // 1. Procedural Web Audio FX (Bamboo Water Ladle & Droplets)
       // -------------------------------------------------------------
       const AudioFX = {
@@ -1299,14 +1150,6 @@
         scale: 0.85
       });
 
-      // Procedural Woodcut Title Generator (Pure Code, No External Image!)
-      const woodcutCanvas = document.getElementById('woodcut-title-canvas');
-      const woodcutTitle = new WoodcutTitleRenderer(woodcutCanvas);
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(() => {
-          woodcutTitle.buildMaskAndDistance();
-        });
-      }
 
       // Food pellets & water ripples array
       const pellets = [];
@@ -1714,10 +1557,6 @@
           paperColor: paperColor
         });
 
-        // 4. Render Procedural Woodcut Title (real-time canvas, zero images)
-        if (!landingScreen.classList.contains('hidden')) {
-          woodcutTitle.render(currentTheme, dt);
-        }
 
         requestAnimationFrame(loop);
       }
