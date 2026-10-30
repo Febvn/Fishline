@@ -301,12 +301,12 @@
         this.currentWaveK = 6.0;
         this.pecAngle = Math.sin(this.time * 7.0) * 0.4;
 
-        // 4. Progressively open jaw wide as mouth closes in on the food pellet
+        // 4. Progressively open lower lip as mouth closes in on the food pellet
         if (dist < 130) {
           const openProgress = Math.max(0, 1 - dist / 130);
-          this.targetJawAngle = 0.15 + openProgress * 0.38; // wide open
+          this.targetJawAngle = openProgress * 0.35; // opens lower lip smoothly
         } else {
-          this.targetJawAngle = 0.15;
+          this.targetJawAngle = 0.0;
         }
 
         // 5. Steer the MOUTH directly to the food pellet with sub-pixel precision
@@ -317,12 +317,13 @@
           this.y += (dy / dist) * step;
         }
 
-        // 6. Chomp condition: mouth arrives at food
+        // 6. Chomp condition: lower lip clamps shut neatly on contact
         if (dist <= 22) {
           food.eaten = true;
-          this.targetJawAngle = 0.0; // Snap jaw shut instantaneously
+          this.jawAngle = -0.10; // Clamps lower lip firmly against upper lip!
+          this.targetJawAngle = -0.10;
           this.chewTimer = 0;
-          this.spawnBubbles(mouth.x, mouth.y, 6);
+          this.spawnBubbles(mouth.x, mouth.y, 7);
         }
       } else {
         // Chewing phase
@@ -340,10 +341,20 @@
         this.currentWaveAmp = 8;
         this.currentWaveK = 3.5;
 
-        // 3 rapid chewing pulses
-        this.targetJawAngle = Math.abs(Math.sin(this.chewTimer * 14)) * 0.18 * Math.exp(-this.chewTimer * 1.8);
+        // Hold bite firmly shut for 0.35s so the chomp is clearly visible!
+        if (this.chewTimer < 0.35) {
+          this.jawAngle = -0.10;
+          this.targetJawAngle = -0.10;
+        } else {
+          // Subtle chewing pulses that clamp back on each bite
+          const tChew = this.chewTimer - 0.35;
+          const chew = Math.sin(tChew * 13);
+          this.targetJawAngle = chew > 0 ? (chew * 0.07 * Math.exp(-tChew * 2.0) - 0.05) : -0.10;
+        }
 
         if (this.chewTimer > 1.6) {
+          this.jawAngle = 0.0;
+          this.targetJawAngle = 0.0;
           this.targetFood = null;
           this.setState('idle');
         }
