@@ -354,6 +354,34 @@
       background: var(--bg-wash);
     }
 
+    .btn-stamp-action {
+      background: var(--ink);
+      color: var(--bg-wash);
+      border: 1px solid var(--ink);
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      transition: all 0.15s ease;
+    }
+
+    .btn-stamp-action:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+    }
+
+    .btn-stamp-action:active {
+      transform: translateY(1px);
+    }
+
     /* Right Viewport Canvas */
     .lab-viewport {
       flex: 1;
@@ -522,6 +550,12 @@
             <option value="5">06 Bidang Dasar Datar Sungai (Flat-Bottom Resting Base)</option>
             <option value="6">07 Rekah Sumbing / Serpihan (Chipped Spall Flake)</option>
           </select>
+
+          <button class="btn-stamp-action" id="btn-random-shape" style="width:100%; margin-top:8px;" title="Acak bentuk geometri & siluet batu tanpa ubah spesies (Space / R)">
+            <span>🎲</span>
+            <span>Acak Bentuk Saja (Random Shape)</span>
+            <span style="margin-left:auto; font-size:10px; opacity:0.75; font-weight:500; border:1px solid currentColor; padding:1px 5px; border-radius:4px;">Space / R</span>
+          </button>
         </div>
 
         <!-- 4. Parameter Dimensi, Tekstur & Gugusan -->
@@ -632,6 +666,12 @@
 
     <!-- Right Viewport: Interactive Canvas -->
     <section class="lab-viewport" id="viewport-pebble-container">
+      <div style="position:absolute; top:18px; right:18px; z-index:10; display:flex; gap:8px;">
+        <button class="btn-stamp-action" id="btn-floating-random-shape" style="padding:6px 12px; font-size:11px;" title="Acak bentuk batu tanpa ubah spesies (Space / R)">
+          <span>🎲</span>
+          <span>Acak Bentuk (Shape)</span>
+        </button>
+      </div>
       <canvas id="canvas-pebble"></canvas>
 
       <div class="viewport-hint">
@@ -727,13 +767,15 @@
       // 2. Models
       let cluster = null;
       let bed = null;
+      let currentSeed = activeSpecies.binomen;
 
-      function createCluster() {
-        pebbledraw.set_seed(activeSpecies.binomen);
+      function createCluster(seed) {
+        if (seed) currentSeed = seed;
+        pebbledraw.set_seed(currentSeed);
         cluster = new pebbledraw.PebbleCluster(
           viewport.clientWidth * 0.5,
           viewport.clientHeight * 0.55,
-          activeSpecies.binomen,
+          currentSeed,
           {
             pebbleId: activeSpecies.id,
             archetype: activeArchetype,
@@ -750,14 +792,53 @@
         syncInfoUI();
       }
 
-      function createBed() {
+      function createBed(seed) {
+        const bedSeed = seed || `Lakebed_${currentSeed}`;
         bed = pebbledraw.createBed({
           width: viewport.clientWidth,
           height: viewport.clientHeight,
           count: Math.max(5, Math.floor(viewport.clientWidth / 140)),
-          seed: 'Lakebed Shingle Bed'
+          seed: bedSeed
         });
         syncInfoUI();
+      }
+
+      // Randomize Shape Only (Keeps activeSpecies intact)
+      function randomizeShape() {
+        // 1. Generate unique random seed for Fourier & cracks
+        currentSeed = `Shape_${activeSpecies.id}_${Date.now()}_${Math.floor(Math.random() * 999999)}`;
+
+        // 2. Randomize geometric morph (0 to 6)
+        activeMorph = Math.floor(Math.random() * 7);
+        const selectMorph = document.getElementById('select-morph');
+        if (selectMorph) selectMorph.value = String(activeMorph);
+
+        // 3. Mutate dimensions organically around baseline
+        const baseRx = activeSpecies.rx || 65;
+        const baseRy = activeSpecies.ry || 42;
+        const ratioMult = 0.75 + Math.random() * 0.55;
+        paramRx = Math.round(baseRx * (0.80 + Math.random() * 0.45));
+        paramRy = Math.round(baseRy * ratioMult);
+        paramRoughness = parseFloat((activeSpecies.roughness * (0.65 + Math.random() * 0.70)).toFixed(2));
+        paramAngle = Math.round((Math.random() - 0.5) * 50);
+
+        // 4. Update UI sliders and HUD
+        syncInfoUI();
+
+        // 5. Rebuild model with new shape
+        if (viewMode !== 'bed') {
+          createCluster(currentSeed);
+        } else {
+          createBed(currentSeed);
+        }
+
+        // 6. Visual ripple confirmation
+        ripples.push({
+          x: viewport.clientWidth * 0.5,
+          y: viewport.clientHeight * 0.55,
+          r: 12,
+          alpha: 0.95
+        });
       }
 
       function syncInfoUI() {
@@ -810,6 +891,7 @@
         if (found) {
           activeSpecies = found;
           activeArchetype = found.archetype;
+          currentSeed = found.binomen;
           paramRx = found.rx;
           paramRy = found.ry;
           paramRoughness = found.roughness;
@@ -827,6 +909,24 @@
           if (viewMode !== 'bed') createCluster();
         });
       }
+
+      // Randomize Shape Only Buttons
+      const btnRandShape = document.getElementById('btn-random-shape');
+      if (btnRandShape) btnRandShape.addEventListener('click', randomizeShape);
+
+      const btnFloatRand = document.getElementById('btn-floating-random-shape');
+      if (btnFloatRand) btnFloatRand.addEventListener('click', randomizeShape);
+
+      // Keyboard Shortcut (Space / R for instant shape randomization)
+      window.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+          return;
+        }
+        if (e.code === 'Space' || e.code === 'KeyR') {
+          e.preventDefault();
+          randomizeShape();
+        }
+      });
 
       document.getElementById('btn-random-species').addEventListener('click', () => {
         const randSpecies = catalog[Math.floor(Math.random() * catalog.length)];
