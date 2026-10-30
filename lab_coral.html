@@ -516,27 +516,31 @@
           <div class="archetype-grid">
             <button class="btn-arch active" data-arch="0" id="arch-btn-0">
               <span class="arch-code">01</span>
-              <span>Ranting Acropora</span>
+              <span>Bercabang (ACB/CB)</span>
             </button>
             <button class="btn-arch" data-arch="1" id="arch-btn-1">
               <span class="arch-code">02</span>
-              <span>Karang Otak Labirin</span>
+              <span>Masif Bongkahan (CM)</span>
             </button>
             <button class="btn-arch" data-arch="2" id="arch-btn-2">
               <span class="arch-code">03</span>
-              <span>Karang Meja Piring</span>
+              <span>Meja Tabular (ACT)</span>
             </button>
             <button class="btn-arch" data-arch="3" id="arch-btn-3">
               <span class="arch-code">04</span>
-              <span>Kipas Laut Renda</span>
+              <span>Berkerak (ACE/CE)</span>
             </button>
             <button class="btn-arch" data-arch="4" id="arch-btn-4">
               <span class="arch-code">05</span>
-              <span>Selada Cawan Ruffle</span>
+              <span>Berdaun Foliose (CF)</span>
             </button>
             <button class="btn-arch" data-arch="5" id="arch-btn-5">
               <span class="arch-code">06</span>
-              <span>Tabung Pilar Tiang</span>
+              <span>Jamur Soliter (CMR)</span>
+            </button>
+            <button class="btn-arch" data-arch="6" id="arch-btn-6" style="grid-column: span 2;">
+              <span class="arch-code">07</span>
+              <span>Menjari & Tabung Pipa (ACD/CTU)</span>
             </button>
           </div>
         </div>
@@ -620,6 +624,11 @@
           </div>
 
           <label class="checkbox-row">
+            <input type="checkbox" id="chk-volumerings" checked>
+            <span>Cincin Volume 3D (Cylindrical Wrapping Ribs)</span>
+          </label>
+
+          <label class="checkbox-row">
             <input type="checkbox" id="chk-polyps" checked>
             <span>Cangkir Polip & Koralit (Corallite Calices)</span>
           </label>
@@ -676,12 +685,13 @@
       </div>
 
       <div class="viewport-hud">
-        <div>Spesies: <span id="hud-name">Acropora cervicornis</span></div>
-        <div>Arsitektur: <span id="hud-arch">Ranting Acropora</span></div>
+        <div>Spesies: <span id="hud-name">Acropora formosa [ACB]</span></div>
+        <div>Bentuk Karang: <span id="hud-arch">Bercabang (Branching ACB)</span></div>
         <div>Morfologi: <span id="hud-morph">Standar Botani</span></div>
+        <div>Volume: <span id="hud-volume" style="font-weight:700;">3D Volumetrik Chiaroscuro</span></div>
         <div>Kombinasi: <span id="hud-combo">451.584 Pola Makro (&infin; Kontinu)</span></div>
-        <div>Palet: <span id="hud-palette" style="color:var(--ink); font-weight:600;">Monokrom Murni (Hitam / Abu-abu / Putih)</span></div>
-        <div>Dimensi: <span id="hud-dim">190 &times; 130 px</span></div>
+        <div>Palet: <span id="hud-palette" style="font-weight:600;">100% Monokrom Murni</span></div>
+        <div>Dimensi: <span id="hud-dim">210 &times; 160 px</span></div>
         <div>FPS: <span id="hud-fps">60</span></div>
       </div>
     </section>
@@ -726,6 +736,7 @@
       let paramCount = 3;
       let paramLineWidth = 1.15;
 
+      let showVolumeRings = true;
       let showPolyps = true;
       let showMeanders = true;
       let showStriations = true;
@@ -739,12 +750,13 @@
       const selectCoral = document.getElementById('select-coral');
       const catalog = coraldraw.getCoralList();
       const archGroupNames = [
-        '1. Karang Rusa / Ranting (Branching Acropora)',
-        '2. Karang Otak Labirin (Brain Coral)',
-        '3. Karang Piring Meja (Table Coral)',
-        '4. Kipas Laut Renda Lentur (Sea Fan)',
-        '5. Karang Selada Cawan (Foliose Lettuce)',
-        '6. Karang Tabung Pilar (Pillar Pipe)'
+        '1. Bercabang (Branching ACB / CB)',
+        '2. Masif Bongkahan (Massive CM / ACS)',
+        '3. Meja Tabular (Tabulate ACT)',
+        '4. Berkerak Substrat (Encrusting ACE / CE)',
+        '5. Berdaun Lembaran (Foliose CF)',
+        '6. Jamur Soliter (Mushroom CMR - Fungia)',
+        '7. Menjari & Tabung (Digitate ACD / CTU)'
       ];
 
       archGroupNames.forEach((groupName, gIdx) => {
@@ -837,8 +849,17 @@
         document.getElementById('display-desc').textContent = activeSpecies.desc;
 
         document.getElementById('hud-name').textContent = activeSpecies.binomen;
-        const archNames = ['Ranting Acropora', 'Karang Otak Labirin', 'Karang Meja Piring', 'Kipas Laut Renda', 'Selada Cawan Ruffle', 'Tabung Pilar Tiang'];
+        const archNames = [
+          'Bercabang (Branching ACB / CB)',
+          'Masif Bongkahan (Massive CM / ACS)',
+          'Meja Tabular (Tabulate ACT)',
+          'Berkerak Substrat (Encrusting ACE / CE)',
+          'Berdaun Lembaran (Foliose CF)',
+          'Jamur Soliter (Mushroom CMR - Fungia)',
+          'Menjari & Tabung Pipa (Digitate ACD / CTU)'
+        ];
         document.getElementById('hud-arch').textContent = archNames[activeArchetype] || 'Terumbu Karang';
+        document.getElementById('hud-name').textContent = `${activeSpecies.common} [${activeSpecies.code || 'CORAL'}]`;
         const morphNames = ['01 Standar Botani', '02 Melebar Horizontal', '03 Menjulang Spire', '04 Rumpun Rapat', '05 Melengkung Arus', '06 Bertingkat Trap', '07 Patahan Cleft'];
         const hudMorphEl = document.getElementById('hud-morph');
         if (hudMorphEl) {
@@ -865,7 +886,7 @@
         document.getElementById('val-linewidth').textContent = paramLineWidth.toFixed(2) + ' px';
 
         // Update active archetype buttons
-        for (let a = 0; a < 6; a++) {
+        for (let a = 0; a < 7; a++) {
           const btn = document.getElementById(`arch-btn-${a}`);
           if (btn) btn.classList.toggle('active', a === activeArchetype);
         }
@@ -934,7 +955,7 @@
       });
 
       // Archetype Buttons
-      for (let a = 0; a < 6; a++) {
+      for (let a = 0; a < 7; a++) {
         const btn = document.getElementById(`arch-btn-${a}`);
         if (btn) {
           btn.addEventListener('click', () => {
@@ -1008,6 +1029,8 @@
       });
 
       // Visual Checkboxes
+      const chkVol = document.getElementById('chk-volumerings');
+      if (chkVol) chkVol.addEventListener('change', (e) => showVolumeRings = e.target.checked);
       document.getElementById('chk-polyps').addEventListener('change', (e) => showPolyps = e.target.checked);
       document.getElementById('chk-meanders').addEventListener('change', (e) => showMeanders = e.target.checked);
       document.getElementById('chk-striations').addEventListener('change', (e) => showStriations = e.target.checked);
@@ -1087,6 +1110,7 @@
           strokeColor: inkColor,
           lineWidth: paramLineWidth,
           theme: currentTheme,
+          showVolumeRings: showVolumeRings,
           showPolyps: showPolyps,
           showMeanders: showMeanders,
           showStriations: showStriations,
@@ -1110,3 +1134,4 @@
   </script>
 </body>
 </html>
+
