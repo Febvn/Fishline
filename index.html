@@ -3,19 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>fishdraw animator — LingDong- Procedural Fish in Motion</title>
+  <title>FISH LINE — Living Procedural Sumi-e Aquarium</title>
   <style>
     :root {
       --bg-wash: #f5f2e9;
       --paper-card: #fdfbf7;
       --paper-border: #ded8cb;
-      --ink: #181818;
+      --ink: #18141f;
       --ink-muted: #5f5a52;
       --ink-faint: #9c9588;
       --seal-red: #ba3222;
       --seal-red-bg: #faeae7;
       --water-tint: #eaf1f4;
       --water-bubble: #6d8999;
+      --accent-gold: #c49a45;
+      --transition-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body.theme-midnight {
+      --bg-wash: #12151c;
+      --paper-card: #191e28;
+      --paper-border: #283142;
+      --ink: #f0ede6;
+      --ink-muted: #9aa3b5;
+      --ink-faint: #5d677a;
+      --seal-red: #e04a36;
+      --seal-red-bg: #2d1816;
+      --water-tint: #1b2331;
+      --water-bubble: #86a5bd;
     }
 
     * {
@@ -29,413 +44,1006 @@
       color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Serif", Georgia, serif;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 16px 40px;
+      overflow-x: hidden;
       user-select: none;
+      position: relative;
+      transition: background-color 0.4s ease, color 0.4s ease;
     }
 
-    /* Header styling */
-    header {
+    /* Ambient background canvas container */
+    .aquarium-viewport {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      cursor: crosshair;
+    }
+
+    canvas#aquarium {
       width: 100%;
-      max-width: 1100px;
+      height: 100%;
+      display: block;
+    }
+
+    /* Top persistent bar (In-Game & Menu Navigation) */
+    .top-persistent-bar {
+      position: fixed;
+      top: 18px;
+      left: 20px;
+      right: 20px;
+      z-index: 40;
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 18px;
-      padding: 0 4px;
+      align-items: center;
+      pointer-events: none;
     }
 
-    .title-group h1 {
-      font-size: 24px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
+    .top-persistent-bar > * {
+      pointer-events: auto;
+    }
+
+    .top-btn-group {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .seal-stamp {
-      display: inline-block;
+    .btn-icon-capsule {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(253, 251, 247, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--paper-border);
+      border-radius: 999px;
+      padding: 7px 15px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s var(--transition-smooth);
+    }
+
+    body.theme-midnight .btn-icon-capsule {
+      background: rgba(25, 30, 40, 0.85);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn-icon-capsule:hover {
+      transform: translateY(-1px);
+      border-color: var(--ink-muted);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-icon-capsule:active {
+      transform: translateY(1px);
+    }
+
+    .hanko-stamp-sm {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       border: 1.5px solid var(--seal-red);
       color: var(--seal-red);
       font-size: 11px;
       font-weight: 700;
-      padding: 2px 5px;
+      padding: 1px 4px;
       border-radius: 3px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      line-height: 1;
     }
 
-    .subtitle {
-      font-size: 13px;
-      color: var(--ink-muted);
-      margin-top: 4px;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    .top-species-hud {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      background: rgba(253, 251, 247, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--paper-border);
+      border-radius: 12px;
+      padding: 6px 14px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
     }
 
-    .species-tag {
-      text-align: right;
+    body.theme-midnight .top-species-hud {
+      background: rgba(253, 251, 247, 0.85);
+      background: rgba(25, 30, 40, 0.85);
     }
 
-    .species-name {
+    .top-species-hud .latin-name {
       font-style: italic;
-      font-size: 17px;
-      font-weight: 500;
-      color: var(--ink);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
     }
 
-    .species-meta {
-      font-size: 12px;
-      color: var(--ink-faint);
+    .top-species-hud .meta-seed {
       font-family: monospace;
+      font-size: 11px;
+      color: var(--ink-faint);
     }
 
-    /* Main workspace */
-    .workspace {
+    /* =========================================
+       LANDING PAGE & GAME MENU OVERLAY
+       ========================================= */
+    .landing-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 20px;
+      background: radial-gradient(circle at center, rgba(251, 249, 244, 0.72) 0%, rgba(245, 242, 233, 0.94) 85%);
+      backdrop-filter: blur(6px);
+      transition: opacity 0.45s var(--transition-smooth), visibility 0.45s var(--transition-smooth);
+    }
+
+    body.theme-midnight .landing-screen {
+      background: radial-gradient(circle at center, rgba(18, 21, 28, 0.72) 0%, rgba(14, 17, 23, 0.95) 85%);
+    }
+
+    .landing-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .landing-content-card {
       width: 100%;
-      max-width: 1100px;
-      display: grid;
-      grid-template-columns: 1fr 280px;
-      gap: 16px;
+      max-width: 780px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
     }
 
-    @media (max-width: 900px) {
-      .workspace {
-        grid-template-columns: 1fr;
+    /* Authentic Woodcut Title Typography */
+    .woodcut-title-container {
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: titleEntrance 0.8s var(--transition-smooth) both;
+    }
+
+    @keyframes titleEntrance {
+      0% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.96);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
       }
     }
 
-    /* Aquarium canvas stage */
-    .stage-container {
-      background: var(--paper-card);
-      border: 1px solid var(--paper-border);
-      border-radius: 6px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.04);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    canvas {
-      display: block;
-      width: 100%;
-      height: 520px;
-      background-color: #fbf9f4;
-      cursor: crosshair;
-    }
-
-    .stage-overlay {
-      position: absolute;
-      top: 14px;
-      left: 16px;
-      pointer-events: none;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .state-badge {
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid var(--paper-border);
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-    }
-
-    .state-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--ink);
-    }
-
-    .state-badge.state-idle .state-dot { background: #2f855a; }
-    .state-badge.state-swim .state-dot { background: #2b6cb0; }
-    .state-badge.state-eat .state-dot { background: #d69e2e; }
-    .state-badge.state-die .state-dot { background: var(--seal-red); }
-
-    .stage-hint {
-      position: absolute;
-      bottom: 12px;
-      left: 16px;
-      pointer-events: none;
-      font-size: 11px;
-      color: var(--ink-faint);
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-
-    /* Controls Panel */
-    .controls-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .card {
-      background: var(--paper-card);
-      border: 1px solid var(--paper-border);
-      border-radius: 6px;
-      padding: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    }
-
-    .card-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--ink-faint);
-      font-weight: 700;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    /* State Switcher Buttons */
-    .button-group-vertical {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .btn-state {
-      background: transparent;
-      border: 1px solid var(--paper-border);
-      border-radius: 4px;
-      padding: 9px 12px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--ink);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: all 0.15s ease;
-      text-align: left;
-    }
-
-    .btn-state:hover {
-      background: #f4ede0;
-      border-color: #cfc4b2;
-    }
-
-    .btn-state.active {
-      background: var(--ink);
-      color: #fff;
-      border-color: var(--ink);
-    }
-
-    .btn-state .state-desc {
-      font-size: 11px;
-      opacity: 0.7;
-    }
-
-    /* Action buttons */
-    .btn-action {
-      background: var(--paper-card);
-      border: 1.5px solid var(--ink);
-      color: var(--ink);
-      border-radius: 4px;
-      padding: 10px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
+    .woodcut-title-flex {
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .woodcut-word {
+      display: inline-flex;
+      align-items: center;
       gap: 8px;
-      transition: all 0.15s ease;
     }
 
-    .btn-action:hover {
-      background: var(--ink);
-      color: #fff;
+    .woodcut-char {
+      height: clamp(54px, 8.5vw, 92px);
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 6px 12px rgba(24, 20, 31, 0.12));
+      transition: transform 0.3s var(--transition-smooth), filter 0.3s ease;
+      animation: letterDrop 0.6s var(--transition-smooth) both;
+      animation-delay: calc(var(--i, 0) * 0.05s);
     }
 
-    .btn-secondary {
-      border: 1px solid var(--paper-border);
+    body.theme-midnight .woodcut-char {
+      filter: invert(0.92) hue-rotate(180deg) drop-shadow(0 6px 16px rgba(0, 0, 0, 0.6));
+    }
+
+    .woodcut-char:hover {
+      transform: translateY(-6px) scale(1.06) rotate(1deg);
+      filter: drop-shadow(0 12px 20px rgba(186, 50, 34, 0.25));
+    }
+
+    @keyframes letterDrop {
+      0% {
+        opacity: 0;
+        transform: translateY(-16px) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .woodcut-space {
+      width: clamp(16px, 2.5vw, 32px);
+    }
+
+    .title-sub-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .hanko-seal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--seal-red);
+      color: var(--seal-red);
+      font-weight: 800;
+      font-size: 13px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.1em;
+      background: var(--seal-red-bg);
+      box-shadow: 0 2px 6px rgba(186, 50, 34, 0.15);
+    }
+
+    .title-tagline {
+      font-size: 14px;
       font-weight: 500;
-      font-size: 12px;
-      padding: 8px 12px;
-      background: #faf6ef;
+      color: var(--ink-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
-    .btn-secondary:hover {
-      background: #f0e9dc;
-      color: var(--ink);
+    .version-pill {
+      font-family: monospace;
+      font-size: 11px;
+      background: rgba(0, 0, 0, 0.05);
+      padding: 2px 7px;
+      border-radius: 12px;
+      color: var(--ink-faint);
     }
 
-    /* Slider rows */
-    .slider-row {
+    /* Menu Navigation Grid */
+    .game-menu-nav {
+      width: 100%;
+      max-width: 520px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      margin-bottom: 12px;
+      gap: 10px;
+      margin-top: 10px;
     }
 
-    .slider-label {
+    .menu-item-btn {
+      position: relative;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      font-size: 12px;
-      color: var(--ink-muted);
-    }
-
-    input[type=range] {
-      -webkit-appearance: none;
       width: 100%;
-      background: var(--paper-border);
-      height: 4px;
-      border-radius: 2px;
+      background: var(--paper-card);
+      border: 1.5px solid var(--paper-border);
+      border-radius: 14px;
+      padding: 13px 20px;
+      font-family: inherit;
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+      transition: all 0.22s var(--transition-smooth);
       outline: none;
     }
 
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
+    .menu-item-btn:hover {
+      transform: translateX(5px);
+      border-color: var(--ink);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      background: #ffffff;
+    }
+
+    body.theme-midnight .menu-item-btn:hover {
+      background: #202735;
+      border-color: #f0ede6;
+    }
+
+    .menu-item-btn.primary {
       background: var(--ink);
-      cursor: pointer;
-      transition: transform 0.1s;
+      color: var(--bg-wash);
+      border-color: var(--ink);
+      box-shadow: 0 6px 20px rgba(24, 20, 31, 0.18);
     }
 
-    input[type=range]::-webkit-slider-thumb:hover {
-      transform: scale(1.2);
+    .menu-item-btn.primary:hover {
+      background: #2a2436;
+      color: #ffffff;
+      transform: translateX(6px) scale(1.01);
     }
 
-    /* Anatomy Specimen List */
-    .specimen-info {
+    body.theme-midnight .menu-item-btn.primary {
+      background: #f0ede6;
+      color: #12151c;
+      border-color: #f0ede6;
+    }
+
+    body.theme-midnight .menu-item-btn.primary:hover {
+      background: #ffffff;
+    }
+
+    .menu-item-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .menu-icon {
+      font-size: 18px;
+      width: 28px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .menu-text-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .menu-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .menu-desc {
+      font-size: 12px;
+      color: var(--ink-muted);
+      margin-top: 1px;
+    }
+
+    .menu-item-btn.primary .menu-desc {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    body.theme-midnight .menu-item-btn.primary .menu-desc {
+      color: rgba(18, 21, 28, 0.75);
+    }
+
+    .menu-key-hint {
+      font-family: monospace;
       font-size: 11px;
-      line-height: 1.6;
+      padding: 3px 7px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.06);
       color: var(--ink-muted);
     }
 
-    .specimen-info div {
-      display: flex;
-      justify-content: space-between;
-      padding: 2px 0;
-      border-bottom: 1px dashed #ece6d8;
+    .menu-item-btn.primary .menu-key-hint {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
     }
 
-    .specimen-info span:last-child {
+    body.theme-midnight .menu-item-btn.primary .menu-key-hint {
+      background: rgba(0, 0, 0, 0.15);
+      color: #12151c;
+    }
+
+    /* Landing Quick Telemetry */
+    .landing-quick-stats {
+      margin-top: 24px;
+      display: flex;
+      gap: 20px;
+      font-size: 12px;
+      color: var(--ink-faint);
+    }
+
+    .landing-quick-stats span strong {
       color: var(--ink);
+    }
+
+    /* =========================================
+       IN-GAME DOCKED CONTROLS & HUD
+       ========================================= */
+    .in-game-dock {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      width: min(94vw, 1000px);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .in-game-dock > * {
+      pointer-events: auto;
+    }
+
+    .dock-main-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+    }
+
+    .dock-card {
+      background: rgba(253, 251, 247, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--paper-border);
+      border-radius: 16px;
+      padding: 14px 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    body.theme-midnight .dock-card {
+      background: rgba(25, 30, 40, 0.92);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Quick Action Pills */
+    .action-bar-capsule {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+
+    .dock-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.18s var(--transition-smooth);
+    }
+
+    .dock-btn:hover {
+      background: var(--ink);
+      color: var(--bg-wash);
+      transform: translateY(-2px);
+    }
+
+    .dock-btn.btn-pellet-drop {
+      background: var(--seal-red);
+      color: #ffffff;
+      border-color: var(--seal-red);
+    }
+
+    .dock-btn.btn-pellet-drop:hover {
+      background: #9d281a;
+      transform: translateY(-2px);
+    }
+
+    /* State pills */
+    .state-toggle-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-pill-state {
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--paper-border);
+      background: transparent;
+      color: var(--ink-muted);
+      font-size: 12px;
       font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-pill-state:hover {
+      color: var(--ink);
+      border-color: var(--ink);
+    }
+
+    .btn-pill-state.active {
+      background: var(--ink);
+      color: var(--bg-wash);
+      border-color: var(--ink);
+    }
+
+    /* Sliders Drawer */
+    .controls-mini-sliders {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 12px;
+    }
+
+    .slider-compact {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slider-compact span {
+      color: var(--ink-muted);
+      white-space: nowrap;
+    }
+
+    .slider-compact input[type="range"] {
+      width: 80px;
+      accent-color: var(--ink);
+      cursor: pointer;
+    }
+
+    /* Hint bar */
+    .dock-water-hint {
+      text-align: center;
+      font-size: 12px;
+      color: var(--ink-muted);
+      background: rgba(253, 251, 247, 0.7);
+      backdrop-filter: blur(6px);
+      padding: 4px 14px;
+      border-radius: 20px;
+      align-self: center;
+      border: 1px solid var(--paper-border);
+    }
+
+    /* =========================================
+       MODALS (Bestiary, Settings, Controls)
+       ========================================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(20, 18, 25, 0.6);
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s var(--transition-smooth);
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-scroll-window {
+      width: 100%;
+      max-width: 680px;
+      max-height: 85vh;
+      background: var(--paper-card);
+      border: 1.5px solid var(--paper-border);
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalPop 0.3s var(--transition-smooth) both;
+    }
+
+    @keyframes modalPop {
+      0% { transform: scale(0.94) translateY(10px); }
+      100% { transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--paper-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--ink-muted);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .btn-modal-close:hover {
+      color: var(--ink);
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .modal-body {
+      padding: 20px 24px;
+      overflow-y: auto;
+    }
+
+    /* Bestiary Species Grid */
+    .bestiary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .bestiary-card {
+      border: 1px solid var(--paper-border);
+      border-radius: 12px;
+      padding: 14px;
+      background: rgba(0, 0, 0, 0.02);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .bestiary-card:hover {
+      border-color: var(--ink);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+      background: #ffffff;
+    }
+
+    body.theme-midnight .bestiary-card:hover {
+      background: #232a39;
+    }
+
+    .bestiary-card .b-name {
+      font-style: italic;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--ink);
+    }
+
+    .bestiary-card .b-traits {
+      font-size: 12px;
+      color: var(--ink-muted);
+      line-height: 1.4;
+    }
+
+    .bestiary-card .b-seed {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--ink-faint);
+      margin-top: 4px;
+    }
+
+    /* Zen Mode State */
+    body.mode-zen .in-game-dock,
+    body.mode-zen .top-species-hud {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .zen-exit-pill {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 45;
+      background: rgba(253, 251, 247, 0.6);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--paper-border);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 12px;
+      color: var(--ink-muted);
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    body.mode-zen .zen-exit-pill {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Responsive Queries */
+    @media (max-width: 768px) {
+      .dock-main-row {
+        flex-direction: column;
+        align-items: center;
+      }
+      .controls-mini-sliders {
+        display: none;
+      }
+      .woodcut-char {
+        height: 52px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="title-group">
-      <h1>fishdraw <span class="seal-stamp">Animasi</span></h1>
-      <div class="subtitle">Simulasi gerak prosedural 2D berdasarkan kalkulasi LingDong-/fishdraw</div>
+  <!-- Fullscreen Interactive Aquarium Canvas -->
+  <div class="aquarium-viewport">
+    <canvas id="aquarium"></canvas>
+  </div>
+
+  <!-- Persistent Top Navigation Bar -->
+  <header class="top-persistent-bar">
+    <div class="top-btn-group">
+      <button class="btn-icon-capsule" id="btn-toggle-main-menu" title="Buka Menu Game (ESC)">
+        <span class="hanko-stamp-sm">☰</span>
+        <span>Menu</span>
+      </button>
+      <button class="btn-icon-capsule" id="btn-quick-sound-toggle" title="Matikan/Hidupkan Suara">
+        <span id="sound-icon">🔊</span>
+      </button>
+      <button class="btn-icon-capsule" id="btn-quick-zen-toggle" title="Mode Zen (Z)">
+        <span>☯ Zen</span>
+      </button>
     </div>
-    <div class="species-tag">
-      <div class="species-name" id="species-display">Ikan Memuat...</div>
-      <div class="species-meta" id="species-seed">seed: 0x0000</div>
+
+    <div class="top-species-hud" id="species-hud-box">
+      <span class="latin-name" id="species-display">-</span>
+      <span class="meta-seed" id="species-seed">-</span>
     </div>
   </header>
 
-  <div class="workspace">
-    <!-- Aquarium Stage -->
-    <div class="stage-container">
-      <canvas id="aquarium" width="800" height="520"></canvas>
+  <!-- ========================================================
+       LANDING SCREEN & GAME MENU
+       ======================================================== -->
+  <div class="landing-screen" id="landing-screen">
+    <div class="landing-content-card">
       
-      <div class="stage-overlay">
-        <div class="state-badge state-idle" id="status-badge">
-          <div class="state-dot"></div>
-          <span id="status-text">Idle (Santai)</span>
+      <!-- Authentic Woodcut Title Typography -->
+      <div class="woodcut-title-container">
+        <div class="woodcut-title-flex" aria-label="FISH LINE">
+          <div class="woodcut-word">
+            <img src="assets/title/letter_F.png" alt="F" class="woodcut-char" style="--i:1;">
+            <img src="assets/title/letter_I.png" alt="I" class="woodcut-char" style="--i:2;">
+            <img src="assets/title/letter_S.png" alt="S" class="woodcut-char" style="--i:3;">
+            <img src="assets/title/letter_H.png" alt="H" class="woodcut-char" style="--i:4;">
+          </div>
+          <div class="woodcut-space"></div>
+          <div class="woodcut-word">
+            <img src="assets/title/letter_L.png" alt="L" class="woodcut-char" style="--i:5;">
+            <img src="assets/title/letter_I.png" alt="I" class="woodcut-char" style="--i:6;">
+            <img src="assets/title/letter_N.png" alt="N" class="woodcut-char" style="--i:7;">
+            <img src="assets/title/letter_E.png" alt="E" class="woodcut-char" style="--i:8;">
+          </div>
+        </div>
+
+        <div class="title-sub-bar">
+          <span class="hanko-seal">墨魚図</span>
+          <span class="title-tagline">Living Procedural Sumi-e Aquarium</span>
+          <span class="version-pill">v2.0</span>
         </div>
       </div>
 
-      <div class="stage-hint">
-        Klik di dalam air untuk menjatuhkan umpan pelet • Mulut ikan akan langsung mengarah & menelan pelet
+      <!-- Game Menu Navigation -->
+      <nav class="game-menu-nav">
+        <button class="menu-item-btn primary" id="menu-btn-play">
+          <div class="menu-item-left">
+            <span class="menu-icon">▶</span>
+            <div class="menu-text-group">
+              <span class="menu-title">Mulai Menjelajah</span>
+              <span class="menu-desc">Masuk ke kolam akuarium & interaksi langsung</span>
+            </div>
+          </div>
+          <span class="menu-key-hint">ENTER</span>
+        </button>
+
+        <button class="menu-item-btn" id="menu-btn-bestiary">
+          <div class="menu-item-left">
+            <span class="menu-icon">📖</span>
+            <div class="menu-text-group">
+              <span class="menu-title">Ensiklopedia Spesies</span>
+              <span class="menu-desc">Katalog taksonomi ikan & arsip anatomi</span>
+            </div>
+          </div>
+          <span class="menu-key-hint">B</span>
+        </button>
+
+        <button class="menu-item-btn" id="menu-btn-zen">
+          <div class="menu-item-left">
+            <span class="menu-icon">☯</span>
+            <div class="menu-text-group">
+              <span class="menu-title">Mode Zen Kolam</span>
+              <span class="menu-desc">Ketenangan visual tanpa HUD & riak air</span>
+            </div>
+          </div>
+          <span class="menu-key-hint">Z</span>
+        </button>
+
+        <button class="menu-item-btn" id="menu-btn-reroll">
+          <div class="menu-item-left">
+            <span class="menu-icon">🎲</span>
+            <div class="menu-text-group">
+              <span class="menu-title">Acak Spesies Baru</span>
+              <span class="menu-desc">Generate spesimen ikan baru secara acak</span>
+            </div>
+          </div>
+          <span class="menu-key-hint">SPACE</span>
+        </button>
+
+        <button class="menu-item-btn" id="menu-btn-settings">
+          <div class="menu-item-left">
+            <span class="menu-icon">⚙</span>
+            <div class="menu-text-group">
+              <span class="menu-title">Pengaturan & Audio</span>
+              <span class="menu-desc">Suara tetesan air, tema washi/malam & kecepatan</span>
+            </div>
+          </div>
+          <span class="menu-key-hint">O</span>
+        </button>
+
+        <button class="menu-item-btn" id="menu-btn-help">
+          <div class="menu-item-left">
+            <span class="menu-icon">❓</span>
+            <div class="menu-text-group">
+              <span class="menu-title">Panduan Kontrol</span>
+              <span class="menu-desc">Cara memberi makan, interaksi riak & tombol shortcut</span>
+            </div>
+          </div>
+          <span class="menu-key-hint">?</span>
+        </button>
+      </nav>
+
+      <!-- Quick stats summary -->
+      <div class="landing-quick-stats">
+        <span>Kapasitas Spesies: <strong>~4,29 Miliar</strong></span>
+        <span>•</span>
+        <span>Mesin: <strong>Fishdraw Kinematics 2D</strong></span>
+        <span>•</span>
+        <span>Status Mulut: <strong>Magap-magap & Chomp</strong></span>
       </div>
+
     </div>
+  </div>
 
-    <!-- Controls Panel -->
-    <div class="controls-panel">
-      <!-- State controls -->
-      <div class="card">
-        <div class="card-title">Status Animasi</div>
-        <div class="button-group-vertical">
-          <button class="btn-state active" data-state="idle" id="btn-idle">
-            <span>Idle</span>
-            <span class="state-desc">Magap-magap bernapas</span>
-          </button>
-          <button class="btn-state" data-state="swim" id="btn-swim">
-            <span>Berenang</span>
-            <span class="state-desc">Liukan gelombang</span>
-          </button>
-          <button class="btn-state" data-state="eat" id="btn-eat">
-            <span>Makan</span>
-            <span class="state-desc">Buka rahang & kunyah</span>
-          </button>
-          <button class="btn-state" data-state="die" id="btn-die">
-            <span>Mati</span>
-            <span class="state-desc">Belly-up & silang X</span>
-          </button>
+  <!-- ========================================================
+       IN-GAME DOCKED CONTROLS & HUD
+       ======================================================== -->
+  <div class="in-game-dock" id="in-game-dock">
+    <div class="dock-main-row">
+      
+      <!-- Action Bar -->
+      <div class="dock-card action-bar-capsule">
+        <button class="dock-btn btn-pellet-drop" id="dock-btn-feed" title="Jatuhkan pelet makanan (F)">
+          <span>🥢 Beri Makan</span>
+        </button>
+        <button class="dock-btn" id="dock-btn-new-fish" title="Acak ikan baru (Space)">
+          <span>🎲 Acak Ikan</span>
+        </button>
+        <button class="dock-btn" id="dock-btn-kill" title="Pingsan terbalik (K)">
+          <span>💀 Pingsan</span>
+        </button>
+        <button class="dock-btn" id="dock-btn-revive" title="Hidupkan kembali (R)" style="display:none;">
+          <span>🌱 Pulihkan</span>
+        </button>
+      </div>
+
+      <!-- State Pills & Motion Sliders -->
+      <div class="dock-card" style="display:flex; align-items:center; gap:16px;">
+        <div class="state-toggle-group">
+          <button class="btn-pill-state active" data-state="idle" id="pill-idle">Idle (Napas)</button>
+          <button class="btn-pill-state" data-state="swim" id="pill-swim">Berenang</button>
+          <button class="btn-pill-state" data-state="eat" id="pill-eat">Makan</button>
         </div>
-      </div>
 
-      <!-- Action buttons -->
-      <div class="card" style="display:flex; flex-direction:column; gap:8px;">
-        <button class="btn-action" id="btn-new-fish">
-          Acak Ikan Baru
-        </button>
-        <button class="btn-action btn-secondary" id="btn-feed-now">
-          Jatuhkan Umpan Makanan
-        </button>
-        <button class="btn-action btn-secondary" id="btn-revive" style="display:none;">
-          Hidupkan Ikan Kembali
-        </button>
-      </div>
-
-      <!-- Live Parameters -->
-      <div class="card">
-        <div class="card-title">Penyesuaian Gerak</div>
-        <div class="slider-row">
-          <div class="slider-label">
-            <span>Kecepatan Renang</span>
+        <div class="controls-mini-sliders">
+          <div class="slider-compact" title="Kecepatan Renang">
+            <span>Kec:</span>
+            <input type="range" id="slider-speed" min="0.4" max="2.2" step="0.1" value="1.0">
             <span id="val-speed">1.0x</span>
           </div>
-          <input type="range" id="slider-speed" min="0.4" max="2.2" step="0.1" value="1.0">
-        </div>
-        <div class="slider-row">
-          <div class="slider-label">
-            <span>Amplitudo Liukan</span>
+          <div class="slider-compact" title="Amplitudo Liukan Tulang Belakang">
+            <span>Liukan:</span>
+            <input type="range" id="slider-wave" min="0.3" max="2.0" step="0.1" value="1.0">
             <span id="val-wave">1.0x</span>
           </div>
-          <input type="range" id="slider-wave" min="0.3" max="2.0" step="0.1" value="1.0">
-        </div>
-        <div class="slider-row">
-          <div class="slider-label">
-            <span>Ukuran Ikan</span>
-            <span id="val-scale">0.85x</span>
-          </div>
-          <input type="range" id="slider-scale" min="0.5" max="1.3" step="0.05" value="0.85">
         </div>
       </div>
 
-      <!-- Anatomy Breakdown -->
-      <div class="card">
-        <div class="card-title">Anatomi Spesimen</div>
-        <div class="specimen-info" id="specimen-stats">
-          <div><span>Garis Vektor</span><span id="stat-lines">-</span></div>
-          <div><span>Tipe Sisik</span><span id="stat-scale">-</span></div>
-          <div><span>Tipe Ekor</span><span id="stat-tail">-</span></div>
-          <div><span>Rahang/Gigi</span><span id="stat-jaw">-</span></div>
+    </div>
+
+    <div class="dock-water-hint">
+      Klik di mana saja pada air untuk menjatuhkan pelet umpan • Tekan <kbd>ESC</kbd> untuk membuka Menu Game
+    </div>
+  </div>
+
+  <!-- Zen Mode Exit Button -->
+  <button class="zen-exit-pill" id="btn-exit-zen">
+    Mode Zen Aktif • Klik di sini atau tekan ESC untuk kembali
+  </button>
+
+  <!-- ========================================================
+       MODAL: BESTIARY (ENSIKLOPEDIA SPESIES)
+       ======================================================== -->
+  <div class="modal-backdrop" id="modal-bestiary">
+    <div class="modal-scroll-window">
+      <div class="modal-header">
+        <h3><span>📖</span> Ensiklopedia Spesies Sumi-e</h3>
+        <button class="btn-modal-close" data-close="modal-bestiary">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px; color:var(--ink-muted); margin-bottom:16px;">
+          Pilih salah satu spesimen terarsip untuk langsung memunculkannya ke kolam akuarium Anda:
+        </p>
+        <div class="bestiary-grid" id="bestiary-catalog">
+          <!-- Dynamically populated or pre-seeded entries -->
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL: SETTINGS & AUDIO
+       ======================================================== -->
+  <div class="modal-backdrop" id="modal-settings">
+    <div class="modal-scroll-window" style="max-width:480px;">
+      <div class="modal-header">
+        <h3><span>⚙</span> Pengaturan & Audio</h3>
+        <button class="btn-modal-close" data-close="modal-settings">&times;</button>
+      </div>
+      <div class="modal-body" style="display:flex; flex-direction:column; gap:18px;">
+        <div>
+          <label style="font-weight:600; font-size:14px; display:block; margin-bottom:6px;">Suara Sintesis Web Audio</label>
+          <button class="dock-btn" id="btn-toggle-sound-setting" style="width:100%; justify-content:center;">
+            <span id="setting-sound-label">🔊 Audio Air & Ketukan Aktif</span>
+          </button>
+        </div>
+
+        <div>
+          <label style="font-weight:600; font-size:14px; display:block; margin-bottom:6px;">Tema Kanvas Akuarium</label>
+          <div style="display:flex; gap:10px;">
+            <button class="dock-btn" id="btn-theme-washi" style="flex:1; justify-content:center;">📜 Washi Krem</button>
+            <button class="dock-btn" id="btn-theme-midnight" style="flex:1; justify-content:center;">🌌 Tinta Malam</button>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-weight:600; font-size:14px; display:block; margin-bottom:6px;">Skala Ukuran Ikan</label>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <input type="range" id="slider-scale" min="0.5" max="1.3" step="0.05" value="0.85" style="flex:1;">
+            <span id="val-scale" style="font-family:monospace; font-size:13px;">0.85x</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL: CONTROLS & SHORTCUTS
+       ======================================================== -->
+  <div class="modal-backdrop" id="modal-help">
+    <div class="modal-scroll-window" style="max-width:480px;">
+      <div class="modal-header">
+        <h3><span>❓</span> Panduan Kontrol & Shortcut</h3>
+        <button class="btn-modal-close" data-close="modal-help">&times;</button>
+      </div>
+      <div class="modal-body" style="font-size:13px; line-height:1.6; color:var(--ink-muted);">
+        <p style="margin-bottom:12px;">
+          <strong>Navigasi Mouse / Layar Sentuh:</strong><br>
+          • <strong>Klik / Ketuk di air:</strong> Menjatuhkan pelet makanan. Moncong ikan akan berenang mengarah dan mengatupkan bibir bawah saat sampai.<br>
+          • <strong>Geser / Drag:</strong> Menimbulkan riak gelombang air di permukaan.
+        </p>
+        <p style="margin-bottom:12px;">
+          <strong>Pintasan Keyboard:</strong><br>
+          • <kbd>ESC</kbd> atau <kbd>M</kbd> : Buka / Tutup Menu Game<br>
+          • <kbd>F</kbd> : Beri pelet pakan instan di depan moncong<br>
+          • <kbd>SPACE</kbd> : Acak variasi ikan baru<br>
+          • <kbd>K</kbd> : Pingsan terbalik (Belly-up)<br>
+          • <kbd>R</kbd> : Pulihkan ikan<br>
+          • <kbd>Z</kbd> : Aktifkan Mode Zen
+        </p>
       </div>
     </div>
   </div>
@@ -445,131 +1053,375 @@
   <script src="fish_animator.js"></script>
   <script>
     (function () {
+      // -------------------------------------------------------------
+      // 1. Procedural Web Audio FX (Bamboo Water Ladle & Droplets)
+      // -------------------------------------------------------------
+      const AudioFX = {
+        ctx: null,
+        enabled: true,
+        init() {
+          if (!this.ctx && (window.AudioContext || window.webkitAudioContext)) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+          }
+        },
+        toggle() {
+          this.enabled = !this.enabled;
+          return this.enabled;
+        },
+        playHover() {
+          if (!this.enabled) return;
+          try {
+            this.init();
+            if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            const now = this.ctx.currentTime;
+            osc.frequency.setValueAtTime(680, now);
+            osc.frequency.exponentialRampToValueAtTime(340, now + 0.06);
+            gain.gain.setValueAtTime(0.035, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.07);
+          } catch (e) {}
+        },
+        playClick() {
+          if (!this.enabled) return;
+          try {
+            this.init();
+            if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.exponentialRampToValueAtTime(160, now + 0.12);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.13);
+          } catch (e) {}
+        },
+        playSplash() {
+          if (!this.enabled) return;
+          try {
+            this.init();
+            if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(920, now);
+            osc.frequency.exponentialRampToValueAtTime(1380, now + 0.03);
+            osc.frequency.exponentialRampToValueAtTime(400, now + 0.16);
+            gain.gain.setValueAtTime(0.08, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.17);
+          } catch (e) {}
+        }
+      };
+
+      // Sound button listeners
+      function updateSoundUI() {
+        const icon = document.getElementById('sound-icon');
+        const label = document.getElementById('setting-sound-label');
+        if (AudioFX.enabled) {
+          icon.textContent = '🔊';
+          label.textContent = '🔊 Audio Air & Ketukan Aktif';
+        } else {
+          icon.textContent = '🔇';
+          label.textContent = '🔇 Audio Dimatikan';
+        }
+      }
+
+      document.getElementById('btn-quick-sound-toggle').addEventListener('click', () => {
+        AudioFX.toggle();
+        updateSoundUI();
+        AudioFX.playClick();
+      });
+
+      document.getElementById('btn-toggle-sound-setting').addEventListener('click', () => {
+        AudioFX.toggle();
+        updateSoundUI();
+        AudioFX.playClick();
+      });
+
+      // Attach hover sounds to menu buttons
+      document.querySelectorAll('.menu-item-btn, .dock-btn, .btn-icon-capsule').forEach(el => {
+        el.addEventListener('mouseenter', () => AudioFX.playHover());
+      });
+
+      // -------------------------------------------------------------
+      // 2. Fullscreen Responsive Aquarium Canvas Setup
+      // -------------------------------------------------------------
       const canvas = document.getElementById('aquarium');
       const ctx = canvas.getContext('2d');
+      let currentTheme = 'washi'; // 'washi' or 'midnight'
 
-      // Adjust high-DPI scaling
       function resizeCanvas() {
-        const rect = canvas.getBoundingClientRect();
         const dpr = window.devicePixelRatio || 1;
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
+        canvas.width = window.innerWidth * dpr;
+        canvas.height = window.innerHeight * dpr;
         ctx.resetTransform();
         ctx.scale(dpr, dpr);
       }
       window.addEventListener('resize', resizeCanvas);
       resizeCanvas();
 
-      // Initialize Animator
+      // Fish Animator instance
       let animator = new FishAnimator({
-        x: canvas.getBoundingClientRect().width * 0.5,
-        y: canvas.getBoundingClientRect().height * 0.5,
+        x: window.innerWidth * 0.5,
+        y: window.innerHeight * 0.5,
         scale: 0.85
       });
 
-      // Active food pellets in the water
+      // Food pellets & water ripples array
       const pellets = [];
+      const ripples = [];
 
-      // Sliders & settings
       let speedMult = 1.0;
       let waveMult = 1.0;
 
-      // Update UI displays
-      function updateSpecimenUI() {
+      function updateHUD() {
         document.getElementById('species-display').textContent = animator.speciesName;
-        document.getElementById('species-seed').textContent = 'sp: ' + animator.seed;
+        document.getElementById('species-seed').textContent = 'Spesies Seed: ' + animator.seed;
+      }
+      updateHUD();
 
-        const p = animator.model.params;
-        const totalLines = Object.values(animator.model.parts).reduce((acc, cur) => acc + cur.length, 0);
-        document.getElementById('stat-lines').textContent = totalLines + ' polylines';
-        document.getElementById('stat-scale').textContent = 'Tipe ' + p.scale_type;
-        document.getElementById('stat-tail').textContent = 'Tipe ' + p.tail_type;
-        document.getElementById('stat-jaw').textContent = (p.has_teeth ? 'Bergigi' : 'Halus') + (p.has_moustache ? ', Kumis' : '');
+      // -------------------------------------------------------------
+      // 3. Menu Navigation & Modal Controls
+      // -------------------------------------------------------------
+      const landingScreen = document.getElementById('landing-screen');
+      const btnToggleMenu = document.getElementById('btn-toggle-main-menu');
+
+      function openMenu() {
+        landingScreen.classList.remove('hidden');
+        document.body.classList.remove('mode-zen');
+        AudioFX.playClick();
       }
 
-      function updateStatusBadge(state) {
-        const badge = document.getElementById('status-badge');
-        const text = document.getElementById('status-text');
-        badge.className = 'state-badge state-' + state;
+      function closeMenu() {
+        landingScreen.classList.add('hidden');
+        AudioFX.playClick();
+      }
 
-        const btnRevive = document.getElementById('btn-revive');
-        if (state === 'die') {
-          btnRevive.style.display = 'block';
+      btnToggleMenu.addEventListener('click', () => {
+        if (landingScreen.classList.contains('hidden')) {
+          openMenu();
         } else {
-          btnRevive.style.display = 'none';
+          closeMenu();
         }
+      });
 
-        const labels = {
-          idle: 'Idle (Santai & Apung)',
-          swim: 'Berenang (Meliuk Aktif)',
-          eat: 'Makan (Menelan Umpan)',
-          die: 'Mati (Belly-Up)'
-        };
-        text.textContent = labels[state] || state;
+      document.getElementById('menu-btn-play').addEventListener('click', () => {
+        closeMenu();
+      });
 
-        document.querySelectorAll('.btn-state').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.state === state);
-        });
+      // Modals opening and closing
+      function openModal(id) {
+        document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('active'));
+        const target = document.getElementById(id);
+        if (target) {
+          target.classList.add('active');
+          AudioFX.playClick();
+        }
       }
 
-      updateSpecimenUI();
-      updateStatusBadge(animator.state);
+      function closeModal() {
+        document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('active'));
+        AudioFX.playClick();
+      }
 
-      // State Buttons
-      document.querySelectorAll('.btn-state').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const st = btn.dataset.state;
-          if (st === 'eat') {
-            // Drop a pellet in front of the fish
-            const rect = canvas.getBoundingClientRect();
-            const fx = Math.max(80, Math.min(rect.width - 80, animator.x + animator.facing * 160));
-            const fy = Math.max(70, Math.min(rect.height - 70, animator.y + 40));
-            dropPellet(fx, fy);
-          } else {
-            animator.setState(st);
-            updateStatusBadge(animator.state);
-          }
+      document.querySelectorAll('[data-close]').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+      });
+
+      document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+        backdrop.addEventListener('click', (e) => {
+          if (e.target === backdrop) closeModal();
         });
       });
 
-      // Actions
-      document.getElementById('btn-new-fish').addEventListener('click', () => {
+      // Bestiary modal & seed catalog
+      const bestiaryCatalog = [
+        { name: "Pterophis splendidus", seed: "Pterophis splendidus", desc: "Sirip dada berkepak lebar menyerupai sayap camar dengan sisik kerang." },
+        { name: "Macropus argenteus", seed: "Macropus argenteus", desc: "Ekor forked beriak anggun dengan motif garis harimau sumi-e." },
+        { name: "Scomber velox", seed: "Scomber velox", desc: "Moncong tajam ramping dengan sirip anal dinamis dan kumis panjang." },
+        { name: "Carassius nobilis", seed: "Carassius nobilis", desc: "Bentuk tubuh membulat dengan corak tutul marmer dan gerakan tenang." },
+        { name: "Rhombus japonicus", seed: "Rhombus japonicus", desc: "Sirip punggung menjulang tinggi dengan formasi gigi tajam teratur." },
+        { name: "Acanthuroides zen", seed: "Acanthuroides zen", desc: "Ekor lunate gaya ikan laut dalam dengan sisik bintik pasir halus." }
+      ];
+
+      function buildBestiary() {
+        const container = document.getElementById('bestiary-catalog');
+        container.innerHTML = '';
+        bestiaryCatalog.forEach(sp => {
+          const card = document.createElement('div');
+          card.className = 'bestiary-card';
+          card.innerHTML = `
+            <div class="b-name">${sp.name}</div>
+            <div class="b-traits">${sp.desc}</div>
+            <div class="b-seed">Seed: ${sp.seed}</div>
+          `;
+          card.addEventListener('click', () => {
+            animator.generate(sp.seed);
+            updateHUD();
+            closeModal();
+            closeMenu();
+            AudioFX.playSplash();
+          });
+          container.appendChild(card);
+        });
+      }
+      buildBestiary();
+
+      document.getElementById('menu-btn-bestiary').addEventListener('click', () => {
+        openModal('modal-bestiary');
+      });
+
+      document.getElementById('menu-btn-settings').addEventListener('click', () => {
+        openModal('modal-settings');
+      });
+
+      document.getElementById('menu-btn-help').addEventListener('click', () => {
+        openModal('modal-help');
+      });
+
+      // Zen Mode Trigger
+      function toggleZen() {
+        document.body.classList.toggle('mode-zen');
+        if (document.body.classList.contains('mode-zen')) {
+          landingScreen.classList.add('hidden');
+        }
+        AudioFX.playClick();
+      }
+
+      document.getElementById('btn-quick-zen-toggle').addEventListener('click', toggleZen);
+      document.getElementById('menu-btn-zen').addEventListener('click', toggleZen);
+      document.getElementById('btn-exit-zen').addEventListener('click', () => {
+        document.body.classList.remove('mode-zen');
+        AudioFX.playClick();
+      });
+
+      // Theme toggle
+      document.getElementById('btn-theme-washi').addEventListener('click', () => {
+        currentTheme = 'washi';
+        document.body.classList.remove('theme-midnight');
+        AudioFX.playClick();
+      });
+
+      document.getElementById('btn-theme-midnight').addEventListener('click', () => {
+        currentTheme = 'midnight';
+        document.body.classList.add('theme-midnight');
+        AudioFX.playClick();
+      });
+
+      // Re-roll fish
+      function rerollFish() {
         animator.generate();
-        updateSpecimenUI();
-        updateStatusBadge(animator.state);
-      });
+        updateHUD();
+        AudioFX.playSplash();
+        // Add to bestiary if unique
+        if (!bestiaryCatalog.some(b => b.seed === animator.seed)) {
+          bestiaryCatalog.unshift({
+            name: animator.speciesName,
+            seed: animator.seed,
+            desc: "Spesimen baru yang ditemukan dari penjelajahan kolam tinta."
+          });
+          buildBestiary();
+        }
+      }
 
-      document.getElementById('btn-revive').addEventListener('click', () => {
-        animator.setState('revive');
-        updateStatusBadge(animator.state);
-      });
+      document.getElementById('menu-btn-reroll').addEventListener('click', rerollFish);
+      document.getElementById('dock-btn-new-fish').addEventListener('click', rerollFish);
 
+      // -------------------------------------------------------------
+      // 4. Food Pellets, Feeding & Ripples
+      // -------------------------------------------------------------
       function dropPellet(x, y) {
         const pellet = {
           x: x,
           y: y,
-          vy: 28 + Math.random() * 16,
+          vy: 24 + Math.random() * 18,
           radius: 3.5,
           eaten: false,
           alpha: 1.0
         };
         pellets.push(pellet);
         animator.feed(pellet);
-        updateStatusBadge('eat');
+        AudioFX.playSplash();
+
+        // Spawn surface ripple
+        ripples.push({
+          x: x,
+          y: y,
+          r: 6,
+          maxR: 45 + Math.random() * 20,
+          alpha: 0.8
+        });
       }
 
-      document.getElementById('btn-feed-now').addEventListener('click', () => {
-        const rect = canvas.getBoundingClientRect();
-        const fx = Math.max(80, Math.min(rect.width - 80, animator.x + animator.facing * 160));
-        const fy = Math.max(60, animator.y - 60 + Math.random() * 40);
+      document.getElementById('dock-btn-feed').addEventListener('click', () => {
+        const fx = Math.max(80, Math.min(window.innerWidth - 80, animator.x + animator.facing * 180));
+        const fy = Math.max(60, animator.y - 40 + Math.random() * 30);
         dropPellet(fx, fy);
       });
 
       canvas.addEventListener('click', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        dropPellet(x, y);
+        if (!landingScreen.classList.contains('hidden')) return;
+        dropPellet(e.clientX, e.clientY);
+      });
+
+      // Interactive mouse ripple drag
+      canvas.addEventListener('mousemove', (e) => {
+        if (Math.random() < 0.12) {
+          ripples.push({
+            x: e.clientX,
+            y: e.clientY,
+            r: 4,
+            maxR: 28,
+            alpha: 0.4
+          });
+        }
+      });
+
+      // Kill / Revive buttons
+      const btnKill = document.getElementById('dock-btn-kill');
+      const btnRevive = document.getElementById('dock-btn-revive');
+
+      btnKill.addEventListener('click', () => {
+        animator.setState('die');
+        btnKill.style.display = 'none';
+        btnRevive.style.display = 'inline-flex';
+        AudioFX.playClick();
+      });
+
+      btnRevive.addEventListener('click', () => {
+        animator.setState('revive');
+        btnKill.style.display = 'inline-flex';
+        btnRevive.style.display = 'none';
+        AudioFX.playClick();
+      });
+
+      // State pills listeners
+      document.querySelectorAll('.btn-pill-state').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const st = btn.dataset.state;
+          if (st === 'eat') {
+            const fx = Math.max(80, Math.min(window.innerWidth - 80, animator.x + animator.facing * 160));
+            dropPellet(fx, animator.y);
+          } else {
+            animator.setState(st);
+            AudioFX.playClick();
+          }
+        });
       });
 
       // Sliders
@@ -588,30 +1440,75 @@
         document.getElementById('val-scale').textContent = animator.scale.toFixed(2) + 'x';
       });
 
-      // Main Loop
+      // Keyboard Shortcuts
+      window.addEventListener('keydown', (e) => {
+        // If typing in input, ignore
+        if (e.target.tagName === 'INPUT') return;
+
+        const key = e.key.toLowerCase();
+        if (key === 'escape' || key === 'm') {
+          if (!document.querySelectorAll('.modal-backdrop.active').length) {
+            landingScreen.classList.toggle('hidden');
+            AudioFX.playClick();
+          } else {
+            closeModal();
+          }
+        } else if (key === 'enter') {
+          if (!landingScreen.classList.contains('hidden')) {
+            closeMenu();
+          }
+        } else if (key === ' ') {
+          e.preventDefault();
+          rerollFish();
+        } else if (key === 'f') {
+          const fx = Math.max(80, Math.min(window.innerWidth - 80, animator.x + animator.facing * 180));
+          dropPellet(fx, animator.y);
+        } else if (key === 'k') {
+          animator.setState('die');
+          btnKill.style.display = 'none';
+          btnRevive.style.display = 'inline-flex';
+        } else if (key === 'r') {
+          animator.setState('revive');
+          btnKill.style.display = 'inline-flex';
+          btnRevive.style.display = 'none';
+        } else if (key === 'z') {
+          toggleZen();
+        } else if (key === 'b') {
+          openModal('modal-bestiary');
+        } else if (key === 'o') {
+          openModal('modal-settings');
+        } else if (key === '?') {
+          openModal('modal-help');
+        }
+      });
+
+      // -------------------------------------------------------------
+      // 5. Main Canvas Animation Loop
+      // -------------------------------------------------------------
       let lastTime = performance.now();
 
       function loop(now) {
         const dt = Math.min(0.05, (now - lastTime) / 1000) * speedMult;
         lastTime = now;
 
-        const rect = canvas.getBoundingClientRect();
-        const bounds = { width: rect.width, height: rect.height };
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const bounds = { width: w, height: h };
 
         // Update food pellets & sinking physics
         for (let i = pellets.length - 1; i >= 0; i--) {
           const p = pellets[i];
           p.y += p.vy * dt;
-          if (p.y > bounds.height - 20) {
-            p.y = bounds.height - 20;
-            p.alpha -= dt * 0.4;
+          if (p.y > bounds.height - 25) {
+            p.y = bounds.height - 25;
+            p.alpha -= dt * 0.45;
           }
           if (p.alpha <= 0 || p.eaten) {
             pellets.splice(i, 1);
           }
         }
 
-        // Multi-pellet tracking: if fish is alive, find nearest active pellet
+        // Multi-pellet tracking: steer mouth to closest active pellet
         if (!animator.isDead && pellets.length > 0) {
           if (!animator.targetFood || animator.targetFood.eaten) {
             let closest = null;
@@ -633,33 +1530,49 @@
           }
         }
 
-        // Apply wave multiplier to animator wave amplitude
+        // Update animator
         animator.update(dt, bounds);
         if (animator.currentWaveAmp) {
           animator.currentWaveAmp *= waveMult;
         }
 
-        // Keep status badge updated if state automatically changes (e.g. eat -> idle)
-        const activeBtn = document.querySelector('.btn-state.active');
-        if (activeBtn && activeBtn.dataset.state !== animator.state) {
-          updateStatusBadge(animator.state);
+        // Update active pills
+        document.querySelectorAll('.btn-pill-state').forEach(p => {
+          p.classList.toggle('active', p.dataset.state === animator.state);
+        });
+
+        // Clear Canvas
+        ctx.clearRect(0, 0, w, h);
+
+        const paperColor = currentTheme === 'midnight' ? '#141822' : '#fbf9f4';
+        const inkColor = currentTheme === 'midnight' ? '#f0ede6' : '#18141f';
+        const rippleColor = currentTheme === 'midnight' ? 'rgba(134, 165, 189, ' : 'rgba(109, 137, 153, ';
+
+        // 1. Draw Water Surface Ripples
+        for (let i = ripples.length - 1; i >= 0; i--) {
+          const r = ripples[i];
+          r.r += dt * 32;
+          r.alpha -= dt * 0.5;
+          if (r.alpha <= 0) {
+            ripples.splice(i, 1);
+            continue;
+          }
+          ctx.save();
+          ctx.strokeStyle = rippleColor + r.alpha + ')';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
         }
 
-        // Render Frame
-        ctx.clearRect(0, 0, rect.width, rect.height);
-
-        // Water background subtle paper grain / wash
-        ctx.save();
-        ctx.fillStyle = '#fbf9f4';
-        ctx.fillRect(0, 0, rect.width, rect.height);
-
-        // Draw food pellets
+        // 2. Draw Food Pellets
         for (let i = 0; i < pellets.length; i++) {
           const p = pellets[i];
           ctx.save();
           ctx.globalAlpha = p.alpha;
-          ctx.fillStyle = '#7a3e21';
-          ctx.strokeStyle = '#3e1d0f';
+          ctx.fillStyle = currentTheme === 'midnight' ? '#d4784a' : '#7a3e21';
+          ctx.strokeStyle = currentTheme === 'midnight' ? '#ffaa7b' : '#3e1d0f';
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
@@ -668,14 +1581,12 @@
           ctx.restore();
         }
 
-        // Render animated fish
+        // 3. Render Animated Fish with Sumi-e Vector Linework
         animator.render(ctx, {
-          strokeColor: '#161616',
+          strokeColor: inkColor,
           lineWidth: 1.15,
-          paperColor: '#fbf9f4'
+          paperColor: paperColor
         });
-
-        ctx.restore();
 
         requestAnimationFrame(loop);
       }

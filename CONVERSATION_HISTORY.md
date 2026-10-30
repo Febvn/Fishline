@@ -18,7 +18,8 @@ Dokumentasi ini merangkum seluruh alur percakapan, instruksi pengguna, dan imple
 | **07** | `c265562` | *ok coba run lagi* | Server HTTP statis mandiri tanpa dependensi luar (`server.js` pada port 3000) dengan MIME types lengkap untuk pengujian browser lokal bebas batasan CORS. |
 | **08** | `d027807` | *bibir nya biasa pas idle jangan nutup rapet magap magap gitu* & *bibir nyya terlalu mingkem ya tolong buat natural* | Postur bibir istirahat alami (`params.jaw_open = 0.25`) agar garis bibir tidak saling tumpang tindih atau gepeng (mingkem), ditambah osilasi pernapasan lembut ("magap-magap") saat berenang santai (idle). |
 | **09** | `95fa063` | *kenapa saat saya kasih umpan tepat di dean kepala ikan nya dia jadi nge glicth kayak patah patah gtiu* | Menghilangkan getaran / glitch flip hadap kiri-kanan ketika pelet jatuh persis di depan moncong ikan menggunakan deadband histeresis jarak badan (`bodyDx`) dan pitch damping halus. |
-| **10** | `07f54f8` | *https://github.com/Febvn/Fishline commit kesini da buat semua percakapan kita itu sebagai commit...* | Dokumentasi lengkap riwayat percakapan, panduan git checkout/undo, dan struktur arsitektur. |
+| **10** | `e1918ac` | *https://github.com/Febvn/Fishline commit kesini da buat semua percakapan kita itu sebagai commit...* | Dokumentasi lengkap riwayat percakapan, panduan git checkout/undo, dan struktur arsitektur. |
+| **11** | `c102044` | *Bikin landing page yang ada judul fihsline dan Menu kek game menu gitu tapi font judul nya kek gini FISH LINE* | Landing page beranda game dengan tipografi woodcut/linocut "FISH LINE" dari referensi gambar, game start menu (Mulai Menjelajah, Bestiary, Mode Zen, Acak Spesies, Pengaturan, Panduan), Web Audio sintesis air/ketukan, dan navigasi ESC. |
 
 ---
 
