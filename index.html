@@ -1170,6 +1170,10 @@
         <span class="hanko-stamp-sm">草</span>
         <span>Lab Tanaman</span>
       </a>
+      <a href="lab_pebble.html" class="btn-icon-capsule" style="text-decoration:none;" title="Buka Lab Uji Coba Batu Danau">
+        <span class="hanko-stamp-sm">石</span>
+        <span>Lab Batu</span>
+      </a>
       <button class="btn-icon-capsule" id="btn-quick-sound-toggle" title="Matikan/Hidupkan Suara">
         <svg id="sound-icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
         <span id="sound-text-label">Suara</span>
@@ -1286,6 +1290,17 @@
               </div>
             </div>
             <span class="menu-key-hint">LAB 2</span>
+          </a>
+
+          <a href="lab_pebble.html" class="menu-item-btn" style="text-decoration:none;" id="menu-btn-lab-pebble">
+            <div class="menu-item-left">
+              <span class="menu-index">09</span>
+              <div class="menu-text-group">
+                <span class="menu-title">Lab Uji Coba Batu Danau</span>
+                <span class="menu-desc">Workbench geologi: 24 batu kerikil prosedural, kontur topografi & rekahan</span>
+              </div>
+            </div>
+            <span class="menu-key-hint">LAB 3</span>
           </a>
         </nav>
 
@@ -1698,6 +1713,7 @@
   <!-- Scripts -->
   <script src="fishdraw.js"></script>
   <script src="plantdraw.js"></script>
+  <script src="pebbledraw.js"></script>
   <script src="fish_animator.js"></script>
   <script>
     (function () {
@@ -1859,6 +1875,7 @@
       const ctx = canvas.getContext('2d');
       let currentTheme = 'washi'; // 'washi' or 'midnight'
       let plantColony = null;
+      let pebbleBed = null;
 
       function resizeCanvas() {
         const dpr = window.devicePixelRatio || 1;
@@ -1868,6 +1885,9 @@
         ctx.scale(dpr, dpr);
         if (plantColony) {
           plantColony.resize(window.innerWidth, window.innerHeight);
+        }
+        if (pebbleBed) {
+          pebbleBed.resize(window.innerWidth, window.innerHeight);
         }
       }
       window.addEventListener('resize', resizeCanvas);
@@ -1885,6 +1905,14 @@
         width: window.innerWidth,
         height: window.innerHeight,
         count: Math.max(4, Math.floor(window.innerWidth / 220))
+      });
+
+      // Procedural Lakebed Pebble & Stone Engine (pebbledraw.js)
+      pebbleBed = pebbledraw.createBed({
+        width: window.innerWidth,
+        height: window.innerHeight,
+        clusterCount: Math.max(3, Math.floor(window.innerWidth / 320)),
+        scatterCount: Math.max(6, Math.floor(window.innerWidth / 160))
       });
 
 
@@ -2583,6 +2611,17 @@
           ctx.fill();
           ctx.stroke();
           ctx.restore();
+        }
+
+        // 2.4 Render Procedural Lakebed Pebbles & Stones (pebbledraw.js)
+        if (pebbleBed) {
+          pebbleBed.render(ctx, {
+            strokeColor: inkColor,
+            lineWidth: 1.05,
+            fillWash: currentTheme === 'midnight' ? 'rgba(30, 42, 54, 0.45)' : 'rgba(40, 36, 32, 0.08)',
+            mossWash: currentTheme === 'midnight' ? 'rgba(40, 95, 75, 0.35)' : 'rgba(55, 90, 60, 0.15)',
+            dropShadow: true
+          });
         }
 
         // 2.5 Update and Render Procedural Seaweed / Aquatic Flora (plantdraw.js)
