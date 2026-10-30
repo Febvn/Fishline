@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fishline • Laboratorium Botani Tanaman Air & Rumput Laut</title>
+  <title>Fishline • Laboratorium Botani Vegetasi Bawah Air</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
       --water-tint: #eaf1f4;
       --water-bubble: #6d8999;
       --accent-gold: #c49a45;
-      --sidebar-width: 380px;
+      --sidebar-width: 400px;
       --transition-smooth: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -136,12 +136,6 @@
       transform: translateY(-1px);
     }
 
-    .nav-btn.active {
-      background: var(--ink);
-      color: var(--bg-wash);
-      border-color: var(--ink);
-    }
-
     /* Main Workbench Workspace */
     .lab-workspace {
       flex: 1;
@@ -168,14 +162,14 @@
       padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 18px;
     }
 
     .control-group {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      padding-bottom: 16px;
+      padding-bottom: 14px;
       border-bottom: 1px dashed var(--paper-border);
     }
 
@@ -195,26 +189,22 @@
       justify-content: space-between;
     }
 
-    /* Seed & Action Bar */
-    .seed-input-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .seed-input {
-      flex: 1;
+    /* Select Dropdown & Action Bar */
+    .select-field {
+      width: 100%;
       padding: 8px 10px;
       background: var(--bg-wash);
       border: 1px solid var(--paper-border);
       border-radius: 6px;
       color: var(--ink);
-      font-family: monospace;
-      font-size: 13px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
       outline: none;
-      transition: border-color 0.2s;
+      cursor: pointer;
     }
 
-    .seed-input:focus {
+    .select-field:focus {
       border-color: var(--seal-red);
     }
 
@@ -261,36 +251,39 @@
       border-radius: 6px;
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 4px;
+    }
+
+    .botanical-common-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
     }
 
     .botanical-binomen {
       font-family: 'Cinzel', Georgia, serif;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       font-style: italic;
-      color: var(--ink);
+      color: var(--seal-red);
     }
 
-    .botanical-meta {
-      font-family: monospace;
+    .botanical-desc {
       font-size: 11px;
-      color: var(--ink-faint);
+      line-height: 1.45;
+      color: var(--ink-muted);
+      margin-top: 2px;
     }
 
-    /* Mode & Morphology Switchers */
-    .pill-grid {
+    /* Archetype Grid */
+    .archetype-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 6px;
     }
 
-    .pill-grid.grid-3 {
-      grid-template-columns: repeat(3, 1fr);
-    }
-
-    .btn-pill {
-      padding: 7px 4px;
+    .btn-arch {
+      padding: 6px 8px;
       font-size: 11px;
       font-weight: 600;
       border: 1px solid var(--paper-border);
@@ -298,19 +291,35 @@
       background: var(--bg-wash);
       color: var(--ink-muted);
       cursor: pointer;
-      text-align: center;
+      text-align: left;
       transition: all 0.18s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    .btn-pill:hover {
+    .btn-arch:hover {
       border-color: var(--ink);
       color: var(--ink);
     }
 
-    .btn-pill.active {
-      background: var(--seal-red);
+    .btn-arch.active {
+      background: var(--ink);
+      color: var(--bg-wash);
+      border-color: var(--ink);
+    }
+
+    .arch-code {
+      font-family: monospace;
+      font-size: 10px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-arch.active .arch-code {
+      background: rgba(255, 255, 255, 0.2);
       color: #ffffff;
-      border-color: var(--seal-red);
     }
 
     /* Sliders */
@@ -423,8 +432,8 @@
   <header class="lab-header">
     <div class="lab-branding">
       <span class="lab-seal">草</span>
-      <span class="lab-title-text">Fishline • Lab Tanaman</span>
-      <span class="lab-sub-badge">Flora Air Prosedural & Fisika Hidrodinamika</span>
+      <span class="lab-title-text">Fishline • Lab Vegetasi Bawah Air</span>
+      <span class="lab-sub-badge">7 Arsitektur Morfologi • 40 Takson Botani</span>
     </div>
 
     <nav class="lab-nav-links">
@@ -447,52 +456,95 @@
             <span>Mode Tampilan Spesimen</span>
           </div>
 
-          <div class="pill-grid">
-            <button class="btn-pill active" id="btn-mode-single">Rumpun Tunggal</button>
-            <button class="btn-pill" id="btn-mode-colony">Koloni Dasar Kolam</button>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-action-sm active" id="btn-mode-single" style="flex:1;">Rumpun Tunggal (Cluster)</button>
+            <button class="btn-action-sm btn-action-outline" id="btn-mode-colony" style="flex:1;">Koloni Dasar Kolam (Colony)</button>
           </div>
         </div>
 
-        <!-- 2. Seed & Taksonomi Botani -->
+        <!-- 2. Katalog Spesies Botani Riil (40 Pilihan) -->
         <div class="control-group">
           <div class="group-label">
-            <span>Seed & Taksonomi Botani</span>
-            <span class="lab-sub-badge">BINOMIAL</span>
-          </div>
-          
-          <div class="seed-input-row">
-            <input type="text" id="input-plant-seed" class="seed-input" placeholder="Ketik seed botani...">
-            <button class="btn-action-sm" id="btn-apply-plant-seed">Terapkan</button>
+            <span>Katalog 40 Spesies Botani Akuatik</span>
+            <span class="lab-sub-badge" id="lbl-catalog-count">40 SPESIES</span>
           </div>
 
+          <select id="select-species" class="select-field">
+            <!-- Dynamically populated with all 40 species -->
+          </select>
+
           <div style="display:flex; gap:6px;">
-            <button class="btn-action-sm btn-action-outline" id="btn-random-plant" style="flex:1;">Acak Spesies Botani</button>
-            <button class="btn-action-sm btn-action-outline" id="btn-copy-plant-seed">Salin Seed</button>
+            <button class="btn-action-sm btn-action-outline" id="btn-random-species" style="flex:1;">Acak Spesies Acak</button>
+            <button class="btn-action-sm btn-action-outline" id="btn-copy-plant-name">Salin Nama</button>
           </div>
 
           <div class="botanical-info-card">
-            <div class="botanical-binomen" id="display-plant-name">Vallisneria sumiensis</div>
-            <div class="botanical-meta" id="display-plant-meta">Morfologi: Ribbon Grass • 8 Bilah</div>
+            <div class="botanical-common-title" id="display-common-name">Posidonia Oceanica (Seagrass)</div>
+            <div class="botanical-binomen" id="display-plant-binomen">Posidonia oceanica</div>
+            <div class="botanical-desc" id="display-plant-desc">
+              Lamun purba Mediterania dengan helai pita panjang kokoh meliuk di dasar laut.
+            </div>
           </div>
         </div>
 
-        <!-- 3. Morfologi & Tipe Daun -->
+        <!-- 3. Arsitektur Morfologi (7 Tipe Vegetasi) -->
         <div class="control-group">
           <div class="group-label">
-            <span>Arsitektur Morfologi Daun</span>
+            <span>7 Arsitektur Morfologi Vegetasi</span>
           </div>
 
-          <div class="pill-grid grid-3">
-            <button class="btn-pill active" data-type="0" id="btn-morph-0">Pita (Ribbon)</button>
-            <button class="btn-pill" data-type="1" id="btn-morph-1">Kelp Bersirip</button>
-            <button class="btn-pill" data-type="-1" id="btn-morph-mixed">Campuran</button>
+          <div class="archetype-grid">
+            <button class="btn-arch active" data-arch="0" id="arch-btn-0">
+              <span class="arch-code">01</span>
+              <span>Seagrass (Lamun)</span>
+            </button>
+            <button class="btn-arch" data-arch="1" id="arch-btn-1">
+              <span class="arch-code">02</span>
+              <span>Kelp (Rumput Laut)</span>
+            </button>
+            <button class="btn-arch" data-arch="2" id="arch-btn-2">
+              <span class="arch-code">03</span>
+              <span>Branching (Alga Cabang)</span>
+            </button>
+            <button class="btn-arch" data-arch="3" id="arch-btn-3">
+              <span class="arch-code">04</span>
+              <span>Sheet (Alga Selada)</span>
+            </button>
+            <button class="btn-arch" data-arch="4" id="arch-btn-4">
+              <span class="arch-code">05</span>
+              <span>Bubble (Alga Gelembung)</span>
+            </button>
+            <button class="btn-arch" data-arch="5" id="arch-btn-5">
+              <span class="arch-code">06</span>
+              <span>Moss (Lumut Karpet)</span>
+            </button>
+            <button class="btn-arch" data-arch="6" id="arch-btn-6" style="grid-column: span 2;">
+              <span class="arch-code">07</span>
+              <span>Whorled & Fanwort (Cabomba / Coontail / Menjari)</span>
+            </button>
           </div>
         </div>
 
-        <!-- 4. Parameter Geometri Bilah (Bézier & Nodes) -->
+        <!-- 4. Parameter Geometri & Matematika Daun -->
         <div class="control-group">
           <div class="group-label">
-            <span>Geometri Bilah Daun (Matematika)</span>
+            <span>Parameter Geometri Bilah (Bézier)</span>
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Ketinggian / Panjang Bilah:</span>
+              <span class="slider-val" id="val-length">380 px</span>
+            </div>
+            <input type="range" id="slider-length" min="120" max="650" step="10" value="380">
+          </div>
+
+          <div class="slider-field">
+            <div class="slider-header">
+              <span>Lebar Bilah Daun:</span>
+              <span class="slider-val" id="val-width">16 px</span>
+            </div>
+            <input type="range" id="slider-width" min="6" max="60" step="1" value="16">
           </div>
 
           <div class="slider-field">
@@ -500,51 +552,19 @@
               <span>Jumlah Bilah per Rumpun:</span>
               <span class="slider-val" id="val-blades">8 helai</span>
             </div>
-            <input type="range" id="slider-blades" min="1" max="22" step="1" value="8">
-          </div>
-
-          <div class="slider-field">
-            <div class="slider-header">
-              <span>Ketinggian / Panjang Bilah:</span>
-              <span class="slider-val" id="val-length">340 px</span>
-            </div>
-            <input type="range" id="slider-length" min="120" max="620" step="10" value="340">
-          </div>
-
-          <div class="slider-field">
-            <div class="slider-header">
-              <span>Lebar Pangkal Daun (Base):</span>
-              <span class="slider-val" id="val-base-width">16 px</span>
-            </div>
-            <input type="range" id="slider-base-width" min="6" max="32" step="1" value="16">
-          </div>
-
-          <div class="slider-field">
-            <div class="slider-header">
-              <span>Ketajaman Ujung (Tip):</span>
-              <span class="slider-val" id="val-tip-width">2.0 px</span>
-            </div>
-            <input type="range" id="slider-tip-width" min="0.8" max="5.0" step="0.2" value="2.0">
-          </div>
-
-          <div class="slider-field">
-            <div class="slider-header">
-              <span>Kurvatur Lengkung Alami (Curl):</span>
-              <span class="slider-val" id="val-curl">0.00</span>
-            </div>
-            <input type="range" id="slider-curl" min="-0.6" max="0.6" step="0.05" value="0.0">
+            <input type="range" id="slider-blades" min="1" max="28" step="1" value="8">
           </div>
         </div>
 
-        <!-- 5. Hidrodinamika & Simulasi Arus Air -->
+        <!-- 5. Hidrodinamika Arus & Reaksi Fisika Fluida -->
         <div class="control-group">
           <div class="group-label">
-            <span>Hidrodinamika Arus & Gelombang Air</span>
+            <span>Hidrodinamika & Reaksi Fisika Arus</span>
           </div>
 
           <div class="slider-field">
             <div class="slider-header">
-              <span>Kekuatan Arus Ambien Pasang-Surut:</span>
+              <span>Kekuatan Arus Ambien Air:</span>
               <span class="slider-val" id="val-current">1.0x</span>
             </div>
             <input type="range" id="slider-current" min="0.0" max="2.5" step="0.1" value="1.0">
@@ -552,56 +572,44 @@
 
           <div class="slider-field">
             <div class="slider-header">
-              <span>Kecepatan Ayunan Gelombang:</span>
-              <span class="slider-val" id="val-wavespeed">1.0x</span>
+              <span>Kecepatan Gelombang Harmonik:</span>
+              <span class="slider-val" id="val-wave">1.0x</span>
             </div>
-            <input type="range" id="slider-wavespeed" min="0.2" max="2.8" step="0.1" value="1.0">
+            <input type="range" id="slider-wave" min="0.3" max="2.6" step="0.1" value="1.0">
           </div>
 
-          <div style="display:flex; gap:6px; margin-top:4px;">
-            <button class="btn-action-sm btn-action-outline" id="btn-virtual-fish-sweep" style="width:100%;">
-              Uji Sentuhan Ikan Virtual (Sapu Rumput)
-            </button>
-          </div>
+          <button class="btn-action-sm btn-action-outline" id="btn-virtual-fish-sweep" style="width:100%; margin-top:4px;">
+            Sapu Rumput dengan Ikan Virtual (Uji Lentur)
+          </button>
         </div>
 
-        <!-- 6. Inspeksi Lapisan Visual & Tinta -->
+        <!-- 6. Lapisan Visual Sumi-e & Ekspor -->
         <div class="control-group">
           <div class="group-label">
-            <span>Gaya Garis & Cuci Tinta Sumi-e</span>
+            <span>Gaya Garis & Ekspor</span>
           </div>
 
           <label class="checkbox-row">
             <input type="checkbox" id="chk-veins" checked>
-            <span>Tampilkan Alur Serat Venasi Bagian Dalam</span>
+            <span>Tampilkan Garis Serat Venasi Bagian Dalam</span>
           </label>
 
           <label class="checkbox-row">
-            <input type="checkbox" id="chk-anchor-rock" checked>
-            <span>Tampilkan Batu Jangkar Dasar Kolam (Anchor Stone)</span>
+            <input type="checkbox" id="chk-rock" checked>
+            <span>Tampilkan Batu Jangkar Dasar Kolam (Holdfast)</span>
           </label>
 
-          <label class="checkbox-row">
-            <input type="checkbox" id="chk-nodes-debug">
-            <span>Tampilkan Simpul Rangka Fisika (Nodes X-Ray)</span>
-          </label>
-
-          <div class="slider-field" style="margin-top:6px;">
+          <div class="slider-field" style="margin-top:4px;">
             <div class="slider-header">
-              <span>Ketebalan Garis Kuas Tinta:</span>
-              <span class="slider-val" id="val-line-width">1.1 px</span>
+              <span>Ketebalan Garis Tinta:</span>
+              <span class="slider-val" id="val-linewidth">1.1 px</span>
             </div>
-            <input type="range" id="slider-line-width" min="0.6" max="2.6" step="0.1" value="1.1">
-          </div>
-        </div>
-
-        <!-- 7. Ekspor Gambar Snapshot -->
-        <div class="control-group">
-          <div class="group-label">
-            <span>Ekspor & Dokumentasi</span>
+            <input type="range" id="slider-linewidth" min="0.6" max="2.6" step="0.1" value="1.1">
           </div>
 
-          <button class="btn-action-sm btn-action-outline" id="btn-export-plant-png" style="width:100%;">Unduh Snapshot Botani PNG</button>
+          <button class="btn-action-sm btn-action-outline" id="btn-export-png" style="width:100%; margin-top:8px;">
+            Unduh Snapshot Botani PNG
+          </button>
         </div>
 
       </div>
@@ -612,21 +620,19 @@
       <canvas id="canvas-plant"></canvas>
       
       <div class="viewport-hint">
-        Arahkan kursor di antara helai rumput untuk melihat fisika penyibakan hidrodinamika • Klik untuk riak air
+        Sentuh kursor di antara helai rumput untuk melihat respon lentur fluida • Klik di mana saja untuk riak air
       </div>
 
       <div class="viewport-hud">
-        <div>Spesies: <span id="hud-plant-species">Vallisneria sumiensis</span></div>
-        <div>Total Bilah: <span id="hud-total-blades">8 helai</span></div>
-        <div>Simpul Fisika: <span id="hud-total-nodes">176 nodes</span></div>
-        <div>Arus Ambien: <span id="hud-current-val">+0.42 m/s</span></div>
-        <div>FPS: <span id="hud-plant-fps">60</span></div>
+        <div>Spesies: <span id="hud-species-name">Posidonia oceanica</span></div>
+        <div>Morfologi: <span id="hud-arch-name">Seagrass (Lamun)</span></div>
+        <div>Arus Ambien: <span id="hud-current">+0.38 m/s</span></div>
+        <div>FPS: <span id="hud-fps">60</span></div>
       </div>
     </section>
 
   </main>
 
-  <!-- Load Botanical Plantdraw Engine -->
   <script src="plantdraw.js"></script>
   <script>
     (function () {
@@ -643,61 +649,254 @@
         canvas.height = viewport.clientHeight * dpr;
         ctx.resetTransform();
         ctx.scale(dpr, dpr);
-        if (viewMode === 'colony' && plantColony) {
-          plantColony.resize(viewport.clientWidth, viewport.clientHeight);
-        } else if (singleCluster) {
-          singleCluster.x = viewport.clientWidth * 0.5;
-          singleCluster.y = viewport.clientHeight * 0.88;
+        if (viewMode === 'colony' && colony) {
+          colony.resize(viewport.clientWidth, viewport.clientHeight);
+        } else if (cluster) {
+          cluster.x = viewport.clientWidth * 0.5;
+          cluster.y = viewport.clientHeight * 0.88;
         }
       }
       window.addEventListener('resize', resizeCanvas);
 
-      // State & Controls
+      // State variables
       let viewMode = 'single'; // 'single' or 'colony'
       let currentTheme = 'washi';
-      let selectedMorphType = 0; // 0: Ribbon, 1: Feather, -1: Mixed
-      let plantSeed = 'Vallisneria sumiensis';
+      let activeSpecies = plantdraw.SPECIES_CATALOG[0]; // Default: Posidonia oceanica
+      let activeArchetype = activeSpecies.archetype;
 
-      let customBladeCount = 8;
-      let customLength = 340;
-      let customBaseWidth = 16;
-      let customTipWidth = 2.0;
-      let customCurl = 0.0;
-      let currentMult = 1.0;
-      let waveSpeedMult = 1.0;
-      let lineWidthVal = 1.1;
+      let paramLength = activeSpecies.height;
+      let paramWidth = activeSpecies.baseW;
+      let paramBlades = activeSpecies.blades;
+      let paramCurrent = 1.0;
+      let paramWave = 1.0;
+      let paramLineWidth = 1.1;
 
-      // Debug flags
       let showVeins = true;
-      let showAnchorRock = true;
-      let showNodesDebug = false;
+      let showRock = true;
 
-      // Ripples and virtual fish probe
       const ripples = [];
+      let mousePos = { x: -999, y: -999, active: false };
+
       let virtualFish = {
         active: false,
-        x: -100,
+        x: -80,
         y: 0,
         vx: 320,
         facing: 1
       };
 
-      // Mouse probe
-      let mousePos = { x: -999, y: -999, active: false };
+      // 2. Populate Species Dropdown with all 40 species
+      const selectSpecies = document.getElementById('select-species');
+      const catalog = plantdraw.getSpeciesList();
 
+      const archGroupNames = [
+        '1. Seagrass (Lamun)',
+        '2. Kelp (Rumput Laut Besar)',
+        '3. Branching Algae (Alga Bercabang)',
+        '4. Sheet Algae (Alga Lembaran Daun Selada)',
+        '5. Bubble Algae (Alga Gelembung Mutiara)',
+        '6. Aquatic Moss (Lumut Karpet Air)',
+        '7. Whorled & Fanwort (Cabomba / Coontail / Menjari)'
+      ];
+
+      archGroupNames.forEach((groupName, archIdx) => {
+        const optGroup = document.createElement('optgroup');
+        optGroup.label = groupName;
+        const matching = catalog.filter(s => s.archetype === archIdx);
+        matching.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = `${s.common} (${s.binomen})`;
+          optGroup.appendChild(opt);
+        });
+        selectSpecies.appendChild(optGroup);
+      });
+
+      // 3. Cluster & Colony Models
+      let cluster = null;
+      let colony = null;
+
+      function createCluster() {
+        plantdraw.set_seed(activeSpecies.binomen);
+        cluster = new plantdraw.PlantCluster(
+          viewport.clientWidth * 0.5,
+          viewport.clientHeight * 0.88,
+          activeSpecies.binomen,
+          {
+            speciesId: activeSpecies.id,
+            archetype: activeArchetype,
+            bladeCount: paramBlades,
+            scale: 1.0
+          }
+        );
+        syncInfoUI();
+      }
+
+      function createColony() {
+        colony = plantdraw.createColony({
+          width: viewport.clientWidth,
+          height: viewport.clientHeight,
+          count: Math.max(5, Math.floor(viewport.clientWidth / 170)),
+          seed: 'Sumi-e Diverse Seabed'
+        });
+        syncInfoUI();
+      }
+
+      function syncInfoUI() {
+        document.getElementById('display-common-name').textContent = activeSpecies.common;
+        document.getElementById('display-plant-binomen').textContent = activeSpecies.binomen;
+        document.getElementById('display-plant-desc').textContent = activeSpecies.desc;
+
+        document.getElementById('hud-species-name').textContent = activeSpecies.binomen;
+        const archNames = ['Seagrass (Lamun)', 'Kelp (Rumput Laut)', 'Branching (Alga Cabang)', 'Sheet (Alga Selada)', 'Bubble (Alga Gelembung)', 'Moss (Lumut Karpet)', 'Whorled & Fanwort'];
+        document.getElementById('hud-arch-name').textContent = archNames[activeArchetype] || 'Vegetasi Air';
+
+        // Sync slider values
+        document.getElementById('slider-length').value = paramLength;
+        document.getElementById('val-length').textContent = paramLength + ' px';
+
+        document.getElementById('slider-width').value = paramWidth;
+        document.getElementById('val-width').textContent = paramWidth + ' px';
+
+        document.getElementById('slider-blades').value = paramBlades;
+        document.getElementById('val-blades').textContent = paramBlades + ' helai';
+
+        // Sync active archetype button
+        document.querySelectorAll('.btn-arch').forEach(b => {
+          b.classList.toggle('active', parseInt(b.dataset.arch) === activeArchetype);
+        });
+
+        selectSpecies.value = activeSpecies.id;
+      }
+
+      resizeCanvas();
+      createCluster();
+      createColony();
+
+      // 4. UI Listeners
+      selectSpecies.addEventListener('change', (e) => {
+        const found = plantdraw.getSpeciesById(e.target.value);
+        if (found) {
+          activeSpecies = found;
+          activeArchetype = found.archetype;
+          paramLength = found.height;
+          paramWidth = found.baseW;
+          paramBlades = found.blades;
+          if (viewMode === 'single') createCluster();
+          else createColony();
+        }
+      });
+
+      document.getElementById('btn-random-species').addEventListener('click', () => {
+        const randSpecies = catalog[Math.floor(Math.random() * catalog.length)];
+        activeSpecies = randSpecies;
+        activeArchetype = randSpecies.archetype;
+        paramLength = randSpecies.height;
+        paramWidth = randSpecies.baseW;
+        paramBlades = randSpecies.blades;
+        if (viewMode === 'single') createCluster();
+        else createColony();
+      });
+
+      document.getElementById('btn-copy-plant-name').addEventListener('click', () => {
+        navigator.clipboard.writeText(`${activeSpecies.common} (${activeSpecies.binomen})`);
+        const btn = document.getElementById('btn-copy-plant-name');
+        const orig = btn.textContent;
+        btn.textContent = 'Tersalin!';
+        setTimeout(() => btn.textContent = orig, 1200);
+      });
+
+      // Archetype Buttons
+      document.querySelectorAll('.btn-arch').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const archIdx = parseInt(btn.dataset.arch);
+          activeArchetype = archIdx;
+          const matching = catalog.filter(s => s.archetype === archIdx);
+          if (matching.length > 0) {
+            activeSpecies = matching[0];
+            paramLength = activeSpecies.height;
+            paramWidth = activeSpecies.baseW;
+            paramBlades = activeSpecies.blades;
+          }
+          if (viewMode === 'single') createCluster();
+          else createColony();
+        });
+      });
+
+      // View mode toggles
+      document.getElementById('btn-mode-single').addEventListener('click', () => {
+        viewMode = 'single';
+        document.getElementById('btn-mode-single').classList.add('active');
+        document.getElementById('btn-mode-colony').classList.remove('active');
+        createCluster();
+      });
+
+      document.getElementById('btn-mode-colony').addEventListener('click', () => {
+        viewMode = 'colony';
+        document.getElementById('btn-mode-colony').classList.add('active');
+        document.getElementById('btn-mode-single').classList.remove('active');
+        createColony();
+      });
+
+      // Sliders
+      document.getElementById('slider-length').addEventListener('input', (e) => {
+        paramLength = parseInt(e.target.value);
+        document.getElementById('val-length').textContent = paramLength + ' px';
+        if (viewMode === 'single') createCluster();
+      });
+
+      document.getElementById('slider-width').addEventListener('input', (e) => {
+        paramWidth = parseInt(e.target.value);
+        document.getElementById('val-width').textContent = paramWidth + ' px';
+        if (viewMode === 'single') createCluster();
+      });
+
+      document.getElementById('slider-blades').addEventListener('input', (e) => {
+        paramBlades = parseInt(e.target.value);
+        document.getElementById('val-blades').textContent = paramBlades + ' helai';
+        if (viewMode === 'single') createCluster();
+      });
+
+      document.getElementById('slider-current').addEventListener('input', (e) => {
+        paramCurrent = parseFloat(e.target.value);
+        document.getElementById('val-current').textContent = paramCurrent.toFixed(1) + 'x';
+      });
+
+      document.getElementById('slider-wave').addEventListener('input', (e) => {
+        paramWave = parseFloat(e.target.value);
+        document.getElementById('val-wave').textContent = paramWave.toFixed(1) + 'x';
+      });
+
+      document.getElementById('slider-linewidth').addEventListener('input', (e) => {
+        paramLineWidth = parseFloat(e.target.value);
+        document.getElementById('val-linewidth').textContent = paramLineWidth.toFixed(1) + ' px';
+      });
+
+      document.getElementById('chk-veins').addEventListener('change', (e) => showVeins = e.target.checked);
+      document.getElementById('chk-rock').addEventListener('change', (e) => showRock = e.target.checked);
+
+      // Virtual fish sweep probe
+      document.getElementById('btn-virtual-fish-sweep').addEventListener('click', () => {
+        virtualFish.active = true;
+        virtualFish.facing = Math.random() > 0.5 ? 1 : -1;
+        virtualFish.x = virtualFish.facing > 0 ? -60 : viewport.clientWidth + 60;
+        virtualFish.y = viewport.clientHeight * 0.72 + (Math.random() - 0.5) * 80;
+      });
+
+      // Mouse probe
       canvas.addEventListener('mousemove', (e) => {
         const rect = canvas.getBoundingClientRect();
         mousePos.x = e.clientX - rect.left;
         mousePos.y = e.clientY - rect.top;
         mousePos.active = true;
 
-        if (Math.random() < 0.12) {
+        if (Math.random() < 0.14) {
           ripples.push({
             x: mousePos.x,
             y: mousePos.y,
             r: 4,
             maxR: 28,
-            alpha: 0.45
+            alpha: 0.4
           });
         }
       });
@@ -714,191 +913,9 @@
           x: e.clientX - rect.left,
           y: e.clientY - rect.top,
           r: 6,
-          maxR: 45,
-          alpha: 0.8
+          maxR: 44,
+          alpha: 0.85
         });
-      });
-
-      // 2. Initialize Models
-      let singleCluster = null;
-      let plantColony = null;
-
-      function createSingleCluster() {
-        plantdraw.set_seed(plantSeed);
-        singleCluster = new plantdraw.PlantCluster(
-          viewport.clientWidth * 0.5,
-          viewport.clientHeight * 0.88,
-          plantSeed,
-          {
-            type: selectedMorphType === -1 ? 0 : selectedMorphType,
-            bladeCount: customBladeCount,
-            scale: 1.0
-          }
-        );
-
-        // Override custom geometry for detailed testing
-        singleCluster.blades.forEach((blade, idx) => {
-          blade.length = customLength * (0.85 + Math.random() * 0.3);
-          blade.baseWidth = customBaseWidth;
-          blade.tipWidth = customTipWidth;
-          blade.curl = customCurl + (Math.random() - 0.5) * 0.15;
-          blade.waveSpeed *= waveSpeedMult;
-        });
-
-        updateHUD();
-      }
-
-      function createColony() {
-        plantColony = plantdraw.createColony({
-          width: viewport.clientWidth,
-          height: viewport.clientHeight,
-          count: Math.max(5, Math.floor(viewport.clientWidth / 180)),
-          seed: plantSeed
-        });
-        updateHUD();
-      }
-
-      function updateHUD() {
-        document.getElementById('input-plant-seed').value = plantSeed;
-        document.getElementById('display-plant-name').textContent = plantSeed;
-        document.getElementById('hud-plant-species').textContent = plantSeed;
-
-        let morphName = selectedMorphType === 0 ? 'Rumput Pita (Ribbon)' : (selectedMorphType === 1 ? 'Kelp Bersirip (Pinnate)' : 'Campuran (Mixed)');
-        document.getElementById('display-plant-meta').textContent = `Morfologi: ${morphName} • ${customBladeCount} Bilah`;
-
-        let totalBlades = 0;
-        let totalNodes = 0;
-        if (viewMode === 'single' && singleCluster) {
-          totalBlades = singleCluster.blades.length;
-          singleCluster.blades.forEach(b => totalNodes += b.nodes.length);
-        } else if (plantColony) {
-          plantColony.clusters.forEach(c => {
-            totalBlades += c.blades.length;
-            c.blades.forEach(b => totalNodes += b.nodes.length);
-          });
-        }
-        document.getElementById('hud-total-blades').textContent = totalBlades + ' helai';
-        document.getElementById('hud-total-nodes').textContent = totalNodes + ' nodes';
-      }
-
-      resizeCanvas();
-      createSingleCluster();
-      createColony();
-
-      // 3. UI Controls Event Listeners
-      document.getElementById('btn-mode-single').addEventListener('click', () => {
-        viewMode = 'single';
-        document.getElementById('btn-mode-single').classList.add('active');
-        document.getElementById('btn-mode-colony').classList.remove('active');
-        createSingleCluster();
-      });
-
-      document.getElementById('btn-mode-colony').addEventListener('click', () => {
-        viewMode = 'colony';
-        document.getElementById('btn-mode-colony').classList.add('active');
-        document.getElementById('btn-mode-single').classList.remove('active');
-        createColony();
-      });
-
-      document.getElementById('btn-apply-plant-seed').addEventListener('click', () => {
-        const val = document.getElementById('input-plant-seed').value.trim();
-        if (val) {
-          plantSeed = val;
-          if (viewMode === 'single') createSingleCluster();
-          else createColony();
-        }
-      });
-
-      document.getElementById('input-plant-seed').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') document.getElementById('btn-apply-plant-seed').click();
-      });
-
-      document.getElementById('btn-random-plant').addEventListener('click', () => {
-        plantSeed = plantdraw.botanical_binomen();
-        if (viewMode === 'single') createSingleCluster();
-        else createColony();
-      });
-
-      document.getElementById('btn-copy-plant-seed').addEventListener('click', () => {
-        navigator.clipboard.writeText(plantSeed);
-        const originalText = document.getElementById('btn-copy-plant-seed').textContent;
-        document.getElementById('btn-copy-plant-seed').textContent = 'Tersalin!';
-        setTimeout(() => document.getElementById('btn-copy-plant-seed').textContent = originalText, 1200);
-      });
-
-      // Morphology Buttons
-      [
-        { id: 'btn-morph-0', type: 0 },
-        { id: 'btn-morph-1', type: 1 },
-        { id: 'btn-morph-mixed', type: -1 }
-      ].forEach(item => {
-        document.getElementById(item.id).addEventListener('click', () => {
-          document.querySelectorAll('.pill-grid.grid-3 .btn-pill').forEach(b => b.classList.remove('active'));
-          document.getElementById(item.id).classList.add('active');
-          selectedMorphType = item.type;
-          if (viewMode === 'single') createSingleCluster();
-          else createColony();
-        });
-      });
-
-      // Sliders
-      document.getElementById('slider-blades').addEventListener('input', (e) => {
-        customBladeCount = parseInt(e.target.value);
-        document.getElementById('val-blades').textContent = customBladeCount + ' helai';
-        if (viewMode === 'single') createSingleCluster();
-      });
-
-      document.getElementById('slider-length').addEventListener('input', (e) => {
-        customLength = parseFloat(e.target.value);
-        document.getElementById('val-length').textContent = customLength + ' px';
-        if (viewMode === 'single') createSingleCluster();
-      });
-
-      document.getElementById('slider-base-width').addEventListener('input', (e) => {
-        customBaseWidth = parseFloat(e.target.value);
-        document.getElementById('val-base-width').textContent = customBaseWidth + ' px';
-        if (viewMode === 'single') createSingleCluster();
-      });
-
-      document.getElementById('slider-tip-width').addEventListener('input', (e) => {
-        customTipWidth = parseFloat(e.target.value);
-        document.getElementById('val-tip-width').textContent = customTipWidth.toFixed(1) + ' px';
-        if (viewMode === 'single') createSingleCluster();
-      });
-
-      document.getElementById('slider-curl').addEventListener('input', (e) => {
-        customCurl = parseFloat(e.target.value);
-        document.getElementById('val-curl').textContent = customCurl.toFixed(2);
-        if (viewMode === 'single') createSingleCluster();
-      });
-
-      document.getElementById('slider-current').addEventListener('input', (e) => {
-        currentMult = parseFloat(e.target.value);
-        document.getElementById('val-current').textContent = currentMult.toFixed(1) + 'x';
-      });
-
-      document.getElementById('slider-wavespeed').addEventListener('input', (e) => {
-        waveSpeedMult = parseFloat(e.target.value);
-        document.getElementById('val-wavespeed').textContent = waveSpeedMult.toFixed(1) + 'x';
-        if (viewMode === 'single') createSingleCluster();
-      });
-
-      document.getElementById('slider-line-width').addEventListener('input', (e) => {
-        lineWidthVal = parseFloat(e.target.value);
-        document.getElementById('val-line-width').textContent = lineWidthVal.toFixed(1) + ' px';
-      });
-
-      // Checkboxes
-      document.getElementById('chk-veins').addEventListener('change', (e) => showVeins = e.target.checked);
-      document.getElementById('chk-anchor-rock').addEventListener('change', (e) => showAnchorRock = e.target.checked);
-      document.getElementById('chk-nodes-debug').addEventListener('change', (e) => showNodesDebug = e.target.checked);
-
-      // Virtual fish sweep probe
-      document.getElementById('btn-virtual-fish-sweep').addEventListener('click', () => {
-        virtualFish.active = true;
-        virtualFish.facing = Math.random() > 0.5 ? 1 : -1;
-        virtualFish.x = virtualFish.facing > 0 ? -60 : viewport.clientWidth + 60;
-        virtualFish.y = viewport.clientHeight * 0.72 + (Math.random() - 0.5) * 80;
       });
 
       // Theme toggle
@@ -915,14 +932,14 @@
       });
 
       // Export snapshot
-      document.getElementById('btn-export-plant-png').addEventListener('click', () => {
+      document.getElementById('btn-export-png').addEventListener('click', () => {
         const link = document.createElement('a');
-        link.download = `plant_${plantSeed.replace(/\s+/g, '_')}.png`;
+        link.download = `vegetation_${activeSpecies.id}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       });
 
-      // 4. Main Animation Loop
+      // 5. Main Render Loop
       let lastTime = performance.now();
       let frameCount = 0;
       let lastFpsTime = lastTime;
@@ -931,13 +948,12 @@
       function renderLoop(now) {
         const dt = Math.min(0.05, (now - lastTime) / 1000);
         lastTime = now;
-        simTime += dt * waveSpeedMult;
+        simTime += dt * paramWave;
 
-        // Calculate FPS
         frameCount++;
         if (now - lastFpsTime >= 500) {
           const fps = Math.round((frameCount * 1000) / (now - lastFpsTime));
-          document.getElementById('hud-plant-fps').textContent = fps;
+          document.getElementById('hud-fps').textContent = fps;
           frameCount = 0;
           lastFpsTime = now;
         }
@@ -945,7 +961,7 @@
         const w = viewport.clientWidth;
         const h = viewport.clientHeight;
 
-        // Update virtual fish probe
+        // Virtual fish update
         if (virtualFish.active) {
           virtualFish.x += virtualFish.facing * virtualFish.vx * dt;
           if ((virtualFish.facing > 0 && virtualFish.x > w + 120) || (virtualFish.facing < 0 && virtualFish.x < -120)) {
@@ -953,7 +969,6 @@
           }
         }
 
-        // Determine effective disturbance coordinate (either mouse or virtual fish)
         let probeX = -999, probeY = -999;
         if (mousePos.active) {
           probeX = mousePos.x;
@@ -963,28 +978,25 @@
           probeY = virtualFish.y;
         }
 
-        // Calculate ambient current
-        const ambientCurrent = (Math.sin(simTime * 0.45) * 0.65 + Math.cos(simTime * 0.2) * 0.35) * currentMult;
-        document.getElementById('hud-current-val').textContent = (ambientCurrent > 0 ? '+' : '') + ambientCurrent.toFixed(2) + ' m/s';
+        const ambientCurrent = (Math.sin(simTime * 0.45) * 0.65 + Math.cos(simTime * 0.2) * 0.35) * paramCurrent;
+        document.getElementById('hud-current').textContent = (ambientCurrent > 0 ? '+' : '') + ambientCurrent.toFixed(2) + ' m/s';
 
-        // Update Ripples
+        // Ripples update
         for (let i = ripples.length - 1; i >= 0; i--) {
           const r = ripples[i];
           r.r += dt * 32;
           r.alpha -= dt * 0.5;
-          if (r.alpha <= 0) {
-            ripples.splice(i, 1);
-          }
+          if (r.alpha <= 0) ripples.splice(i, 1);
         }
 
-        // Update Models
-        if (viewMode === 'single' && singleCluster) {
-          singleCluster.update(dt, simTime, probeX, probeY, ripples, ambientCurrent);
-        } else if (plantColony) {
-          plantColony.time = simTime;
-          plantColony.ambientCurrent = ambientCurrent;
-          for (let i = 0; i < plantColony.clusters.length; i++) {
-            plantColony.clusters[i].update(dt, simTime, probeX, probeY, ripples, ambientCurrent);
+        // Update active models
+        if (viewMode === 'single' && cluster) {
+          cluster.update(dt, simTime, probeX, probeY, ripples, ambientCurrent);
+        } else if (colony) {
+          colony.time = simTime;
+          colony.ambientCurrent = ambientCurrent;
+          for (let i = 0; i < colony.clusters.length; i++) {
+            colony.clusters[i].update(dt, simTime, probeX, probeY, ripples, ambientCurrent);
           }
         }
 
@@ -1008,43 +1020,22 @@
           ctx.restore();
         }
 
-        // 2. Render Plants
+        // 2. Render Vegetation
         const renderOpts = {
           strokeColor: inkColor,
-          lineWidth: lineWidthVal,
+          lineWidth: paramLineWidth,
           washColor: washColor,
-          stoneWash: showAnchorRock ? stoneWash : 'transparent'
+          stoneWash: showRock ? stoneWash : 'transparent',
+          showVeins: showVeins
         };
 
-        if (viewMode === 'single' && singleCluster) {
-          singleCluster.render(ctx, renderOpts);
-        } else if (plantColony) {
-          plantColony.render(ctx, renderOpts);
+        if (viewMode === 'single' && cluster) {
+          cluster.render(ctx, renderOpts);
+        } else if (colony) {
+          colony.render(ctx, renderOpts);
         }
 
-        // 3. Render Debug Nodes if enabled
-        if (showNodesDebug) {
-          ctx.save();
-          ctx.fillStyle = '#ba3222';
-          ctx.strokeStyle = '#ba3222';
-          ctx.lineWidth = 1;
-
-          const clustersToDraw = viewMode === 'single' ? [singleCluster] : plantColony.clusters;
-          clustersToDraw.forEach(cl => {
-            cl.blades.forEach(b => {
-              for (let i = 0; i < b.nodes.length; i++) {
-                const nx = cl.x + b.offsetX + b.nodes[i].relX;
-                const ny = cl.y + b.nodes[i].relY;
-                ctx.beginPath();
-                ctx.arc(nx, ny, 2.2, 0, Math.PI * 2);
-                ctx.fill();
-              }
-            });
-          });
-          ctx.restore();
-        }
-
-        // 4. Draw Virtual Fish probe if active
+        // 3. Render Virtual Fish probe if active
         if (virtualFish.active) {
           ctx.save();
           ctx.fillStyle = currentTheme === 'midnight' ? 'rgba(224, 74, 54, 0.85)' : 'rgba(186, 50, 34, 0.85)';
@@ -1052,7 +1043,6 @@
           ctx.arc(virtualFish.x, virtualFish.y, 16, 0, Math.PI * 2);
           ctx.fill();
 
-          // Heading cone
           ctx.beginPath();
           ctx.moveTo(virtualFish.x + virtualFish.facing * 22, virtualFish.y);
           ctx.lineTo(virtualFish.x - virtualFish.facing * 10, virtualFish.y - 10);
