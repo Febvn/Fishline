@@ -403,11 +403,66 @@
       gap: 14px;
     }
 
-    .menu-icon {
-      font-size: 18px;
-      width: 28px;
+    .menu-index {
+      font-family: 'Cinzel Decorative', 'Cinzel', serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--seal-red);
+      width: 26px;
+      height: 26px;
+      border: 1px solid rgba(186, 50, 34, 0.4);
+      border-radius: 4px;
       display: flex;
+      align-items: center;
       justify-content: center;
+      background: var(--seal-red-bg);
+      flex-shrink: 0;
+      letter-spacing: 0.04em;
+      transition: all 0.2s ease;
+    }
+
+    .menu-item-btn.primary .menu-index {
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+
+    body.theme-midnight .menu-item-btn.primary .menu-index {
+      border-color: rgba(0, 0, 0, 0.25);
+      background: rgba(0, 0, 0, 0.08);
+      color: #18141f;
+    }
+
+    .enso-kanji-fish {
+      font-family: 'Cinzel Decorative', 'Cinzel', 'Yu Mincho', 'Hiragino Mincho Pro', serif;
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--seal-red);
+      user-select: none;
+      filter: drop-shadow(0 2px 8px rgba(186, 50, 34, 0.25));
+    }
+
+    .ad-sponsor-seal {
+      display: inline-block;
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: #e57373;
+      border: 1.5px solid #ba3222;
+      padding: 3px 10px;
+      border-radius: 4px;
+      background: rgba(186, 50, 34, 0.18);
+      letter-spacing: 0.16em;
+      margin-top: 4px;
+    }
+
+    /* Tactile Active States across all controls */
+    .btn-icon-capsule:active,
+    .dock-btn:active,
+    .menu-item-btn:active,
+    .btn-summon-action:active,
+    .zen-exit-pill:active {
+      transform: translateY(1px) scale(0.99);
     }
 
     .menu-text-group {
@@ -1100,18 +1155,20 @@
   <header class="top-persistent-bar">
     <div class="top-btn-group">
       <button class="btn-icon-capsule" id="btn-toggle-main-menu" title="Buka Menu Game (ESC)">
-        <span class="hanko-stamp-sm">☰</span>
+        <span class="hanko-stamp-sm">目</span>
         <span>Menu</span>
       </button>
       <button class="btn-icon-capsule" id="btn-top-gacha" title="Kuil Pemanggilan Spesies Gacha (Space / G)">
-        <span>🎟️</span>
+        <span class="hanko-stamp-sm" style="color:var(--seal-red); border-color:var(--seal-red);">券</span>
         <span id="top-ticket-badge">1 Tiket</span>
       </button>
       <button class="btn-icon-capsule" id="btn-quick-sound-toggle" title="Matikan/Hidupkan Suara">
-        <span id="sound-icon">🔊</span>
+        <svg id="sound-icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+        <span id="sound-text-label">Suara</span>
       </button>
       <button class="btn-icon-capsule" id="btn-quick-zen-toggle" title="Mode Zen (Z)">
-        <span>☯ Zen</span>
+        <span class="hanko-stamp-sm">静</span>
+        <span>Mode Zen</span>
       </button>
     </div>
 
@@ -1137,7 +1194,7 @@
         <nav class="game-menu-nav">
           <button class="menu-item-btn primary" id="menu-btn-play">
             <div class="menu-item-left">
-              <span class="menu-icon">▶</span>
+              <span class="menu-index">01</span>
               <div class="menu-text-group">
                 <span class="menu-title">Mulai Menjelajah</span>
                 <span class="menu-desc">Masuk ke kolam akuarium & interaksi langsung</span>
@@ -1148,7 +1205,7 @@
 
           <button class="menu-item-btn" id="menu-btn-bestiary">
             <div class="menu-item-left">
-              <span class="menu-icon">📖</span>
+              <span class="menu-index">02</span>
               <div class="menu-text-group">
                 <span class="menu-title">Ensiklopedia Spesies</span>
                 <span class="menu-desc">Katalog taksonomi ikan & arsip anatomi</span>
@@ -1159,7 +1216,7 @@
 
           <button class="menu-item-btn" id="menu-btn-zen">
             <div class="menu-item-left">
-              <span class="menu-icon">☯</span>
+              <span class="menu-index">03</span>
               <div class="menu-text-group">
                 <span class="menu-title">Mode Zen Kolam</span>
                 <span class="menu-desc">Ketenangan visual tanpa HUD & riak air</span>
@@ -1170,10 +1227,10 @@
 
           <button class="menu-item-btn" id="menu-btn-reroll">
             <div class="menu-item-left">
-              <span class="menu-icon">🎟️</span>
+              <span class="menu-index">04</span>
               <div class="menu-text-group">
-                <span class="menu-title">Panggil Spesies Baru (Gacha)</span>
-                <span class="menu-desc">Kuil pemanggilan ikan: tonton iklan atau bayar tiket</span>
+                <span class="menu-title">Panggil Spesies (Gacha)</span>
+                <span class="menu-desc">Kuil pemanggilan: tonton sponsor atau tiket QRIS</span>
               </div>
             </div>
             <span class="menu-key-hint">SPACE</span>
@@ -1181,9 +1238,9 @@
 
           <button class="menu-item-btn" id="menu-btn-settings">
             <div class="menu-item-left">
-              <span class="menu-icon">⚙</span>
+              <span class="menu-index">05</span>
               <div class="menu-text-group">
-                <span class="menu-title">Pengaturan & Audio</span>
+                <span class="menu-title">Pengaturan Audio & Visual</span>
                 <span class="menu-desc">Suara tetesan air, tema washi/malam & kecepatan</span>
               </div>
             </div>
@@ -1192,10 +1249,10 @@
 
           <button class="menu-item-btn" id="menu-btn-help">
             <div class="menu-item-left">
-              <span class="menu-icon">❓</span>
+              <span class="menu-index">06</span>
               <div class="menu-text-group">
                 <span class="menu-title">Panduan Kontrol</span>
-                <span class="menu-desc">Cara memberi makan, interaksi riak & tombol shortcut</span>
+                <span class="menu-desc">Cara memberi pakan, interaksi riak & pintasan keyboard</span>
               </div>
             </div>
             <span class="menu-key-hint">?</span>
@@ -1203,11 +1260,11 @@
         </nav>
 
         <div class="landing-quick-stats">
-          <span>Kapasitas: <strong>~4,29 Miliar Spesies</strong></span>
+          <span>Fishline • Linocut & Sumi-e Biomekanik</span>
           <span>•</span>
-          <span>Mesin: <strong>Fishdraw Kinematics 2D</strong></span>
+          <span>Canvas 2D Native</span>
           <span>•</span>
-          <span>Status: <strong>Magap-magap & Chomp</strong></span>
+          <span>Bebas Framework & Slop</span>
         </div>
       </div>
 
@@ -1239,16 +1296,16 @@
       <!-- Action Bar -->
       <div class="dock-card action-bar-capsule">
         <button class="dock-btn btn-pellet-drop" id="dock-btn-feed" title="Jatuhkan pelet makanan (F)">
-          <span>🥢 Beri Makan</span>
+          <span>Beri Umpan (F)</span>
         </button>
         <button class="dock-btn" id="dock-btn-new-fish" title="Panggil Spesies Ikan Gacha (Space / G)">
-          <span>🎟️ Gacha Ikan</span>
+          <span>Panggil Spesies (G)</span>
         </button>
         <button class="dock-btn" id="dock-btn-kill" title="Pingsan terbalik (K)">
-          <span>💀 Pingsan</span>
+          <span>Pingsan (K)</span>
         </button>
         <button class="dock-btn" id="dock-btn-revive" title="Hidupkan kembali (R)" style="display:none;">
-          <span>🌱 Pulihkan</span>
+          <span>Pulihkan (R)</span>
         </button>
       </div>
 
@@ -1292,7 +1349,7 @@
   <div class="modal-backdrop" id="modal-bestiary">
     <div class="modal-scroll-window">
       <div class="modal-header">
-        <h3><span>📖</span> Ensiklopedia Spesies Sumi-e</h3>
+        <h3>Ensiklopedia Spesies Sumi-e</h3>
         <button class="btn-modal-close" data-close="modal-bestiary">&times;</button>
       </div>
       <div class="modal-body">
@@ -1312,22 +1369,22 @@
   <div class="modal-backdrop" id="modal-settings">
     <div class="modal-scroll-window" style="max-width:480px;">
       <div class="modal-header">
-        <h3><span>⚙</span> Pengaturan & Audio</h3>
+        <h3>Pengaturan & Visual</h3>
         <button class="btn-modal-close" data-close="modal-settings">&times;</button>
       </div>
       <div class="modal-body" style="display:flex; flex-direction:column; gap:18px;">
         <div>
           <label style="font-weight:600; font-size:14px; display:block; margin-bottom:6px;">Suara Sintesis Web Audio</label>
           <button class="dock-btn" id="btn-toggle-sound-setting" style="width:100%; justify-content:center;">
-            <span id="setting-sound-label">🔊 Audio Air & Ketukan Aktif</span>
+            <span id="setting-sound-label">Audio Sintesis Air: Aktif</span>
           </button>
         </div>
 
         <div>
           <label style="font-weight:600; font-size:14px; display:block; margin-bottom:6px;">Tema Kanvas Akuarium</label>
           <div style="display:flex; gap:10px;">
-            <button class="dock-btn" id="btn-theme-washi" style="flex:1; justify-content:center;">📜 Washi Krem</button>
-            <button class="dock-btn" id="btn-theme-midnight" style="flex:1; justify-content:center;">🌌 Tinta Malam</button>
+            <button class="dock-btn" id="btn-theme-washi" style="flex:1; justify-content:center;">Washi Krem</button>
+            <button class="dock-btn" id="btn-theme-midnight" style="flex:1; justify-content:center;">Tinta Malam</button>
           </div>
         </div>
 
@@ -1348,7 +1405,7 @@
   <div class="modal-backdrop" id="modal-help">
     <div class="modal-scroll-window" style="max-width:480px;">
       <div class="modal-header">
-        <h3><span>❓</span> Panduan Kontrol & Shortcut</h3>
+        <h3>Panduan Kontrol & Pintasan</h3>
         <button class="btn-modal-close" data-close="modal-help">&times;</button>
       </div>
       <div class="modal-body" style="font-size:13px; line-height:1.6; color:var(--ink-muted);">
@@ -1376,7 +1433,7 @@
   <div class="modal-backdrop" id="modal-gacha">
     <div class="modal-scroll-window" style="max-width: 620px;">
       <div class="modal-header">
-        <h3><span>⛩️</span> Kuil Pemanggilan Spesies Ikan (Gacha)</h3>
+        <h3>Pemanggilan Spesies Ikan (Gacha)</h3>
         <button class="btn-modal-close" data-close="modal-gacha">&times;</button>
       </div>
       <div class="modal-body">
@@ -1386,58 +1443,56 @@
             <div class="gacha-balance-info">
               <span class="gacha-balance-label">Dompet Pemanggilan</span>
               <span class="gacha-balance-val">
-                <span>🎟️</span>
-                <span id="shrine-ticket-val">1 Tiket Gacha</span>
+                <span class="hanko-stamp-sm" style="color:var(--seal-red); border-color:var(--seal-red);">券</span>
+                <span id="shrine-ticket-val">1 Tiket Tersedia</span>
               </span>
             </div>
             <button class="btn-summon-action" id="btn-shrine-summon">
-              <span>🌊 Panggil 1x Spesies Baru (Gunakan 1 Tiket)</span>
+              <span>Panggil Spesies Baru (Gunakan 1 Tiket)</span>
             </button>
           </div>
 
           <p style="font-size:13px; color:var(--ink-muted); margin:0 4px;">
-            Setiap pemanggilan memunculkan spesimen ikan sumi-e baru dengan keunikan genetika, pola sisik, dan tingkat kelangkaan (Biasa, Langka, atau Legendaris). Pilih cara untuk mendapatkan tiket gacha:
+            Setiap pemanggilan merakit spesimen ikan sumi-e baru dengan keunikan genetika, pola sisik, dan tingkat kelangkaan (Biasa, Langka, atau Legendaris). Pilih cara untuk memperoleh tiket pemanggilan:
           </p>
 
-          <!-- 2 Pilihan Utama: Tonton Iklan atau Bayar QRIS -->
+          <!-- 2 Pilihan Utama: Tonton Sponsor atau Bayar QRIS -->
           <div class="gacha-options-grid">
             
-            <!-- Opsi 1: Tonton Iklan Sponsor (Gratis) -->
+            <!-- Opsi 1: Tonton Sponsor Singkat -->
             <div class="gacha-option-card">
               <div>
-                <span class="gacha-badge-ribbon badge-free">GRATIS • REWARDED AD</span>
+                <span class="gacha-badge-ribbon badge-free">Tayangan Sponsor</span>
                 <div class="gacha-opt-title" style="margin-top:8px;">
-                  <span>🎬</span>
-                  <span>Tonton Iklan Sponsor</span>
+                  <span>Tayangan Video Singkat</span>
                 </div>
                 <p class="gacha-opt-desc" style="margin-top:6px;">
-                  Tonton tayangan sponsor singkat 5 detik untuk menerima <strong>1x Tiket Gacha Gratis</strong> langsung ke kolam Anda.
+                  Tonton tayangan sponsor selama 5 detik untuk menerima <strong>1x Tiket Pemanggilan</strong> langsung ke kolam Anda.
                 </p>
               </div>
               <button class="dock-btn" id="btn-opt-watch-ad" style="width:100%; justify-content:center; background:var(--ink); color:var(--bg-wash);">
-                <span>▶ Tonton Iklan (5 Detik)</span>
+                <span>Tonton Sponsor (5 Detik)</span>
               </button>
             </div>
 
-            <!-- Opsi 2: Beli via QRIS (Payment Gateway) -->
+            <!-- Opsi 2: Beli via QRIS -->
             <div class="gacha-option-card">
               <div>
-                <span class="gacha-badge-ribbon badge-paid">INSTAN • PAYMENT GATEWAY</span>
+                <span class="gacha-badge-ribbon badge-paid">Pembayaran Instan</span>
                 <div class="gacha-opt-title" style="margin-top:8px;">
-                  <span>⚡</span>
-                  <span>Bayar via QRIS</span>
+                  <span>Pembayaran QRIS</span>
                 </div>
                 <p class="gacha-opt-desc" style="margin-top:6px;">
-                  Dukung pengembangan kolam akuarium dengan membeli tiket instan via QRIS (BCA, GoPay, OVO, Dana, dll).
+                  Dukung kelanjutan kolam akuarium dengan tiket instan via QRIS (BCA, GoPay, OVO, Dana, Mandiri).
                 </p>
               </div>
               <div style="display:flex; flex-direction:column; gap:8px;">
                 <button class="dock-btn" id="btn-buy-ticket-1" style="width:100%; justify-content:space-between;">
-                  <span>🎟️ 1x Tiket Gacha</span>
+                  <span>1x Tiket Pemanggilan</span>
                   <strong>Rp 2.000</strong>
                 </button>
                 <button class="dock-btn" id="btn-buy-ticket-5" style="width:100%; justify-content:space-between; border-color:var(--seal-red); color:var(--seal-red);">
-                  <span>🎟️ 5x Tiket Gacha (Hemat)</span>
+                  <span>5x Tiket Pemanggilan (Paket)</span>
                   <strong>Rp 8.000</strong>
                 </button>
               </div>
@@ -1459,14 +1514,14 @@
   <div class="modal-backdrop" id="modal-ad-player">
     <div class="modal-scroll-window" style="max-width: 460px;">
       <div class="modal-header">
-        <h3><span>🎬</span> Tayangan Sponsor Eksklusif</h3>
+        <h3>Tayangan Sponsor</h3>
         <button class="btn-modal-close" data-close="modal-ad-player">&times;</button>
       </div>
       <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
         <div class="ad-screen-box">
           <div class="ad-overlay-ui">
             <span class="ad-timer-pill" id="ad-timer-countdown">5s</span>
-            <div style="font-size:24px; margin-top:4px;">🍃 🍵</div>
+            <div class="ad-sponsor-seal">竹茶</div>
             <h4 style="font-size:16px; font-weight:700;">Kedai Teh Daun Bambu Tradisional</h4>
             <p style="font-size:12px; color:#c7cbd3; max-width:320px;">
               Menyajikan ketenangan washi dan kehangatan tradisi Jepang dalam setiap seduhan daun bambu alami.
@@ -1494,7 +1549,7 @@
   <div class="modal-backdrop" id="modal-payment-qris">
     <div class="modal-scroll-window" style="max-width: 480px;">
       <div class="modal-header">
-        <h3><span>📱</span> Pembayaran QRIS Instan</h3>
+        <h3>Pembayaran QRIS</h3>
         <button class="btn-modal-close" data-close="modal-payment-qris">&times;</button>
       </div>
       <div class="modal-body">
@@ -1550,14 +1605,14 @@
           </div>
 
           <div class="qris-timer-meta">
-            <span>⏱️ Batas Waktu Bayar: <strong>14:59</strong></span>
+            <span>Batas Waktu Bayar: <strong>14:59</strong></span>
             <span>•</span>
             <span>Verifikasi Otomatis</span>
           </div>
 
           <!-- Tombol Simulasi Pembayaran Berhasil / Webhook -->
           <button class="btn-summon-action" id="btn-simulate-qris-paid" style="width:100%; justify-content:center; background:#1e7e48; border-color:#1e7e48;">
-            <span>⚡ Simulasikan Pembayaran Berhasil (Instant Webhook)</span>
+            <span>Konfirmasi Pembayaran Selesai (Webhook)</span>
           </button>
 
           <p style="font-size:11px; color:var(--ink-faint); text-align:center; line-height:1.4;">
@@ -1574,16 +1629,16 @@
   <div class="modal-backdrop" id="modal-gacha-reveal">
     <div class="modal-scroll-window" style="max-width: 480px;">
       <div class="modal-header">
-        <h3><span>✨</span> Hasil Pemanggilan Spesies Baru</h3>
+        <h3>Hasil Pemanggilan Spesies Baru</h3>
         <button class="btn-modal-close" data-close="modal-gacha-reveal">&times;</button>
       </div>
       <div class="modal-body">
         <div class="summon-reveal-wrap">
           <div class="enso-portal">
-            <span>🐟</span>
+            <span class="enso-kanji-fish">魚</span>
           </div>
 
-          <span class="rarity-pill rarity-mythic" id="reveal-rarity-pill">LEGENDARIS (MYTHIC) ★★★</span>
+          <span class="rarity-pill rarity-mythic" id="reveal-rarity-pill">Tingkat: Legendaris</span>
 
           <div>
             <h2 id="reveal-fish-name" style="font-size:22px; font-style:italic; font-weight:700; color:var(--ink); margin-bottom:4px;">
@@ -1599,10 +1654,10 @@
 
           <div style="display:flex; gap:10px; width:100%; margin-top:8px;">
             <button class="dock-btn" id="btn-reveal-enter-pond" style="flex:1; justify-content:center; background:var(--ink); color:var(--bg-wash);">
-              <span>🌊 Masuk ke Kolam</span>
+              <span>Masuk ke Kolam</span>
             </button>
             <button class="dock-btn" id="btn-reveal-roll-again" style="flex:1; justify-content:center;">
-              <span>🎟️ Panggil Lagi</span>
+              <span>Panggil Spesies Lain</span>
             </button>
           </div>
         </div>
@@ -1730,16 +1785,23 @@
         }
       };
 
-      // Sound button listeners
+      // Sound UI updater (minimalist SVG and clean state labels)
       function updateSoundUI() {
-        const icon = document.getElementById('sound-icon');
-        const label = document.getElementById('setting-sound-label');
+        const textLabel = document.getElementById('sound-text-label');
+        const settingLabel = document.getElementById('setting-sound-label');
+        const svgIcon = document.getElementById('sound-icon-svg');
         if (AudioFX.enabled) {
-          icon.textContent = '🔊';
-          label.textContent = '🔊 Audio Air & Ketukan Aktif';
+          if (textLabel) textLabel.textContent = 'Suara';
+          if (settingLabel) settingLabel.textContent = 'Audio Sintesis Air: Aktif';
+          if (svgIcon) {
+            svgIcon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>';
+          }
         } else {
-          icon.textContent = '🔇';
-          label.textContent = '🔇 Audio Dimatikan';
+          if (textLabel) textLabel.textContent = 'Bisu';
+          if (settingLabel) settingLabel.textContent = 'Audio Sintesis Air: Bisu';
+          if (svgIcon) {
+            svgIcon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>';
+          }
         }
       }
 
@@ -1988,16 +2050,16 @@
           if (badge) badge.textContent = `${this.tickets} Tiket`;
 
           const shrineBal = document.getElementById('shrine-ticket-val');
-          if (shrineBal) shrineBal.textContent = `${this.tickets} Tiket Gacha`;
+          if (shrineBal) shrineBal.textContent = `${this.tickets} Tiket Tersedia`;
 
           const btnSummon = document.getElementById('btn-shrine-summon');
           if (btnSummon) {
             if (this.tickets > 0) {
               btnSummon.disabled = false;
-              btnSummon.innerHTML = '<span>🌊 Panggil 1x Spesies Baru (Gunakan 1 Tiket)</span>';
+              btnSummon.innerHTML = '<span>Panggil Spesies Baru (Gunakan 1 Tiket)</span>';
             } else {
               btnSummon.disabled = true;
-              btnSummon.innerHTML = '<span>Tiket Habis • Tonton Iklan atau Bayar di Bawah</span>';
+              btnSummon.innerHTML = '<span>Tiket Habis • Tonton Sponsor atau Beli di Bawah</span>';
             }
           }
         },
@@ -2026,7 +2088,7 @@
 
           // Calculate Rarity based on deterministic hash
           const rollSeed = animator.seed;
-          let rarity = 'Biasa (Common)';
+          let rarity = 'Tingkat: Biasa';
           let rarityClass = 'rarity-common';
           let rarityDesc = 'Ikan air tawar dengan pola sisik sederhana dan sirip klasik.';
 
@@ -2035,11 +2097,11 @@
           const pct = hashVal % 100;
 
           if (pct < 7) {
-            rarity = 'LEGENDARIS (MYTHIC) ★★★';
+            rarity = 'Tingkat: Legendaris';
             rarityClass = 'rarity-mythic';
             rarityDesc = 'Ikan purba bertuah sumi-e dengan sirip camar megah dan sisik emas washi.';
           } else if (pct < 32) {
-            rarity = 'Langka (Rare) ★★';
+            rarity = 'Tingkat: Langka';
             rarityClass = 'rarity-rare';
             rarityDesc = 'Spesimen langka dengan corak punggung bergelombang dan kontur tajam.';
           }
@@ -2107,7 +2169,7 @@
               if (timerEl) timerEl.textContent = 'Selesai!';
               if (claimBtn) {
                 claimBtn.disabled = false;
-                claimBtn.innerHTML = '🎉 Klaim 1 Tiket Gacha & Putar Sekarang!';
+                claimBtn.innerHTML = 'Klaim 1 Tiket Pemanggilan & Putar';
               }
               AudioFX.playCoinSound();
             }
@@ -2148,7 +2210,7 @@
           this.updateUI();
           AudioFX.playCoinSound();
 
-          alert(`✅ Pembayaran Rp ${amount.toLocaleString('id-ID')} Berhasil via QRIS!\n\n+${ticketAmount} Tiket Gacha telah ditambahkan ke dompet Anda.`);
+          alert(`Pembayaran Rp ${amount.toLocaleString('id-ID')} Berhasil via QRIS.\n\n+${ticketAmount} Tiket telah ditambahkan ke dompet pemanggilan.`);
           closeModal();
           this.roll();
         },
