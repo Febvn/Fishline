@@ -2616,10 +2616,11 @@
         // 2.4 Render Procedural Lakebed Pebbles & Stones (pebbledraw.js)
         if (pebbleBed) {
           pebbleBed.render(ctx, {
-            strokeColor: inkColor,
+            strokeColor: currentTheme === 'midnight' ? '#f0f0f0' : inkColor,
             lineWidth: 1.05,
-            fillWash: currentTheme === 'midnight' ? 'rgba(30, 42, 54, 0.45)' : 'rgba(40, 36, 32, 0.08)',
-            mossWash: currentTheme === 'midnight' ? 'rgba(40, 95, 75, 0.35)' : 'rgba(55, 90, 60, 0.15)',
+            theme: currentTheme,
+            fillWash: currentTheme === 'midnight' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(40, 40, 40, 0.09)',
+            mossWash: currentTheme === 'midnight' ? 'rgba(255, 255, 255, 0.14)' : 'rgba(25, 25, 25, 0.18)',
             dropShadow: true
           });
         }

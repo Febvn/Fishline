@@ -505,6 +505,25 @@
           </div>
         </div>
 
+        <!-- 3.5 Profil Morfologi Siluet Bentuk (7 Morfologi Geometri) -->
+        <div class="control-group">
+          <div class="group-label">
+            <span>7 Morfologi Siluet Bentuk</span>
+            <span class="lab-sub-badge" id="lbl-morph-count">7 PROFIL</span>
+          </div>
+
+          <select id="select-morph" class="select-field">
+            <option value="auto">Acak Sesuai Karakteristik Batuan (Auto)</option>
+            <option value="0">01 Oval Simetris Sungai (Oval River Pebble)</option>
+            <option value="1">02 Telur / Tetesan Air Asimetris (Teardrop / Egg Skew)</option>
+            <option value="2">03 Baji Segitiga Sungai (Triangular River Wedge)</option>
+            <option value="3">04 Balok Tumpul / Slab Pipih (Superellipse Blocky Slab)</option>
+            <option value="4">05 Melengkung Ginjal / Kacang (Kidney Bean Curve)</option>
+            <option value="5">06 Bidang Dasar Datar Sungai (Flat-Bottom Resting Base)</option>
+            <option value="6">07 Rekah Sumbing / Serpihan (Chipped Spall Flake)</option>
+          </select>
+        </div>
+
         <!-- 4. Parameter Dimensi, Tekstur & Gugusan -->
         <div class="control-group">
           <div class="group-label">
@@ -587,7 +606,7 @@
 
           <label class="checkbox-row">
             <input type="checkbox" id="chk-moss" checked>
-            <span>Bercak Lumut & Spora Air (Velvet Moss Patches)</span>
+            <span>Bercak Lumut & Spora Tinta Monokrom (Sumi-e Stipple Patches)</span>
           </label>
 
           <label class="checkbox-row">
@@ -621,8 +640,11 @@
 
       <div class="viewport-hud">
         <div>Spesies: <span id="hud-name">Saxum fluvii kamonis</span></div>
-        <div>Morfologi: <span id="hud-arch">Batu Kali Mulus</span></div>
-        <div>Dimensi: <span id="hud-dim">65 × 42 px</span></div>
+        <div>Arsitektur: <span id="hud-arch">Batu Kali Mulus</span></div>
+        <div>Morfologi: <span id="hud-morph">Acak Alami</span></div>
+        <div>Kombinasi: <span id="hud-combo">451.584 Pola Makro (&infin; Kontinu)</span></div>
+        <div>Palet: <span id="hud-palette" style="color:var(--ink-primary); font-weight:600;">Monokrom Murni (Hitam / Abu-abu / Putih)</span></div>
+        <div>Dimensi: <span id="hud-dim">65 &times; 42 px</span></div>
         <div>FPS: <span id="hud-fps">60</span></div>
       </div>
     </section>
@@ -658,6 +680,7 @@
       let currentTheme = 'washi';
       let activeSpecies = pebbledraw.PEBBLE_CATALOG[0]; // Default: Kamo River
       let activeArchetype = activeSpecies.archetype;
+      let activeMorph = 'auto';
 
       let paramRx = activeSpecies.rx;
       let paramRy = activeSpecies.ry;
@@ -714,6 +737,7 @@
           {
             pebbleId: activeSpecies.id,
             archetype: activeArchetype,
+            morph: activeMorph,
             rx: paramRx,
             ry: paramRy,
             roughness: paramRoughness,
@@ -744,6 +768,11 @@
         document.getElementById('hud-name').textContent = activeSpecies.binomen;
         const archNames = ['Batu Kali Mulus', 'Batu Granit Tebing', 'Lempeng Sedimen', 'Batu Lumut Danau', 'Karang Berpori', 'Gugusan Kerikil'];
         document.getElementById('hud-arch').textContent = archNames[activeArchetype] || 'Batu Danau';
+        const morphNames = ['01 Oval Simetris', '02 Telur / Tetesan Air', '03 Baji Segitiga', '04 Balok Tumpul / Slab', '05 Melengkung Ginjal', '06 Dasar Datar', '07 Rekah Sumbing'];
+        const hudMorphEl = document.getElementById('hud-morph');
+        if (hudMorphEl) {
+          hudMorphEl.textContent = activeMorph === 'auto' ? 'Acak Alami (Auto)' : (morphNames[Number(activeMorph)] || 'Morfologi Kustom');
+        }
         document.getElementById('hud-dim').textContent = `${paramRx} × ${paramRy} px`;
 
         document.getElementById('slider-rx').value = paramRx;
@@ -790,6 +819,14 @@
           else createBed();
         }
       });
+
+      const selectMorphEl = document.getElementById('select-morph');
+      if (selectMorphEl) {
+        selectMorphEl.addEventListener('change', (e) => {
+          activeMorph = e.target.value;
+          if (viewMode !== 'bed') createCluster();
+        });
+      }
 
       document.getElementById('btn-random-species').addEventListener('click', () => {
         const randSpecies = catalog[Math.floor(Math.random() * catalog.length)];
@@ -981,8 +1018,8 @@
 
         ctx.clearRect(0, 0, w, h);
 
-        const inkColor = currentTheme === 'midnight' ? '#f0ede6' : '#18141f';
-        const rippleColor = currentTheme === 'midnight' ? 'rgba(134, 165, 189, ' : 'rgba(109, 137, 153, ';
+        const inkColor = currentTheme === 'midnight' ? '#f0f0f0' : '#111111';
+        const rippleColor = currentTheme === 'midnight' ? 'rgba(220, 220, 220, ' : 'rgba(80, 80, 80, ';
 
         // 1. Water Ripples
         for (let i = ripples.length - 1; i >= 0; i--) {
@@ -1022,3 +1059,4 @@
   </script>
 </body>
 </html>
+

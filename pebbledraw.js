@@ -1,40 +1,41 @@
 /**
- * pebbledraw.js - Procedural Mathematical Lakebed Pebble & Stone Engine
- * Generates sumi-e woodcut/ink style pebbles, river stones, and boulders
- * across 6 distinct geological archetypes:
- * 1. Smooth River Pebble (Batu Kali Mulus / Water-Worn Pebble)
- * 2. Craggy Boulder (Batu Granit Tebing / Angular Fissured Boulder)
- * 3. Layered Shale (Batu Lempeng Sedimen / Stratified Slate)
- * 4. Moss-Covered Stone (Batu Lumut Danau / Suiseki Velvety Moss Stone)
- * 5. Perforated Karst (Batu Karang Purba / Porous Weathered Taihu Stone)
- * 6. Pebble Cluster (Gugusan Kerikil Kali / Multi-Pebble Riverbed Shingle)
+ * pebbledraw.js - Procedural Lakebed Pebble & Stone Engine
  *
- * 100% pure mathematical procedural geometry: Fourier harmonic contours,
- * topographical chiaroscuro concentric rings, branching fracture fissures,
- * sedimentary strata striations, and organic moss patina washes.
+ * Mathematically generates procedural river pebbles, stones, boulders,
+ * and lakebed shingle clusters using Fourier harmonic boundary perturbation,
+ * multiple morphological profile deformations (egg/teardrop, wedge,
+ * superellipse slab, kidney bean, flat-bottom, chipped spall),
+ * chiaroscuro concentric topographical elevation contours, branching fissure splines,
+ * and sumi-e monochrome ink washes.
+ *
+ * 100% STRICTLY MONOCHROME: Pure black, pure white, and neutral grays only.
+ * Zero non-grayscale hues or pigments.
+ *
+ * UMD wrapper: CommonJS + Browser window.pebbledraw
  */
-
 (function (root, factory) {
-  if (typeof module !== 'undefined' && module.exports) {
+  if (typeof define === 'function' && define.amd) {
+    define([], factory);
+  } else if (typeof module === 'object' && module.exports) {
     module.exports = factory();
   } else {
     root.pebbledraw = factory();
   }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
   // -----------------------------------------------------------------
-  // 1. Deterministic Pseudo-Random Number Generator (PRNG) & Helpers
+  // 1. Deterministic PRNG & Numerical Utilities
   // -----------------------------------------------------------------
   let jsr = 0x5EED;
   const PI = Math.PI;
-  const TWO_PI = Math.PI * 2;
+  const TWO_PI = PI * 2;
 
   function rand() {
     jsr ^= (jsr << 17);
-    jsr ^= (jsr >> 13);
+    jsr ^= (jsr >>> 13);
     jsr ^= (jsr << 5);
-    return (jsr >>> 0) / 4294967295;
+    return (jsr >>> 0) / 4294967296;
   }
 
   function set_seed(seed) {
@@ -74,58 +75,64 @@
     return a + (b - a) * t;
   }
 
-  function dist(x0, y0, x1, y1) {
-    return Math.hypot(x1 - x0, y1 - y0);
-  }
-
   // -----------------------------------------------------------------
-  // 2. Geological Archetypes & Catalog (24 Spesies Batu Danau)
+  // 2. Geological Archetypes & Morphological Profiles
   // -----------------------------------------------------------------
   const ARCHETYPES = {
     SMOOTH: 0,     // Batu Kali Mulus (Water-worn oval pebble)
     CRAGGY: 1,     // Batu Granit Tebing (Angular chiseled boulder)
     STRATIFIED: 2, // Batu Lempeng Sedimen (Layered shale & slate)
-    MOSSY: 3,      // Batu Berlumut Air (Velvety moss stone)
+    MOSSY: 3,      // Batu Berlumut Air (Sumi-e ink stipple moss stone)
     KARST: 4,      // Batu Karang Berpori (Porous Taihu scholar karst)
     CLUSTER: 5     // Rumpun Kerikil Kali (Composite multi-pebble shingle)
   };
 
+  const MORPHS = {
+    OVAL: 0,         // Simetris oval sungai klasik (Classical water-worn oval)
+    TEARDROP: 1,     // Telur / tetesan air asimetris (Teardrop & egg skew)
+    TRIANGULAR: 2,   // Baji segitiga sungai (Triangular fluvial wedge)
+    SUPERELLIPSE: 3, // Balok tumpul / slab pipih bersegi (Superellipse blocky cobble)
+    KIDNEY_BEAN: 4,  // Bentuk kacang / ginjal melengkung (Kidney bean arch)
+    FLAT_BOTTOM: 5,  // Dasar datar bidang duduk sungai (Flat-bottom resting plane)
+    CHIPPED_SPALL: 6 // Cekungan serpihan benturan kali (Fluvial impact spall scar)
+  };
+
   const PEBBLE_CATALOG = [
     // --- 1. Smooth River Pebbles (Batu Kali Mulus) ---
-    { id: 'kamo_river', common: 'Batu Kali Kamo', binomen: 'Saxum fluvii kamonis', archetype: 0, rx: 65, ry: 42, roughness: 0.12, desc: 'Batu kali halus terpoles aliran arus deras sungai Kyoto dengan kontur lonjong anggun.' },
-    { id: 'magnesite', common: 'Kerikil Pualam Putih', binomen: 'Saxum magnesita levis', archetype: 0, rx: 48, ry: 34, roughness: 0.10, desc: 'Kerikil putih bersih bundar dengan kilau basah air dan tekstur sehalus sutra.' },
-    { id: 'lake_jadeite', common: 'Batu Giok Danau', binomen: 'Nephritum lacustre', archetype: 0, rx: 56, ry: 38, roughness: 0.14, desc: 'Batu giok air kehijauan dengan pantulan cahaya halus dan cincin kontur sumi-e.' },
-    { id: 'egg_pebble', common: 'Batu Telur Angsa', binomen: 'Saxum oviforme', archetype: 0, rx: 72, ry: 48, roughness: 0.08, desc: 'Batu kerikil lonjong simetris alami yang tertidur tenang di dasar berpasir.' },
+    { id: 'kamo_river', common: 'Batu Kali Kamo', binomen: 'Saxum fluvii kamonis', archetype: 0, rx: 65, ry: 42, roughness: 0.12, morph: 0, desc: 'Batu kali halus terpoles aliran arus deras sungai Kyoto dengan kontur lonjong anggun dan goresan tinta sumi-e.' },
+    { id: 'magnesite', common: 'Kerikil Pualam Putih', binomen: 'Saxum magnesita levis', archetype: 0, rx: 48, ry: 34, roughness: 0.10, morph: 0, desc: 'Kerikil pualam monokrom bersih dengan kilau basah air dan cincin elevasi halus.' },
+    { id: 'lake_jadeite', common: 'Batu Kuarsa Danau', binomen: 'Nephritum lacustre', archetype: 0, rx: 56, ry: 38, roughness: 0.14, morph: 1, desc: 'Batu sungai sejuk dengan pantulan cahaya putih alami dan kontur asimetris tetesan air.' },
+    { id: 'egg_pebble', common: 'Batu Telur Angsa', binomen: 'Saxum oviforme', archetype: 0, rx: 72, ry: 48, roughness: 0.08, morph: 1, desc: 'Batu kerikil lonjong telur alami yang tertidur tenang di dasar kolam substrat pasir.' },
 
     // --- 2. Craggy Boulders (Batu Granit & Vulkanik Tebing) ---
-    { id: 'granite_crag', common: 'Batu Granit Terbelah', binomen: 'Granitum fissuratum', archetype: 1, rx: 85, ry: 62, roughness: 0.38, desc: 'Batu granit bersudut tajam dengan retakan rekahan tegas khas cukil kayu sumi-e.' },
-    { id: 'basalt_block', common: 'Bongkahan Basalt Hitam', binomen: 'Basaltes angularis', archetype: 1, rx: 78, ry: 55, roughness: 0.35, desc: 'Batuan vulkanik kelam bersisi patah dengan goresan arsir kapak tajam.' },
-    { id: 'obsidian_flint', common: 'Serpihan Obsidian Air', binomen: 'Obsidianus aquatilis', archetype: 1, rx: 60, ry: 44, roughness: 0.42, desc: 'Pecahan batuan kaca vulkanik dengan bidang belah cekung dan sudut runcing.' },
-    { id: 'dolomite_bluff', common: 'Bongkahan Dolomit Tebing', binomen: 'Dolomita praerupta', archetype: 1, rx: 92, ry: 68, roughness: 0.34, desc: 'Batu tebing danau purba berstruktur kokoh dengan retakan mineral diagonal.' },
+    { id: 'granite_crag', common: 'Batu Granit Terbelah', binomen: 'Granitum fissuratum', archetype: 1, rx: 85, ry: 62, roughness: 0.38, morph: 2, desc: 'Batu granit bersudut tajam dengan retakan rekahan tegas khas cukil kayu sumi-e monokrom.' },
+    { id: 'basalt_block', common: 'Bongkahan Basalt Hitam', binomen: 'Basaltes angularis', archetype: 1, rx: 78, ry: 55, roughness: 0.35, morph: 3, desc: 'Batuan vulkanik kelam pekat bersisi patah dengan goresan arsir kapak tajam.' },
+    { id: 'obsidian_flint', common: 'Serpihan Obsidian Air', binomen: 'Obsidianus aquatilis', archetype: 1, rx: 60, ry: 44, roughness: 0.42, morph: 6, desc: 'Pecahan batuan kaca vulkanik dengan cekungan serpihan benturan dan sudut runcing.' },
+    { id: 'dolomite_bluff', common: 'Bongkahan Dolomit Tebing', binomen: 'Dolomita praerupta', archetype: 1, rx: 92, ry: 68, roughness: 0.34, morph: 2, desc: 'Batu tebing danau purba berstruktur kokoh dengan retakan mineral diagonal.' },
 
     // --- 3. Layered Shale & Slate (Batu Lempeng Sedimen) ---
-    { id: 'slate_plate', common: 'Lempeng Sabak Danau', binomen: 'Schistus lamellatus', archetype: 2, rx: 90, ry: 38, roughness: 0.22, desc: 'Batu lempeng bertingkat pipih dengan lapisan sedimen sejajar yang tersingkap air.' },
-    { id: 'sandstone_strata', common: 'Batu Pasir Berlapis', binomen: 'Arenaceum stratosum', archetype: 2, rx: 82, ry: 46, roughness: 0.20, desc: 'Batuan sedimen danau dengan garis-garis ritmis pelapukan gelombang air.' },
-    { id: 'banded_iron', common: 'Batu Sedimen Besi', binomen: 'Saxum ferreum vittatum', archetype: 2, rx: 74, ry: 42, roughness: 0.25, desc: 'Batu berpita mineral gelap berselang-seling dengan trap pelapisan sedimen halus.' },
-    { id: 'schist_mica', common: 'Sekis Mika Berombak', binomen: 'Schistus micans undulatus', archetype: 2, rx: 86, ry: 40, roughness: 0.24, desc: 'Batu pipih berombak dengan serat metamorf dan kilau titik mika halus.' },
+    { id: 'slate_plate', common: 'Lempeng Sabak Danau', binomen: 'Schistus lamellatus', archetype: 2, rx: 90, ry: 38, roughness: 0.22, morph: 3, desc: 'Batu lempeng bertingkat pipih dengan lapisan sedimen sejajar yang tersingkap air.' },
+    { id: 'sandstone_strata', common: 'Batu Pasir Berlapis', binomen: 'Arenaceum stratosum', archetype: 2, rx: 82, ry: 46, roughness: 0.20, morph: 5, desc: 'Batuan sedimen danau dengan garis-garis ritmis pelapukan gelombang air dan bidang dasar datar.' },
+    { id: 'banded_iron', common: 'Batu Sedimen Besi', binomen: 'Saxum ferreum vittatum', archetype: 2, rx: 74, ry: 42, roughness: 0.25, morph: 4, desc: 'Batu berpita mineral gelap berselang-seling dengan trap pelapisan sedimen halus.' },
+    { id: 'schist_mica', common: 'Sekis Mika Berombak', binomen: 'Schistus micans undulatus', archetype: 2, rx: 86, ry: 40, roughness: 0.24, morph: 3, desc: 'Batu pipih berombak dengan serat metamorf dan kilau titik mika monokrom.' },
 
     // --- 4. Moss-Covered Stones (Batu Berlumut Danau) ---
-    { id: 'velvet_moss_rock', common: 'Batu Lumut Beludru', binomen: 'Saxum muscosum sericeum', archetype: 3, rx: 76, ry: 52, roughness: 0.18, desc: 'Batu kali yang diselimuti bantalan lumut beludru hijau zamrud di punggungnya.' },
-    { id: 'algal_boulder', common: 'Batu Ganggang Air Tenang', binomen: 'Saxum algis vestitum', archetype: 3, rx: 84, ry: 58, roughness: 0.22, desc: 'Bongkahan batu tua dengan lapisan patina ganggang air dan spora mikroskopis.' },
-    { id: 'lichen_pebble', common: 'Kerikil Lumut Kerak', binomen: 'Calculus lichenosus', archetype: 3, rx: 55, ry: 36, roughness: 0.16, desc: 'Kerikil danau dengan bercak-bercak lumut pirus yang melekat erat pada pori batu.' },
-    { id: 'bog_stone', common: 'Batu Gambut Danau Purba', binomen: 'Saxum palustre antiquum', archetype: 3, rx: 70, ry: 48, roughness: 0.26, desc: 'Batu hitam kelam berpori dengan lumut air merambat di celah-celah lekukannya.' },
+    { id: 'velvet_moss_rock', common: 'Batu Lumut Beludru', binomen: 'Saxum muscosum sericeum', archetype: 3, rx: 76, ry: 52, roughness: 0.18, morph: 0, desc: 'Batu kali yang diselimuti bantalan lumut beludru berupa bercak bintik tinta sumi-e pekat di punggungnya.' },
+    { id: 'algal_boulder', common: 'Batu Ganggang Air Tenang', binomen: 'Saxum algis vestitum', archetype: 3, rx: 84, ry: 58, roughness: 0.22, morph: 4, desc: 'Bongkahan batu tua dengan lapisan patina kelam dan spora titik tinta mikroskopis.' },
+    { id: 'lichen_pebble', common: 'Kerikil Lumut Kerak', binomen: 'Calculus lichenosus', archetype: 3, rx: 55, ry: 36, roughness: 0.16, morph: 1, desc: 'Kerikil danau dengan bercak-bercak lumut kerak arsir tinta sumi-e yang melekat erat pada pori batu.' },
+    { id: 'bog_stone', common: 'Batu Gambut Danau Purba', binomen: 'Saxum palustre antiquum', archetype: 3, rx: 70, ry: 48, roughness: 0.26, morph: 5, desc: 'Batu hitam kelam berpori dengan lumut air merambat di celah-celah lekukannya.' },
 
     // --- 5. Perforated Karst (Batu Karang Berpori & Suiseki) ---
-    { id: 'taihu_scholar', common: 'Batu Karang Taihu', binomen: 'Saxum taihuense foraminosum', archetype: 4, rx: 82, ry: 66, roughness: 0.44, desc: 'Batu karang air tawar berongga pusaran dengan lorong-lorong tembus cahaya.' },
-    { id: 'whirlpool_karst', common: 'Karang Pusaran Pusaka', binomen: 'Karstus vorticosus', archetype: 4, rx: 75, ry: 60, roughness: 0.40, desc: 'Batuan gamping terkikis pusaran air danau dengan rongga-rongga cekung anggun.' },
-    { id: 'porous_tuff', common: 'Tufa Vulkanik Berpori', binomen: 'Tophus spongiosus', archetype: 4, rx: 68, ry: 50, roughness: 0.36, desc: 'Batu apung danau berongga mikro tempat persembunyian fauna air kecil.' },
-    { id: 'pocket_boulder', common: 'Boulder Cekungan Sedimen', binomen: 'Saxum lacunae limosae', archetype: 4, rx: 88, ry: 56, roughness: 0.32, desc: 'Batu dengan cekungan mangkuk alami penampung butiran pasir dan kerikil halus.' },
+    { id: 'taihu_scholar', common: 'Batu Karang Taihu', binomen: 'Saxum taihuense foraminosum', archetype: 4, rx: 82, ry: 66, roughness: 0.44, morph: 4, desc: 'Batu karang air tawar berongga pusaran dengan lorong-lorong tembus cahaya.' },
+    { id: 'whirlpool_karst', common: 'Karang Pusaran Pusaka', binomen: 'Karstus vorticosus', archetype: 4, rx: 75, ry: 60, roughness: 0.40, morph: 2, desc: 'Batuan gamping terkikis pusaran air danau dengan rongga-rongga cekung anggun.' },
+    { id: 'porous_tuff', common: 'Tufa Vulkanik Berpori', binomen: 'Tophus spongiosus', archetype: 4, rx: 68, ry: 50, roughness: 0.36, morph: 6, desc: 'Batu apung danau berongga mikro tempat persembunyian fauna air kecil.' },
+    { id: 'pocket_boulder', common: 'Boulder Cekungan Sedimen', binomen: 'Saxum lacunae limosae', archetype: 4, rx: 88, ry: 56, roughness: 0.32, morph: 5, desc: 'Batu dengan cekungan mangkuk alami penampung butiran pasir dan kerikil halus.' },
 
     // --- 6. Pebble Shingle Clusters (Gugusan Kerikil Kali) ---
-    { id: 'zen_trinity', common: 'Triad Batu Zen Sanzon', binomen: 'Trias lapidum zenica', archetype: 5, rx: 110, ry: 55, roughness: 0.18, count: 3, desc: 'Komposisi tiga batu harmoni klasik (Tinggi, Sedang, Rendah) saling bersandar anggun.' },
-    { id: 'stream_gravel', common: 'Hamparan Kerikil Sungai', binomen: 'Glarea rivularis confluens', archetype: 5, rx: 130, ry: 60, roughness: 0.15, count: 6, desc: 'Gugusan 6 kerikil kali pipih dan bundar berjenjang yang tertata alami di dasar kolam.' },
-    { id: 'shingle_pile', common: 'Gugusan Kerikil Teluk', binomen: 'Cumulus calculorum sinus', archetype: 5, rx: 150, ry: 68, roughness: 0.20, count: 9, desc: 'Kelompok 9 kerikil aneka ukuran yang tersusun tumpang-tindih mengikuti gravitasi dasar.' },
-    { id: 'boulder_huddle', common: 'Rumpun Batu Dasar Danau', binomen: 'Congeries saxorum lacustris', archetype: 5, rx: 135, ry: 65, roughness: 0.28, count: 5, desc: 'Rumpun 5 batu bersudut dan membulat yang saling mengunci membentuk habitat alami.' }
+    { id: 'zen_trinity', common: 'Triad Batu Zen Sanzon', binomen: 'Trias lapidum zenica', archetype: 5, rx: 110, ry: 55, roughness: 0.18, count: 3, morph: 0, desc: 'Komposisi tiga batu harmoni klasik (Tinggi, Sedang, Rendah) saling bersandar anggun.' },
+    { id: 'stream_gravel', common: 'Hamparan Kerikil Sungai', binomen: 'Glarea rivularis confluens', archetype: 5, rx: 130, ry: 60, roughness: 0.15, count: 6, morph: 1, desc: 'Gugusan 6 kerikil kali pipih dan bundar berjenjang yang tertata alami di dasar kolam.' },
+    { id: 'shingle_pile', common: 'Gugusan Kerikil Teluk', binomen: 'Cumulus calculorum sinus', archetype: 5, rx: 150, ry: 68, roughness: 0.20, count: 9, morph: 3, desc: 'Kelompok 9 kerikil aneka ukuran yang tersusun tumpang-tindih mengikuti gravitasi dasar.' },
+    { id: 'boulder_huddle', common: 'Rumpun Batu Dasar Danau', binomen: 'Congeries saxorum lacustris', archetype: 5, rx: 135, ry: 65, roughness: 0.28, count: 5, morph: 6, desc: 'Rumpun 5 batu bersudut dan membulat yang saling mengunci membentuk habitat alami.' }
   ];
 
   function getPebbleById(id) {
@@ -147,6 +154,10 @@
       set_seed(this.seed);
 
       this.archetype = config.archetype !== undefined ? config.archetype : ARCHETYPES.SMOOTH;
+      this.morph = config.morph !== undefined && config.morph !== 'auto'
+        ? Number(config.morph)
+        : (config.morphPreset !== undefined ? config.morphPreset : choice([0, 1, 2, 3, 4, 5, 6]));
+
       this.scale = config.scale || 1.0;
       this.rx = (config.rx || rndtri(38, 55, 78)) * this.scale;
       this.ry = (config.ry || rndtri(24, 38, 56)) * this.scale;
@@ -171,8 +182,8 @@
       this.perimeterPts = [];
       const numPts = this.archetype === ARCHETYPES.CRAGGY ? Math.floor(rnd(12, 18)) : 72;
 
-      // Harmonic Fourier parameters
-      const numHarmonics = this.archetype === ARCHETYPES.SMOOTH ? 4 : 7;
+      // Harmonic Fourier parameters (up to 8 independent modes)
+      const numHarmonics = this.archetype === ARCHETYPES.SMOOTH ? 5 : 8;
       const harmonics = [];
       for (let k = 2; k <= numHarmonics; k++) {
         harmonics.push({
@@ -182,15 +193,53 @@
         });
       }
 
+      // Morphological parameters
+      const chipAngle = rnd(0, TWO_PI);
+      const chipWidth = rnd(0.28, 0.45);
+      const chipDepth = rnd(0.22, 0.36);
+      const eggSkew = rndtri(0.18, 0.26, 0.35);
+      const triPhase = rnd(0, TWO_PI);
+      const superP = rndtri(2.2, 2.6, 3.2);
+
       for (let i = 0; i < numPts; i++) {
         const theta = (i / numPts) * TWO_PI;
-        // Base ellipse radius
         const cosT = Math.cos(theta);
         const sinT = Math.sin(theta);
-        const denom = Math.hypot(this.ry * cosT, this.rx * sinT) || 1;
-        const baseR = (this.rx * this.ry) / denom;
 
-        // Harmonic perturbation
+        // 1. Base geometric shape radius
+        let baseR;
+        if (this.morph === MORPHS.SUPERELLIPSE) {
+          // Lamé superellipse (rounded rectangular blocky slab)
+          const absCos = Math.abs(cosT);
+          const absSin = Math.abs(sinT);
+          const denom = Math.pow(Math.pow(absCos / this.rx, superP) + Math.pow(absSin / this.ry, superP), 1 / superP) || 1;
+          baseR = 1 / denom;
+        } else {
+          // Standard ellipse
+          const denom = Math.hypot(this.ry * cosT, this.rx * sinT) || 1;
+          baseR = (this.rx * this.ry) / denom;
+        }
+
+        // 2. Morphological Profile Deformations
+        let morphFactor = 1.0;
+        if (this.morph === MORPHS.TEARDROP) {
+          // Asymmetric egg / teardrop: bulbous on one end, tapered on other
+          morphFactor *= (1.0 + eggSkew * cosT);
+        } else if (this.morph === MORPHS.TRIANGULAR) {
+          // 3-fold wedge prism
+          morphFactor *= (1.0 + 0.22 * Math.cos(3 * theta + triPhase));
+        } else if (this.morph === MORPHS.KIDNEY_BEAN) {
+          // Bean curve: convex upper, concave lower
+          morphFactor *= (1.0 - 0.20 * sinT - 0.12 * Math.cos(2 * theta));
+        } else if (this.morph === MORPHS.CHIPPED_SPALL) {
+          // Localized Gaussian impact flake spall scar
+          let dTh = Math.abs(theta - chipAngle);
+          if (dTh > PI) dTh = TWO_PI - dTh;
+          const chipIndent = chipDepth * Math.exp(-(dTh * dTh) / (2 * chipWidth * chipWidth));
+          morphFactor *= (1.0 - chipIndent);
+        }
+
+        // 3. Harmonic Fourier Perturbation
         let perturb = 1.0;
         for (const h of harmonics) {
           perturb += h.amp * Math.cos(h.k * theta + h.phase);
@@ -202,11 +251,22 @@
           perturb += hollow;
         }
 
-        const r = Math.max(8, baseR * perturb);
-        // Local coordinates rotated by this.angle
-        const lx = Math.cos(theta) * r;
-        const ly = Math.sin(theta) * r;
+        let r = Math.max(8, baseR * morphFactor * perturb);
 
+        // Local coordinates
+        let lx = Math.cos(theta) * r;
+        let ly = Math.sin(theta) * r;
+
+        // Flat-bottom resting plane morph
+        if (this.morph === MORPHS.FLAT_BOTTOM) {
+          const flatY = -this.ry * 0.70;
+          if (ly < flatY) {
+            ly = flatY + rndtri(-1.5, 0, 1.5);
+            r = Math.hypot(lx, ly);
+          }
+        }
+
+        // Rotate by tilt angle
         const rx = lx * this.tiltX - ly * this.tiltY;
         const ry = lx * this.tiltY + ly * this.tiltX;
 
@@ -251,7 +311,6 @@
         crackPts.push(curr);
 
         const steps = Math.floor(rnd(4, 9));
-        // Direct crack toward center with jitter
         for (let s = 0; s < steps; s++) {
           const toCenterX = -curr.x * 0.35;
           const toCenterY = -curr.y * 0.35;
@@ -261,13 +320,13 @@
           };
           crackPts.push(curr);
 
-          // Sub-branch
-          if (rand() < 0.35) {
-            const bEnd = {
-              x: curr.x + rndtri(-14, 0, 14),
-              y: curr.y + rndtri(-12, 0, 12)
-            };
-            this.fissures.push({ pts: [{ x: curr.x, y: curr.y }, bEnd], isSub: true });
+          // Sub-branch fracture
+          if (rand() < 0.35 && crackPts.length >= 2) {
+            const branchPts = [curr];
+            const bX = curr.x + rndtri(-15, 0, 15);
+            const bY = curr.y + rndtri(-12, 0, 12);
+            branchPts.push({ x: bX, y: bY });
+            this.fissures.push({ pts: branchPts, isSub: true });
           }
         }
         this.fissures.push({ pts: crackPts, isSub: false });
@@ -276,7 +335,7 @@
 
     initStrata() {
       this.strataLines = [];
-      if (this.archetype !== ARCHETYPES.STRATIFIED && this.archetype !== ARCHETYPES.CRAGGY) {
+      if (this.archetype !== ARCHETYPES.STRATIFIED) {
         return;
       }
 
@@ -292,7 +351,6 @@
           const u = (s / steps - 0.5) * 2;
           const lx = u * (spanW * 0.5);
           const ly = yOff + Math.sin(u * PI * 2 + b) * (this.ry * 0.08) + rndtri(-2, 0, 2);
-          // Rotate
           const rx = lx * this.tiltX - ly * this.tiltY;
           const ry = lx * this.tiltY + ly * this.tiltX;
           pts.push({ x: rx, y: ry });
@@ -309,9 +367,7 @@
 
       const numPatches = this.archetype === ARCHETYPES.MOSSY ? Math.floor(rnd(4, 9)) : Math.floor(rnd(2, 4));
       for (let m = 0; m < numPatches; m++) {
-        // Moss favors upper crown facing light
-        const t = rnd(0, PI);
-        const arc = rnd(PI * 0.65, PI * 1.35); // Upper half
+        const arc = rnd(PI * 0.65, PI * 1.35); // Upper sunlit crown
         const pIdx = Math.floor((arc / TWO_PI) * this.perimeterPts.length) % this.perimeterPts.length;
         const basePt = this.perimeterPts[pIdx];
 
@@ -319,7 +375,6 @@
         const cx = basePt.x * rndtri(0.75, 0.9, 1.05);
         const cy = basePt.y * rndtri(0.75, 0.9, 1.05);
 
-        // Stippled tufts around center
         const tufts = [];
         const numTufts = Math.floor(rnd(8, 16));
         for (let k = 0; k < numTufts; k++) {
@@ -338,26 +393,37 @@
       ctx.save();
       ctx.translate(this.x, this.y);
 
-      const strokeColor = options.strokeColor || '#18141f';
-      const lineWidth = options.lineWidth || 1.1;
       const theme = options.theme || 'washi';
+      const isMidnight = theme === 'midnight';
+      const strokeColor = options.strokeColor || (isMidnight ? '#f0f0f0' : '#111111');
+      const lineWidth = options.lineWidth || 1.1;
 
-      // Palette adjustments
-      const baseWash = theme === 'midnight'
-        ? (options.rockWash || 'rgba(42, 54, 68, 0.28)')
-        : (options.rockWash || 'rgba(32, 28, 36, 0.12)');
-      const shadowWash = theme === 'midnight'
-        ? 'rgba(18, 24, 32, 0.45)'
-        : 'rgba(16, 14, 20, 0.22)';
-      const highlightWash = theme === 'midnight'
-        ? 'rgba(255, 255, 255, 0.14)'
-        : 'rgba(255, 255, 255, 0.45)';
-      const mossWash = theme === 'midnight'
-        ? 'rgba(56, 142, 92, 0.32)'
-        : 'rgba(46, 102, 62, 0.22)';
-      const mossTuftColor = theme === 'midnight'
-        ? 'rgba(110, 196, 145, 0.65)'
-        : 'rgba(38, 86, 52, 0.65)';
+      // -----------------------------------------------------------------
+      // 100% STRICTLY MONOCHROME SUMI-E PALETTE (Grayscale, Black & White)
+      // -----------------------------------------------------------------
+      const baseWash = isMidnight
+        ? (options.rockWash || options.fillWash || 'rgba(255, 255, 255, 0.08)')
+        : (options.rockWash || options.fillWash || 'rgba(40, 40, 40, 0.09)');
+
+      const shadowWash = isMidnight
+        ? 'rgba(0, 0, 0, 0.60)'
+        : 'rgba(20, 20, 20, 0.22)';
+
+      const highlightWash = isMidnight
+        ? 'rgba(255, 255, 255, 0.16)'
+        : 'rgba(255, 255, 255, 0.55)';
+
+      const mossWash = isMidnight
+        ? (options.mossWash || 'rgba(255, 255, 255, 0.14)')
+        : (options.mossWash || 'rgba(25, 25, 25, 0.18)');
+
+      const mossTuftColor = isMidnight
+        ? 'rgba(240, 240, 240, 0.70)'
+        : 'rgba(15, 15, 15, 0.75)';
+
+      const dropShadowColor = isMidnight
+        ? 'rgba(0, 0, 0, 0.45)'
+        : 'rgba(0, 0, 0, 0.14)';
 
       const P = this.perimeterPts;
       if (P.length < 3) {
@@ -370,7 +436,7 @@
         ctx.save();
         ctx.beginPath();
         ctx.ellipse(0, this.ry * 0.55, this.rx * 0.95, this.ry * 0.35, 0, 0, TWO_PI);
-        ctx.fillStyle = theme === 'midnight' ? 'rgba(0, 0, 0, 0.35)' : 'rgba(20, 16, 24, 0.14)';
+        ctx.fillStyle = dropShadowColor;
         ctx.fill();
         ctx.restore();
       }
@@ -477,17 +543,17 @@
         ctx.restore();
       }
 
-      // 8. Soft Moss Patches & Velvet Stippling
+      // 8. Soft Moss Patches & Velvet Stippling (Sumi-e ink dotting)
       if (this.mossPatches.length > 0 && options.showMoss !== false) {
         ctx.save();
         for (const m of this.mossPatches) {
-          // Watercolor jade bleed
+          // Monochrome ink bleed
           ctx.beginPath();
           ctx.arc(m.cx, m.cy, m.r, 0, TWO_PI);
           ctx.fillStyle = mossWash;
           ctx.fill();
 
-          // Delicate stippled tufts
+          // Delicate stippled ink tufts
           ctx.fillStyle = mossTuftColor;
           for (const tf of m.tufts) {
             ctx.beginPath();
@@ -552,6 +618,7 @@
         // Single specimen stone
         this.pebbles.push(new PebbleSpecimen(0, 0, `${this.seed}_single`, {
           archetype: this.archetype,
+          morph: options.morph !== undefined ? options.morph : profile.morph,
           rx: (options.rx || profile.rx) * this.scale,
           ry: (options.ry || profile.ry) * this.scale,
           roughness: options.roughness !== undefined ? options.roughness : profile.roughness,
@@ -566,6 +633,7 @@
         // Primary anchor stone
         this.pebbles.push(new PebbleSpecimen(0, 0, `${this.seed}_main`, {
           archetype: this.archetype === ARCHETYPES.CLUSTER ? choice([0, 1, 2, 3]) : this.archetype,
+          morph: options.morph !== undefined && options.morph !== 'auto' ? options.morph : profile.morph,
           rx: mainRx,
           ry: mainRy,
           roughness: profile.roughness,
@@ -581,6 +649,7 @@
 
           this.pebbles.push(new PebbleSpecimen(offX, offY, `${this.seed}_sat_${i}`, {
             archetype: choice([0, 1, 2, 3]),
+            morph: options.morph !== undefined && options.morph !== 'auto' ? options.morph : choice([0, 1, 2, 3, 4, 5, 6]),
             rx: mainRx * satScale,
             ry: mainRy * satScale,
             roughness: rndtri(0.12, 0.24, 0.36),
@@ -588,7 +657,7 @@
           }));
         }
 
-        // Sort pebbles by Y (depth sorting so foreground stones overlap background)
+        // Sort pebbles by Y to ensure proper perspective layering
         this.pebbles.sort((a, b) => a.y - b.y);
       }
     }
@@ -596,11 +665,9 @@
     render(ctx, options = {}) {
       ctx.save();
       ctx.translate(this.x, this.y);
-
       for (let i = 0; i < this.pebbles.length; i++) {
         this.pebbles[i].render(ctx, options);
       }
-
       ctx.restore();
     }
   }
@@ -662,6 +729,7 @@
   return {
     set_seed,
     ARCHETYPES,
+    MORPHS,
     PEBBLE_CATALOG,
     catalog: PEBBLE_CATALOG,
     getPebbleById,
