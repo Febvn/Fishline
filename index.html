@@ -1729,6 +1729,8 @@
   <script src="fishdraw.js"></script>
   <script src="plantdraw.js"></script>
   <script src="pebbledraw.js"></script>
+
+  <script src="coraldraw.js"></script>
   <script src="fish_animator.js"></script>
   <script>
     (function () {
@@ -1891,6 +1893,7 @@
       let currentTheme = 'washi'; // 'washi' or 'midnight'
       let plantColony = null;
       let pebbleBed = null;
+      let coralReef = null;
 
       function resizeCanvas() {
         const dpr = window.devicePixelRatio || 1;
@@ -1903,6 +1906,9 @@
         }
         if (pebbleBed) {
           pebbleBed.resize(window.innerWidth, window.innerHeight);
+        }
+        if (coralReef) {
+          coralReef.resize(window.innerWidth, window.innerHeight);
         }
       }
       window.addEventListener('resize', resizeCanvas);
@@ -1928,6 +1934,14 @@
         height: window.innerHeight,
         clusterCount: Math.max(3, Math.floor(window.innerWidth / 320)),
         scatterCount: Math.max(6, Math.floor(window.innerWidth / 160))
+      });
+
+      // Procedural Aquatic Coral Reef Engine (coraldraw.js)
+      coralReef = coraldraw.createReef({
+        width: window.innerWidth,
+        height: window.innerHeight,
+        count: Math.max(3, Math.floor(window.innerWidth / 300)),
+        seed: 'FishlineLakeReef'
       });
 
 
@@ -2637,6 +2651,20 @@
             fillWash: currentTheme === 'midnight' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(40, 40, 40, 0.09)',
             mossWash: currentTheme === 'midnight' ? 'rgba(255, 255, 255, 0.14)' : 'rgba(25, 25, 25, 0.18)',
             dropShadow: true
+          });
+        }
+
+        // 2.45 Render Procedural Aquatic Coral Reefs (coraldraw.js)
+        if (coralReef) {
+          coralReef.update(dt, Math.sin(now * 0.0012) * 0.35);
+          coralReef.render(ctx, {
+            strokeColor: currentTheme === 'midnight' ? '#f0f0f0' : inkColor,
+            lineWidth: 1.15,
+            theme: currentTheme,
+            showVolumeRings: true,
+            showPolyps: true,
+            showPebbles: true,
+            showShadow: true
           });
         }
 
